@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Fassung | 0.13.1 (Client 0.13.1 und Server 0.13.1, die erste öffentliche Fassung, Quelltext unter der Apache-Lizenz 2.0; belegt ist das Handbuch am Code-Stand `95aa78b` der Fassung 0.5.0, was seitdem neu ist, steht in 1.9) |
+| Fassung | 0.13.2 (Client 0.13.2 und Server 0.13.2; 0.13.1 war die erste öffentliche Fassung, Quelltext unter der Apache-Lizenz 2.0; belegt ist das Handbuch am Code-Stand `95aa78b` der Fassung 0.5.0, was seitdem neu ist, steht in 1.9) |
 | Datum | 25.11.2026 |
 | Maintainer und Rechteinhaber | Sarevoc |
 | Lizenz des Programms | Apache-2.0 (1.10, F1) |
@@ -106,7 +106,7 @@ Punkte am Ende.
 
 ### Stand
 
-Der Stand für das ganze Handbuch steht in 1.9: Das Handbuch gehört zur Fassung 0.13.1, der ersten öffentlichen
+Der Stand für das ganze Handbuch steht in 1.9: Das Handbuch gehört zur Fassung 0.13.2; 0.13.1 war die erste öffentliche
 (25.11.2026). Belegt ist es am Code-Stand `95aa78b` der Fassung 0.5.0 (02.10.2026); was seitdem dazukam, steht in 1.9 in
 den Zeilen "Neu in ...". Mit 0.13.0 werden Server und Clients neu eingerichtet, ein Stand bis 0.12.0 wird nicht
 übernommen (1.9, "Neu in 0.13.0"). JG TacRelay ist noch nicht fertig: Ein Abend mit vielen Leuten und die Anzeigen über

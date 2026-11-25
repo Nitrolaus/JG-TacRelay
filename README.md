@@ -49,6 +49,10 @@ Etwa 40 Klangtests brauchen den Klangkorpus, Sprache der Windows-Sprachausgabe, 
 erzeugt `tests\Funk.Tests\Daten\klangkorpus\klangkorpus-erzeugen.ps1` mit den deutschen Stimmen Stefan, Katja und Hedda,
 einmal ohne Schalter und einmal mit `-Name klangkorpus-kurz`.
 
+Setup und Admin-Setup bringen die .NET Desktop Runtime 10 mit und installieren sie, wenn sie fehlt. Den Installer von
+Microsoft (`windowsdesktop-runtime-10.x.y-win-x64.exe`, von https://dotnet.microsoft.com/download/dotnet/10.0) legt
+`tools\setup-bauen.ps1` ins Setup; er liegt nicht im Repository und kommt mit dem Schalter `-Laufzeit <datei>`.
+
 Die Skripte unter `tools\` und `tests\` (Testlauf, Pakete, Setup mit Inno Setup) stammen aus der Arbeitsumgebung des
 Maintainers und erwarten an einigen Stellen den Ordner `C:\Claude`. Wer anderswo baut, passt diese Pfade an.
 

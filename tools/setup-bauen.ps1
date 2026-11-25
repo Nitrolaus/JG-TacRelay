@@ -34,6 +34,13 @@
     neu signieren oder mit -OhneProfil bewusst ein Setup ohne Serverprofil bauen. Ein solches Setup verbindet nur im Probefunk;
     am Ende steht das in der Zusammenfassung.
 
+    .NET Desktop Runtime (seit 0.13.2): Das Setup bettet den Installer von Microsoft ein und startet ihn nur, wenn die
+    Laufzeit auf dem Ziel-PC fehlt (installer\TacRelay.iss). Ohne -Laufzeit nimmt das Werkzeug die höchste Fassung
+    windowsdesktop-runtime-10.x.y-win-x64.exe aus C:\Claude\data\dotnet-laufzeit (dort mit HERKUNFT.txt). Es prüft vor dem
+    Übersetzen die Authenticode-Signatur (gültig, Microsoft Corporation) und danach mit innounp, dass der Installer genau
+    einmal unter {tmp} liegt, bytegleich, und nirgends unter {app}. Eine neuere Laufzeit: von Microsoft laden (Quelle und
+    SHA-512 in releases.json), in den Ordner legen, HERKUNFT.txt nachtragen.
+
     Das Werkzeug führt das Setup NIE aus, auch nicht still: Es wird nur gebaut, gelesen und von innounp entpackt.
     Aufgerufen werden nur dotnet (mit tools\dotnet-umgebung.ps1), ISCC.exe und innounp.exe mit absolutem Pfad
     (C:\Claude\Eigene_Programme\INSTALLIERT.md) und die eigenen Prüfwerkzeuge. Nichts wird aus dem Netz geladen.
@@ -52,7 +59,9 @@ param(
     # Admin-Setup mit dem Verwaltungsteil (A45); ohne den Schalter das normale Setup für alle.
     [switch]$Verwaltung,
     # Bewusst ohne Serverprofil bauen (nur Probefunk), etwa solange konfig\profil.json fehlt oder neu signiert werden muss.
-    [switch]$OhneProfil
+    [switch]$OhneProfil,
+    # Installer der .NET Desktop Runtime 10 von Microsoft; leer heißt die höchste Fassung in C:\Claude\data\dotnet-laufzeit.
+    [string]$Laufzeit = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -231,6 +240,25 @@ if ($fassung -notmatch '^\d+\.\d+\.\d+$') { throw "Directory.Build.props: <Versi
 $laufzeiten = & $dotnet --list-runtimes
 $desktop = @($laufzeiten | Where-Object { $_ -match '^Microsoft\.WindowsDesktop\.App 10\.' } | ForEach-Object { ($_ -split ' ')[0..1] -join ' ' })
 $laufzeitText = if ($desktop.Count -gt 0) { $desktop[-1] } else { 'auf dem Bau-PC nicht gefunden' }
+
+# Der eingebettete Installer der .NET Desktop Runtime: Fassung aus dem Namen, Signatur von Microsoft.
+$laufzeitMuster = '^windowsdesktop-runtime-(10\.\d+\.\d+)-win-x64\.exe$'
+if (-not $Laufzeit) {
+    $kandidaten = @(Get-ChildItem 'C:\Claude\data\dotnet-laufzeit' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -match $laufzeitMuster } |
+            Sort-Object { [version]([regex]::Match($_.Name, $laufzeitMuster).Groups[1].Value) })
+    if ($kandidaten.Count -eq 0) { throw 'Kein Installer der .NET Desktop Runtime 10 in C:\Claude\data\dotnet-laufzeit (windowsdesktop-runtime-10.x.y-win-x64.exe von Microsoft).' }
+    $Laufzeit = $kandidaten[-1].FullName
+}
+$Laufzeit = [IO.Path]::GetFullPath($Laufzeit)
+if (-not (Test-Path -LiteralPath $Laufzeit)) { throw "Laufzeit-Installer fehlt: $Laufzeit" }
+$laufzeitName = Split-Path -Leaf $Laufzeit
+if ($laufzeitName -notmatch $laufzeitMuster) { throw "Laufzeit-Installer heißt nicht windowsdesktop-runtime-10.x.y-win-x64.exe: $laufzeitName" }
+$laufzeitFassung = $Matches[1]
+$signatur = Get-AuthenticodeSignature -LiteralPath $Laufzeit
+if ($signatur.Status -ne 'Valid' -or $signatur.SignerCertificate.Subject -notmatch '(^|, )O=Microsoft Corporation(,|$)') {
+    throw "Laufzeit-Installer nicht gültig von Microsoft signiert: $($signatur.Status), $($signatur.SignerCertificate.Subject)"
+}
+$laufzeitSha = (Get-FileHash -LiteralPath $Laufzeit -Algorithm SHA256).Hash.ToLowerInvariant()
 
 $stempel = Get-Date -Format 'yyyyMMdd_HHmm'
 $art = if ($Verwaltung) { 'Admin-Setup' } else { 'Setup' }
@@ -442,7 +470,8 @@ else {
 
 # ---- ISCC ----
 Schritt 'Setup übersetzen (ISCC.exe)'
-$isccArgumente = @("/DQuelle=$quelle", "/DBilder=$bilder", "/DFassung=$fassung", "/DAusgabe=$arbeit", "/DAusgabeName=$name")
+$isccArgumente = @("/DQuelle=$quelle", "/DBilder=$bilder", "/DFassung=$fassung", "/DAusgabe=$arbeit", "/DAusgabeName=$name",
+    "/DLaufzeitInstaller=$Laufzeit", "/DLaufzeitFassung=$laufzeitFassung")
 if ($Verwaltung) { $isccArgumente += '/DVerwaltung=1' }
 & $iscc @isccArgumente (Join-Path $wurzel 'installer\TacRelay.iss') *> "$arbeit\iscc.log"
 if ($LASTEXITCODE -ne 0) { throw "ISCC.exe gescheitert (Exitcode $LASTEXITCODE):`n$((Get-Content "$arbeit\iscc.log" -Tail 25) -join "`n")" }
@@ -463,9 +492,14 @@ if ($LASTEXITCODE -ne 0) { throw "innounp -x: Exitcode $LASTEXITCODE, siehe $arb
 $gelistet = @(Get-Content "$arbeit\innounp-liste.txt" | ForEach-Object {
         if ($_ -match '^\s*\d+\s+\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s+(.+?)\s*$') { $Matches[1] }
     })
+# Einzige Ausnahme: der Installer der .NET-Laufzeit unter {tmp} (dontcopy, nur bei Bedarf entpackt), genau einmal.
+$laufzeitZiel = '{tmp}\' + $laufzeitName
 foreach ($z in $gelistet) {
-    if ($z -notmatch '^(\{app\}\\.+|install_script\.iss|embedded\\[^\\]+)$') { $pruefBefunde.Add("Ziel außerhalb von {app}: $z") }
+    if ($z -ne $laufzeitZiel -and $z -notmatch '^(\{app\}\\.+|install_script\.iss|embedded\\[^\\]+)$') { $pruefBefunde.Add("Ziel außerhalb von {app}: $z") }
 }
+$laufzeitGelistet = @($gelistet | Where-Object { $_ -eq $laufzeitZiel }).Count
+if ($laufzeitGelistet -ne 1) { $pruefBefunde.Add("Laufzeit-Installer $laufzeitZiel ist $laufzeitGelistet-mal gelistet, erwartet einmal") }
+if (@($gelistet | Where-Object { $_ -like '{app}\*' -and $_ -like '*windowsdesktop-runtime*' }).Count -gt 0) { $pruefBefunde.Add('Laufzeit-Installer liegt unter {app}') }
 $appGelistet = @($gelistet | Where-Object { $_ -like '{app}\*' } | ForEach-Object { $_.Substring(6) } | Sort-Object)
 $sollPfade = @($liste | ForEach-Object Pfad | Sort-Object)
 if (($appGelistet -join '|') -ne ($sollPfade -join '|')) {
@@ -481,8 +515,13 @@ $abweichend = @(Compare-Object $liste $ist -Property Pfad, Sha)
 foreach ($a in $abweichend) { $pruefBefunde.Add("$(if ($a.SideIndicator -eq '<=') { 'fehlt im Setup' } else { 'nicht im Soll' }): $($a.Pfad)") }
 foreach ($d in Get-ChildItem $entpackt -Recurse -File) {
     $rel = $d.FullName.Substring($entpackt.Length + 1)
+    if ($rel -eq $laufzeitZiel) {
+        if ((Get-FileHash -LiteralPath $d.FullName -Algorithm SHA256).Hash.ToLowerInvariant() -ne $laufzeitSha) { $pruefBefunde.Add("Laufzeit-Installer im Setup weicht vom Original ab: $rel") }
+        continue
+    }
     if ($rel -notmatch '^(\{app\}\\|install_script\.iss$|embedded\\)') { $pruefBefunde.Add("entpackt außerhalb von {app}: $rel") }
 }
+if (-not (Test-Path -LiteralPath (Join-Path $entpackt $laufzeitZiel))) { $pruefBefunde.Add("Laufzeit-Installer nicht entpackt: $laufzeitZiel") }
 
 # Das von innounp nachgebaute Skript: Kennung, Fassung, Rechte, kein [Registry], und der AppMutex, den das Programm hält
 # (Einzelinstanz.LaeuftMarke; dass er dort gleich heißt, prüft SetupTests).
@@ -540,7 +579,7 @@ Write-Host "SHA-256:   $hash (auch in $(Split-Path -Leaf $hashZiel))"
 Write-Host "Fassung:   $fassung (Directory.Build.props), TacRelay.exe $exeFassung"
 Write-Host "Quelle:    $zweig $commit$(if (-not $sauber) { ' (mit ungesicherten Änderungen)' })"
 Write-Host "Inhalt:    $($liste.Count) Dateien, $([math]::Round(($liste | Measure-Object Bytes -Sum).Sum / 1MB, 1)) MB unter {app}"
-Write-Host "Laufzeit:  auf dem Bau-PC $laufzeitText"
+Write-Host "Laufzeit:  auf dem Bau-PC $laufzeitText; im Setup $laufzeitName (signiert von Microsoft, SHA-256 $laufzeitSha), installiert nur, wenn sie fehlt"
 Write-Host "Symbol:    $symbolHinweis; in TacRelay.exe und Setup je $($sollBilder.Count) Bilder"
 Write-Host "Prüfung:   bestanden (innounp: Liste, Entpacken, SHA-256 je Datei, Skript, Fassung, Symbol)"
 if ($ArbeitsordnerBehalten) { Write-Host "Arbeit:    $arbeit (soll.txt, innounp-liste.txt, entpackt\)" }

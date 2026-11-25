@@ -40,6 +40,10 @@ Im Kanal Echo sprechen und dich selbst hören
   auf einen Platz ziehen, auf eine Person (Tausch), auf einen Spaltenkopf (bester freier Platz) oder nach links (zurück
   auf Standard). Hier kannst du das Ziehen gefahrlos ausprobieren, auch die Kacheln unter den Netzen rechts (Neu in 0.11.1).
 
+Neu in 0.13.2
+- Setup und Admin-Setup bringen die .NET Desktop Runtime 10 von Microsoft mit und installieren sie, wenn sie fehlt.
+  Dieses Paket bringt sie nicht mit; hier gilt weiter, was oben unter "Voraussetzung" steht.
+
 Neu in 0.13.1 (erste öffentliche Fassung)
 - Der Quelltext ist öffentlich, unter der Apache-Lizenz 2.0 (LICENSE und NOTICE im Repository).
 - Das Stoppschild mit der dreifingrigen Alien-Hand heißt jetzt Xeno. Bild und Wahl unter Einstellungen, Meldungen

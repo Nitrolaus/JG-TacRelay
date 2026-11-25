@@ -119,6 +119,37 @@ internal static partial class SetupTests
             "Desktop-Symbol ab Werk aus");
     }
 
+    /// <summary>
+    /// .NET Desktop Runtime (0.13.2, Sarevoc 25.11.2026): Das Setup bettet den Installer von Microsoft ein, nie nach {app}, und
+    /// startet ihn nur, wenn die Laufzeit fehlt, vor dem Kopieren und mit der Abfrage von Windows statt eigener Rechte. Ob es
+    /// geklappt hat, sagt der Blick in den Ordner; scheitert es, geht das Setup weiter und nennt die Seite von Microsoft. Aktuell
+    /// hält die Laufzeit Windows Update, das sagt der Abschlusstext. Das Bauwerkzeug prüft die Signatur von Microsoft.
+    /// </summary>
+    [Test]
+    public static void Setup_Iss_LaufzeitNurWennSieFehlt()
+    {
+        var skript = Lesen("installer", "TacRelay.iss");
+        var a = Abschnitte(skript);
+        Pruefe.Wahr(skript.Contains("#ifndef LaufzeitInstaller", StringComparison.Ordinal) && skript.Contains("#ifndef LaufzeitFassung", StringComparison.Ordinal),
+            "ohne Installer kein Bau");
+        Pruefe.Wahr(a["Files"].Contains("Source: \"{#LaufzeitInstaller}\"; DestDir: \"{tmp}\"; Flags: dontcopy"), "Installer nur eingebettet, nie nach {app}");
+        var code = string.Join("\n", a["Code"]);
+        Pruefe.Wahr(code.Contains("ExtractTemporaryFile('{#LaufzeitDatei}');", StringComparison.Ordinal), "erst bei Bedarf entpackt");
+        Pruefe.Wahr(code.Contains("ShellExec('', Installer, Schalter, '', SW_SHOW, ewWaitUntilTerminated, Code)", StringComparison.Ordinal),
+            "ShellExec, damit Windows nach Administratorrechten fragen kann");
+        Pruefe.Wahr(code.Contains("'/install /passive /norestart'", StringComparison.Ordinal) && code.Contains("'/install /quiet /norestart'", StringComparison.Ordinal),
+            "sichtbar mit Fortschritt, still nur im stillen Setup, nie ein Neustart");
+        Pruefe.Wahr(Muster(code, @"if \(Result = ''\) and not LaufzeitDa\(\) then\s+LaufzeitInstallieren\(\);"), "nur wenn sie fehlt, nach dem Entfernen der alten Installation");
+        Pruefe.Wahr(Muster(code, @"else if not LaufzeitDa\(\) then"), "Erfolg heißt: danach im Ordner");
+        Pruefe.Falsch(code.Contains("CustomMessage('LaufzeitFehlt')", StringComparison.Ordinal), "keine Frage mehr, ob ohne Laufzeit weiter");
+        Pruefe.Wahr(skript.Contains("Updates für andere Microsoft-Produkte erhalten", StringComparison.Ordinal), "Abschlusstext: Windows Update hält sie aktuell");
+        Pruefe.Gleich("lowest", Anweisung(a, "PrivilegesRequired"), "das Setup selbst bleibt ohne Administratorrechte");
+        var bauen = Lesen("tools", "setup-bauen.ps1");
+        Pruefe.Wahr(bauen.Contains("Get-AuthenticodeSignature -LiteralPath $Laufzeit", StringComparison.Ordinal) && bauen.Contains("O=Microsoft Corporation", StringComparison.Ordinal),
+            "Bauwerkzeug prüft die Signatur von Microsoft");
+        Pruefe.Wahr(bauen.Contains("\"/DLaufzeitInstaller=$Laufzeit\"", StringComparison.Ordinal), "Bauwerkzeug gibt den Installer an ISCC");
+    }
+
     [Test]
     public static void Setup_Iss_KeineRegistrySchreibzugriffe()
     {

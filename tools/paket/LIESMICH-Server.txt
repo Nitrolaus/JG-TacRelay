@@ -375,6 +375,9 @@ Neu in 0.12.0 (Meldesystem)
   an einem älteren Server bietet das Senden nicht an. Für den Haken in der Verwaltung brauchst du das Admin-Setup 0.12.0.
 - Die Zeiten des Countdowns sind Serverzeit, die Clients gleichen ihre Uhr laufend ab. Die Zeitsynchronisierung im Container
   bleibt Pflicht (linux\BETRIEB.md, "Update auf 0.12.0").
+Neu in 0.13.2
+- Am Server und im Protokoll ändert sich nichts. Setup und Admin-Setup bringen jetzt die .NET Desktop Runtime 10 von
+  Microsoft mit und installieren sie auf PCs, auf denen sie fehlt.
 Neu in 0.13.1 (erste öffentliche Fassung)
 - Am Server und im Protokoll ändert sich nichts; ein Server 0.13.0 funkt mit Clients 0.13.1 und umgekehrt. Ein Update ist
   nicht nötig. Neu sind die Lizenz (Apache-2.0, Quelltext öffentlich) und neutrale Beispiele in den Anleitungen.

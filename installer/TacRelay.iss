@@ -19,7 +19,15 @@
 ;     Niemand auf dem PC braucht es für alle; eine Frage weniger ist eine falsche Antwort weniger.
 ;   - Nichts am System: kein [Registry]-Abschnitt, kein Dienst, kein Autostart, keine Dateizuordnung. Die einzigen
 ;     Einträge in der Registry legt Inno selbst für "Apps" und das Deinstallieren an (HKCU, ...\Uninstall\<AppId>_is1).
-;     Der [Code] liest die Registry nur: diesen Eintrag (vorhandene Installation) und den Ort von .NET.
+;     Der [Code] liest die Registry nur: diesen Eintrag (vorhandene Installation) und den Ort von .NET. Einzige Ausnahme
+;     ist die .NET-Laufzeit von Microsoft, wenn sie fehlt (nächster Punkt).
+;   - .NET Desktop Runtime (seit 0.13.2, Sarevoc 25.11.2026): Das Setup bringt den Installer von Microsoft mit
+;     (/DLaufzeitInstaller, signiert, geprüft von tools\setup-bauen.ps1) und startet ihn nur, wenn die Laufzeit fehlt
+;     (LaufzeitDa), vor dem Kopieren der Dateien (PrepareToInstall). Er ist der einzige Teil, der Administratorrechte
+;     braucht; danach fragt Windows selbst (Benutzerkontensteuerung), das Setup bleibt bei lowest. Aktuell hält die
+;     Laufzeit danach Windows Update ("Updates für andere Microsoft-Produkte erhalten"), das sagt der Abschlusstext.
+;     Scheitert die Installation oder bricht jemand die Abfrage ab, installiert das Setup JG TacRelay trotzdem und nennt
+;     die Seite von Microsoft; ohne Laufzeit startet JG TacRelay erst, wenn sie da ist.
 ;   - Ein zweites Setup erkennt eine vorhandene Installation an der festen AppId und bietet Aktualisieren, Reparieren
 ;     oder Neu installieren an (Seite "JG TacRelay ist schon installiert", siehe [Code]).
 ;   - Die Einstellungen in %LOCALAPPDATA%\JG-TacRelay (auch die des Probefunks unter probe\) liegen außerhalb des
@@ -55,6 +63,14 @@
 #ifndef AusgabeName
   #error AusgabeName fehlt. Das Setup nur über tools\setup-bauen.ps1 bauen.
 #endif
+#ifndef LaufzeitInstaller
+  #error LaufzeitInstaller fehlt (Installer der .NET Desktop Runtime von Microsoft). Das Setup nur über tools\setup-bauen.ps1 bauen.
+#endif
+#ifndef LaufzeitFassung
+  #error LaufzeitFassung fehlt. Das Setup nur über tools\setup-bauen.ps1 bauen.
+#endif
+; Der Dateiname des Installers, so wie ExtractTemporaryFile ihn sucht.
+#define LaufzeitDatei ExtractFileName(LaufzeitInstaller)
 
 #define Name       "JG TacRelay"
 ; Der Ordner unter {autopf} und der Name, den das Setup beim Durchsuchen anhängt: ohne Leerzeichen.
@@ -171,7 +187,7 @@ CannotContinue=Das Setup kann nicht weitermachen. Klicke auf "Abbrechen", um es 
 PrepareToInstallNeedsRestart=Das Setup muss den PC neu starten. Starte das Setup danach noch einmal, um die Installation von [name] abzuschließen.%n%nJetzt neu starten?
 InstallingLabel=Einen Moment, [name] wird auf diesem PC installiert.
 FinishedLabelNoIcons=Das Setup hat [name] auf diesem PC installiert.
-FinishedLabel=JG TacRelay ist eingerichtet. Im Startmenü findest du "JG TacRelay" und "JG TacRelay Probefunk" (Testserver mit Echo-Funker auf diesem PC).%n%nJG TacRelay ist nicht signiert. Windows SmartScreen kann deshalb beim ersten Start warnen ("Der Computer wurde durch Windows geschützt"). Dann auf "Weitere Informationen" und "Trotzdem ausführen" klicken.
+FinishedLabel=JG TacRelay ist eingerichtet. Im Startmenü findest du "JG TacRelay" und "JG TacRelay Probefunk" (Testserver mit Echo-Funker auf diesem PC).%n%nJG TacRelay ist nicht signiert. Windows SmartScreen kann deshalb beim ersten Start warnen ("Der Computer wurde durch Windows geschützt"). Dann auf "Weitere Informationen" und "Trotzdem ausführen" klicken.%n%nDie .NET-Laufzeit von Microsoft, die JG TacRelay braucht, hält Windows Update aktuell, wenn unter Einstellungen, Windows Update, Erweiterte Optionen der Schalter "Updates für andere Microsoft-Produkte erhalten" an ist.
 ClickFinish=Klicke auf "Fertigstellen", um das Setup zu beenden.
 FinishedRestartLabel=Um die Installation von [name] abzuschließen, muss das Setup den PC neu starten. Jetzt neu starten?
 FinishedRestartMessage=Um die Installation von [name] abzuschließen, muss das Setup den PC neu starten.%n%nJetzt neu starten?
@@ -187,13 +203,13 @@ UninstalledAndNeedsRestart=Um die Deinstallation von %1 abzuschließen, muss der
 de.StartNachher=JG TacRelay jetzt starten
 de.DesktopSymbol=Symbol auf dem Desktop anlegen
 de.ProbefunkBeschreibung=Testserver mit Echo-Funker auf diesem PC, danach JG TacRelay
-de.LaufzeitFehlt=JG TacRelay braucht die .NET Desktop Runtime 10 (x64) von Microsoft. Auf diesem PC ist sie nicht zu finden.%n%nDu bekommst sie kostenlos bei Microsoft:%nhttps://dotnet.microsoft.com/download/dotnet/10.0%nDort unter ".NET Desktop Runtime" den Installer für Windows x64 nehmen.%n%nTrotzdem jetzt installieren? JG TacRelay startet dann erst, wenn die Runtime da ist.%n"Ja" installiert weiter, "Nein" bricht ab.
+de.LaufzeitGescheitert=Die .NET Desktop Runtime {#LaufzeitFassung} (x64) von Microsoft ließ sich nicht installieren (%1).%n%nJG TacRelay wird trotzdem installiert, startet aber erst, wenn die Runtime da ist. Du bekommst sie kostenlos bei Microsoft:%nhttps://dotnet.microsoft.com/download/dotnet/10.0%nDort unter ".NET Desktop Runtime" den Installer für Windows x64 nehmen.
 de.LaeuftNoch=JG TacRelay läuft noch aus diesem Ordner (%1).%n%nSchließe JG TacRelay; der Probefunk geht dann von selbst zu. Danach auf "Wiederholen" klicken.
 de.OrdnerGesperrt=In diesen Ordner kann das Setup ohne Administratorrechte nicht schreiben:%n%n%1%n%nNimm einen Ordner, in dem du schreiben darfst, etwa C:\Meine_Programme\JG-TacRelay oder den vorgeschlagenen.
 de.OrdnerDoppelt=Der Ordner endet zweimal auf "JG-TacRelay":%n%n%1%n%nSoll stattdessen hierhin installiert werden?%n%n%2
 de.OrdnerFremd=In diesem Ordner liegen schon Dateien, die nicht zu JG TacRelay gehören:%n%n%1%n%nTrotzdem dorthin installieren? Beim Deinstallieren bleiben sie liegen; entfernt wird nur, was das Setup angelegt hat.
 de.MemoEinstellungen=Deine Einstellungen unter AppData\Local\JG-TacRelay bleiben erhalten, auch beim Deinstallieren.
-de.MemoLaufzeitFehlt=Die .NET Desktop Runtime 10 (x64) fehlt noch; ohne sie startet JG TacRelay nicht.
+de.MemoLaufzeitFehlt=Dazu installiert das Setup die .NET Desktop Runtime {#LaufzeitFassung} (x64) von Microsoft, die JG TacRelay braucht. Windows fragt dafür einmal nach Administratorrechten; das Setup selbst braucht keine.
 de.FuerAlleGefunden=JG TacRelay ist auf diesem PC schon für alle Benutzer eingerichtet:%n%n%1%n%nDieses Setup richtet JG TacRelay ohne Administratorrechte nur für dich ein. Jene Installation kann es weder aktualisieren noch entfernen; das geht über Windows "Apps" mit Administratorrechten.%n%nTrotzdem für dich einrichten?
 de.VorhandenTitel=JG TacRelay ist schon installiert
 de.VorhandenFrage=Was soll das Setup tun?
@@ -236,6 +252,9 @@ Name: "desktopsymbol"; Description: "{cm:DesktopSymbol}"; GroupDescription: "{cm
 ; Datei neu, auch wenn ihre Dateiversion gleich ist (bei Zwischenständen derselben Fassung ändert sich der Inhalt, nicht
 ; die Nummer).
 Source: "{#Quelle}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Der Installer der .NET Desktop Runtime von Microsoft: nie nach {app}. dontcopy: Er kommt nur bei Bedarf in den
+; Temp-Ordner des Setups (ExtractTemporaryFile in LaufzeitInstallieren) und geht mit ihm wieder weg.
+Source: "{#LaufzeitInstaller}"; DestDir: "{tmp}"; Flags: dontcopy
 
 [Icons]
 Name: "{group}\{#Name}"; Filename: "{app}\{#ExeName}"; WorkingDir: "{app}"
@@ -489,10 +508,8 @@ begin
     if FuerAlle then
       Result := SuppressibleMsgBox(FmtMessage(CustomMessage('FuerAlleGefunden'), [Ordner]), mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES;
   end;
-  if not Result then
-    Exit;
-  if not LaufzeitDa() then
-    Result := SuppressibleMsgBox(CustomMessage('LaufzeitFehlt'), mbConfirmation, MB_YESNO, IDYES) = IDYES;
+  { Fehlt die .NET-Laufzeit, fragt das Setup seit 0.13.2 nicht mehr, sondern installiert sie mit (Bereit nennt es,
+    PrepareToInstall tut es). }
 end;
 
 { Hat JG TacRelay auf diesem PC schon Einstellungen oder Namen aus einem Setup? Dann fragt der Client selbst, und die Seite
@@ -845,11 +862,47 @@ begin
   end;
 end;
 
+{ Die .NET Desktop Runtime von Microsoft installieren, wenn sie fehlt. Der Installer liegt eingebettet im Setup
+  (dontcopy) und kommt erst hier in dessen Temp-Ordner. ShellExec statt Exec: So kann Windows nach Administratorrechten
+  fragen, auch wenn der Installer sie gleich beim Start verlangt; das Setup selbst läuft ohne. /passive zeigt nur den
+  Fortschritt von Microsoft, still installiert mit /quiet. 3010 heißt "fertig, Neustart empfohlen"; die Laufzeit ist dann
+  schon nutzbar.
+
+  Ob es geklappt hat, entscheidet nicht der Exitcode, sondern derselbe Blick in den Ordner wie vorher (LaufzeitDa).
+  Scheitert es, sagt das Setup warum und installiert JG TacRelay trotzdem: Ohne Laufzeit startet es nur nicht, und wer
+  die Abfrage abbricht, soll nicht ohne Programm dastehen. }
+procedure LaufzeitInstallieren();
+var
+  Installer, Schalter, Grund: String;
+  Code: Integer;
+begin
+  ExtractTemporaryFile('{#LaufzeitDatei}');
+  Installer := ExpandConstant('{tmp}\{#LaufzeitDatei}');
+  if WizardSilent() then
+    Schalter := '/install /quiet /norestart'
+  else
+    Schalter := '/install /passive /norestart';
+  Grund := '';
+  if not ShellExec('', Installer, Schalter, '', SW_SHOW, ewWaitUntilTerminated, Code) then
+    Grund := SysErrorMessage(Code)
+  else if not LaufzeitDa() then
+  begin
+    if (Code <> 0) and (Code <> 3010) then
+      Grund := 'Exitcode ' + IntToStr(Code)
+    else
+      Grund := 'danach auf diesem PC nicht zu finden';
+  end;
+  if Grund <> '' then
+    SuppressibleMsgBox(FmtMessage(CustomMessage('LaufzeitGescheitert'), [Grund]), mbError, MB_OK, IDOK);
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := '';
   if Wahl = WahlNeu then
     Result := AlteEntfernen();
+  if (Result = '') and not LaufzeitDa() then
+    LaufzeitInstallieren();
 end;
 
 function InitializeUninstall(): Boolean;

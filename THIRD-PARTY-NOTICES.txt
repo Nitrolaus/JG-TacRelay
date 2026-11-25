@@ -126,6 +126,14 @@ Setup (nur JG-TacRelay-Setup-<Fassung>.exe)
     Herkunft: https://github.com/jrsoftware/issrc, Release is-6_7_3, portabel unter C:\Claude\Eigene_Programme\innosetup.
     Text: lizenzen\innosetup\LICENSE.txt
 
+10a. Microsoft .NET Desktop Runtime 10 (x64), Installer von Microsoft (seit 0.13.2; heute windowsdesktop-runtime-10.0.15-win-x64.exe)
+    - eingebettet in Setup und Admin-Setup, nie im Programmordner. Das Setup startet ihn nur, wenn die Laufzeit auf dem PC
+    fehlt; er installiert sie für alle Benutzer nach "Programme\dotnet", Updates kommen danach über Windows Update.
+    Unverändert, mit der Signatur von Microsoft (tools\setup-bauen.ps1 prüft sie).
+    Lizenz: MIT (.NET Runtime und Windows Desktop von der .NET Foundation und Microsoft); der Installer bringt seine
+    Lizenzbedingungen selbst mit.
+    Herkunft: https://dotnet.microsoft.com/download/dotnet/10.0, Datei und SHA-512 aus der Release-Liste von Microsoft
+    (https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json).
 
 Verwaltungsteil (nur Admin-Setup, Ordner verwaltung)
 

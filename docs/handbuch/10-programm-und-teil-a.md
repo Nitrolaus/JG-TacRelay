@@ -344,6 +344,7 @@ Diese Tabelle ist der Stand für das ganze Handbuch; die anderen Teile verweisen
 | Neu in 0.12.0 (Stand 16.10.2026, Zweig `modul/meldesystem`) | Das **Meldesystem** (Sarevoc 11.10. und 16.10.2026): Die Leitung schickt Grafiken an alle, die online sind, über das neue Feld **Meldungen** auf der **Funkfeld-Zuteilung** (A12.8): Befehle (Sammeln, Sammelpunkt, Stopp, Rückzug, Start frei, Med. Hilfe, Los, Stopfen; 8 s groß, ein neuer ersetzt den alten), Zustände (Einsatz oder Event noch nicht gestartet, Position halten, Funkdisziplin, Pause; klein, bis aufgehoben), die Ampel rot, gelb, grün nur von Hand, einen Countdown als **Start um** oder **Restzeit** und die **Bereit-Abfrage** mit `n von m bereit` und wer fehlt; dazu Größe normal, doppelt, dreifach und eine Zeile bis 60 Zeichen. Dazu die **Textmeldung** (Sarevoc 16.10.2026 abends, M24): nur Text bis 120 Zeichen, ohne Grafik, in Weiß, Gelb, Orange, Rot, Grün oder Blau, 8 s oder bis aufgehoben, beim Funker unter dem Befehlsplatz in höchstens zwei Zeilen. Die Xeno-Hände im Stopp-Schild und in der Ampel haben seit der Korrektur v4 drei Finger (M25). Senden dürfen nur Führung, Admins und die Einsatzleitung mit laufendem Auftrag, die ein Admin auf der Mitgliederkarte mit dem Haken **darf Meldungen senden** ernannt hat (B). Beim Funker stehen die Meldungen über dem Spiel, ab Werk oben in der Mitte, mit kurzem Ton bei Befehlen und in den letzten 10 s des Countdowns; Lage, Grundgröße, Ausführung (Schlicht, Metall, Nur Schrift), Bild beim Stopp und Ton stellt jeder unter **Einstellungen**, **Meldungen** (A6.9). Bereit melden geht mit der neuen Taste **Bereit** oder dem Knopf **Bereit melden** in der Titelleiste (A4.6). Client und Server gemeinsam aktualisieren; ältere Clients funken mit einem Server 0.12.0 weiter, sehen aber keine Meldungen (B). |
 | Neu in 0.13.0 (Stand 19.10.2026, Zweig `umbau/tacrelay`) | Die erste Fassung als **JG TacRelay** (Sarevoc 18./19.10.2026); bis 0.12.0 hieß das Programm anders. Neu sind der Name in Programm, Setup, Paketen und Doku (Programmdatei `TacRelay.exe`, Datenordner `%LOCALAPPDATA%\JG-TacRelay`), die Farbstellung **Anthrazit** mit Grautönen und dem Akzent Petrol statt Weinrot, ohne Farbwahl unter **Einstellungen**; Grün für Senden, Gelb und Rot für Warnungen bleiben (A6.5). Dazu das neue Symbol, ein Kopfhörer im Sechseck in Petrol auf Anthrazit, und die Kanalvorlage **Star Citizen** mit zehn Kanälen mit Ch. und 14 Rollen statt der früheren Vorlagen (B14.2). Das **Spielprofil** steht unter **Einstellungen**, **Sprecheranzeige**, **Erweitert:**: ab Werk **Star Citizen**, sonst ein anderes Spiel über seine Programmdatei; Sprecheranzeige, Meldungen und Meldezeile suchen dann dessen Monitor. Alle Kennungen sind neu (ALPN `tacrelay/1`, Signatur- und HKDF-Präfixe, AppId, TPM-Schlüssel, Umzugspaket `.tru`), einen Übergang von 0.12.0 gibt es nicht: Server und Clients werden gemeinsam neu eingerichtet, Geräte neu freigegeben, Admin-Nachweis und Zweitfaktor (TOTP) neu eingerichtet und das Serverprofil neu signiert. Ein Server-Stand bis 0.12.0 wird nicht übernommen. |
 | Neu in 0.13.1 (Stand 25.11.2026) | Die erste öffentliche Fassung: Der Quelltext steht unter der Apache-Lizenz 2.0 auf GitHub, mit `LICENSE`, `NOTICE` und `README.md` (1.10, F1). Das Stoppschild mit der dreifingrigen Alien-Hand heißt jetzt **Xeno**; Bild und Wahl unter **Einstellungen**, **Meldungen** bleiben, wie sie waren (A6.9). Beispielnamen und Beispieladressen in Doku und Tests sind neutral, und Teil B hat den neuen Abschnitt B0.4 für Gruppen mit eigenem Server. Am Server und im Protokoll ändert sich nichts. |
+| Neu in 0.13.2 (Stand 25.11.2026) | Setup und Admin-Setup bringen die **.NET Desktop Runtime 10** von Microsoft mit (heute 10.0.15) und installieren sie, wenn sie auf dem PC fehlt; Windows fragt dafür einmal nach Administratorrechten, das Setup selbst braucht weiter keine. Aktuell hält die Runtime danach Windows Update (A1.2). Am Programm, am Server und im Protokoll ändert sich nichts; das Probefunk-Paket als ZIP bleibt ohne Runtime. |
 | Später | Ein Umzug auf einen gemieteten Server (Hetzner, OVH oder ein anderer Anbieter, Debian 13 oder Ubuntu 24.04) ist vorbereitet, erst nach Version 1 und nach einem Test mit ein paar Leuten (Anf. A55). Dafür braucht niemand ein neues Setup, nur mindestens Fassung 0.4.0 (Abschnitt A22, B20). |
 | Eigentum und Lizenz | Rechteinhaber ist Sarevoc (Anf. A41); seit 0.13.1 steht der Quelltext unter der Apache-Lizenz 2.0 (1.10). |
 
@@ -389,21 +390,25 @@ erkennst, dass ein Schritt geklappt hat.
 ### A1.1 Was du brauchst
 
 - einen PC mit Windows 10 oder 11, 64 Bit,
-- die **.NET Desktop Runtime 10 (x64)** von Microsoft. Das ist die Laufzeitumgebung, auf der JG TacRelay läuft. Fehlt
-  sie, sagt das Setup es dir und nennt die Seite `https://dotnet.microsoft.com/download/dotnet/10.0`; dort unter ".NET
-  Desktop Runtime" den Installer für Windows x64 nehmen,
+- die **.NET Desktop Runtime 10 (x64)** von Microsoft. Das ist die Laufzeitumgebung, auf der JG TacRelay läuft. Seit
+  0.13.2 bringt das Setup sie mit und installiert sie, wenn sie fehlt; sonst gibt es sie unter
+  `https://dotnet.microsoft.com/download/dotnet/10.0`, dort unter ".NET Desktop Runtime" den Installer für Windows x64,
 - ein Mikrofon und ein Headset, Kopfhörer oder Lautsprecher,
 - das Setup `<zeit>_JG-TacRelay-Setup-<fassung>.exe` von einem Admin,
 - deinen Namen in Star Citizen und deinen Namen auf dem Discord-Server deiner Gruppe.
 
-Administratorrechte brauchst du nicht. JG TacRelay installiert sich nur für dein Windows-Konto.
+Administratorrechte brauchst du für JG TacRelay nicht; es installiert sich nur für dein Windows-Konto. Nur wenn die .NET Desktop Runtime fehlt, fragt Windows einmal danach, denn die Runtime von Microsoft gilt für den ganzen PC.
 
 ### A1.2 Setup ausführen
 
 1. Doppelklick auf das Setup. JG TacRelay ist noch nicht signiert; Windows SmartScreen kann deshalb warnen ("Der
    Computer wurde durch Windows geschützt"). Dann auf **Weitere Informationen** und **Trotzdem ausführen** klicken.
-2. Fehlt die .NET Desktop Runtime 10, fragt das Setup, ob es trotzdem installieren soll. **Ja** installiert weiter;
-   JG TacRelay startet dann erst, wenn die Runtime da ist.
+2. Fehlt die .NET Desktop Runtime 10, sagt es die Seite **Bereit**, und beim **Installieren** startet das Setup zuerst
+   den Installer von Microsoft. Windows fragt dabei einmal nach Administratorrechten; das Fenster von Microsoft zeigt
+   nur den Fortschritt. Sagst du dort **Nein** oder scheitert es, installiert das Setup JG TacRelay trotzdem und nennt
+   die Seite von Microsoft; JG TacRelay startet dann erst, wenn die Runtime da ist. Ihre Sicherheitsupdates bringt danach
+   Windows Update, wenn unter **Einstellungen**, **Windows Update**, **Erweiterte Optionen** der Schalter **Updates für
+   andere Microsoft-Produkte erhalten** an ist.
 3. Der Ordner: Vorgeschlagen ist `%LOCALAPPDATA%\Programs\JG-TacRelay` (in deinem Benutzerordner unter
    `AppData\Local\Programs`). Du kannst einen anderen wählen, in den du ohne Administratorrechte schreiben darfst.
 4. Die Seite **Deine Namen** (nächster Abschnitt).
