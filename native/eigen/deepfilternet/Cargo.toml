@@ -1,0 +1,30 @@
+[package]
+name = "deepfilternet"
+version = "1.0.0"
+edition = "2021"
+publish = false
+description = "Eigene C-Schicht ueber libDF (DeepFilterNet 0.5.6) mit einkompiliertem DeepFilterNet3-Modell, fuer JG TacRelay"
+
+[lib]
+name = "deepfilternet"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+# Der Bau (native\skripte\deepfilternet.ps1) entpackt das Quellarchiv v0.5.6 nach ..\quelle; libDF liest das Modell
+# ueber include_bytes aus ..\quelle\models\DeepFilterNet3_onnx.tar.gz. Ohne vorbis/flac (nur Dateiformate).
+[dependencies]
+deep_filter = { path = "../quelle/libDF", default-features = false, features = ["tract", "default-model"] }
+ndarray = "0.15"
+
+# Eigene Wurzel: nicht Teil des Upstream-Workspace (pyDF, ladspa, demo bleiben aussen vor).
+[workspace]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+# unwind, damit catch_unwind jede Panik vor der C-Grenze faengt (abort beendete den ganzen Prozess)
+panic = "unwind"
+debug = false
+strip = "symbols"
+incremental = false

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Maintainer: Sarevoc. Selbst gezeichnet (Entwurf 3 vom 19.10.2026), keine fremde Vorlage, kein Gildenbezug. Quelle des Programmsymbols, gerechnet von tools\symbol-zeichnen.ps1. -->
+  <!-- 16 Bildpunkte (4 Einheiten je Bildpunkt): ohne Mikrofonarm; Seiten des Sechsecks, Bügel und Hörmuscheln auf ganzen Bildpunkten. -->
+  <path d="M32 2 L58 17 L58 47 L32 62 L6 47 L6 17Z" fill="#1F2326" stroke="#2F8A8C" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M18 37 V30 A14 14 0 0 1 46 30 V37" fill="none" stroke="#E9EDF0" stroke-width="4"/>
+  <rect x="16" y="32" width="8" height="12" rx="2" fill="#4FB3B4"/>
+  <rect x="40" y="32" width="8" height="12" rx="2" fill="#4FB3B4"/>
+</svg>

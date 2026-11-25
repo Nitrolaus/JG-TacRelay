@@ -1,0 +1,204 @@
+THIRD-PARTY-NOTICES - JG TacRelay
+
+Stand 25.11.2026. Alle Fremdbestandteile, die mit JG TacRelay ausgeliefert werden, mit Lizenz, Herkunft und dem Ort des
+Lizenztexts im Paket (Ordner lizenzen). tools\paket-bauen.ps1 und tools\setup-bauen.ps1 prüfen beim Bauen, dass jede
+ausgelieferte DLL hier steht; was fehlt, melden sie als ungeklärt.
+
+Im Setup (JG-TacRelay-Setup-<Fassung>.exe) liegt der Inhalt des Ordners client direkt im Programmordner, der Testserver
+für den Probefunk unter probefunk, die Lizenztexte unter lizenzen. Einen Ordner linux gibt es dort nicht.
+
+Eigener Code (Funk.*, TacRelay, funk-server, funk-admin, funk-echo, funk-testserver, funk-testclient), außer den
+Übertragungen unter Nr. 11 und Nr. 12: Maintainer: Sarevoc, alle Rechte bei Sarevoc. Lizenz: Apache License 2.0
+(LICENSE im Wurzelordner, dazu NOTICE). Kein
+Code aus fremden Funkprogrammen wie SRS oder Mumble. Jede eigene Quelldatei trägt oben die Zeile
+"JG TacRelay - Maintainer: Sarevoc"; die beiden Übertragungen (src\Funk.Verwaltung\QrCode.cs und
+src\Funk.Klang\Verarbeitung\WeichesClipping.cs) tragen stattdessen den Vermerk ihrer Rechteinhaber.
+
+Eigene Designbibliothek Glasdesign 0.5.0-beta.13 - Glasdesign.dll: Maintainer: Sarevoc, eigenes Projekt (Zweig
+farbstellung/anthrazit, Commit 0fd0663, auf Tag v0.5.0-beta.13 mit den Farbstellungen Anthrazit und Weinrot, kopiert ist davon
+nur Anthrazit), keine fremden Bestandteile, keine eingebetteten Schriften oder Bilder; Lizenz wie oben noch nicht entschieden. Feste Kopie unter
+extern\Glasdesign, Herkunft und SHA-256 jeder Datei in extern\Glasdesign\HERKUNFT.md.
+
+Eigene Grafik: das Platzhalter-Gildenlogo "Hier könnte dein Logo sein" auf der Startseite (in TacRelay.dll). Eigenbau vom
+19.10.2026: Kreis, Ringe und Buchstaben aus Linien und Bögen selbst gezeichnet, ohne fremde Vorlage, ohne Schriftdatei und
+ohne Gildenbezug, Anthrazit #1F2326 mit Petrol #2F8A8C und Petrol hell #4FB3B4. Quelle ist die Vorlage
+grafik\gildenlogo\gildenlogo-platzhalter.svg, daraus 512 x 512 PNG mit ImageMagick und librsvg (Befehl in der Vorlage),
+SHA-256 810a2069...bea6. Es ersetzt den Platzhalter bis 0.12.0.
+
+Eigene Grafik: die Meldungsbilder des Meldesystems (seit 0.12.0, 40 Bilder in TacRelay.dll): Befehle, Zustände, Ampel,
+Countdown und Bereit-Abfrage in den Ausführungen Schlicht, Metall und Nur Schrift. Von Sarevoc selbst mit ChatGPT
+erstellt (Grafiksatz v3 und neue Symbole v1, dazu die Korrektur v4 vom 16.10.2026: Xeno-Hände mit drei Fingern in
+stopp_xeno und den drei Ampelbildern, je Metall und Schlicht, ersetzt die gleichnamigen Bilder aus v3); OpenAI überträgt die
+Rechte an der Ausgabe an den Nutzer. Das Xeno-Motiv (Stopp mit einer dreifingrigen Alien-Hand) ist ein eigenes Motiv.
+Die Originale (1254 x 1254, 1536 x 1024 und 1024 x 1536) liegen nicht im Repository; daraus mit ImageMagick höchstens 600 px.
+
+
+Client für Windows (Ordner client)
+
+1. libopus 1.6.1 - opus.dll
+   Lizenz: BSD-3-Clause, dazu lizenzfreie Patentlizenzen von Xiph.Org (IETF IPR 1524), Microsoft (IPR 1914) und
+   Broadcom (IPR 1526), laut COPYING.
+   Herkunft: https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz, SHA-256 6ffcb593...411a1, unverändert, eigener
+   Bau (native\BAUBERICHT.md).
+   Text: lizenzen\native\opus\COPYING, AUTHORS, HERKUNFT.txt
+   UNGEKLÄRT: Die einkompilierten DNN-Gewichte (Deep PLC, FARGAN, PitchDNN, LACE, NoLACE, BBWENet) tragen keinen eigenen
+   Lizenzkopf. Sie liegen im Release-Tarball, für den COPYING gilt; eine ausdrückliche Aussage zu den Gewichten fehlt.
+
+2. RNNoise (Xiph.Org, Stand des Zweigs main) - rnnoise.dll
+   Lizenz: BSD-3-Clause, auch für kiss_fft (Mark Borgerding) und die x86-Dateien (Cisco, Mozilla, Amazon).
+   Herkunft: https://gitlab.xiph.org/xiph/rnnoise, Archiv-SHA-256 in HERKUNFT.txt.
+   Text: lizenzen\native\rnnoise\COPYING, AUTHORS, HERKUNFT.txt, datasets.txt
+   UNGEKLÄRT: Die Modellgewichte (Standardmodell, rnnoise_data 0a8755f8...8b37) kommen ohne eigene Lizenzdatei. Sie werden
+   vom Projekt zusammen mit dem Quellcode verteilt und laut README mit öffentlichen Datensätzen trainiert (datasets.txt);
+   eine ausdrückliche Lizenz für die Gewichte liegt nicht vor.
+
+3. SpeexDSP 1.2.1, nur der Resampler - speexdsp_resampler.dll
+   Lizenz: BSD-3-Clause (Xiph.Org); resample.c hat zusätzlich einen eigenen BSD-Kopf.
+   Herkunft: https://downloads.xiph.org/releases/speex/speexdsp-1.2.1.tar.gz, unverändert.
+   Text: lizenzen\native\speexdsp\COPYING, AUTHORS, HERKUNFT.txt, resample.c-Lizenzkopf.txt
+
+4. webrtc-audio-processing 2.1 (freedesktop.org) - webrtc_apm.dll mit eigener dünner C-Schicht
+   Lizenz: BSD-3-Clause (Google), dazu die Patentzusage in PATENTS.
+   Darin enthalten:
+   - abseil-cpp 20240722.0: Apache-2.0
+   - pffft (Julien Pommier): FFTPACK-Lizenz, BSD-artig
+   - Ooura FFT (Takuya Ooura): frei mit Quellenhinweis
+   - fft (Mark Olesen): frei mit Hinweis
+   - spl_sqrt_floor (Wilco Dijkstra): frei laut beigelegter Mail
+   - rnnoise-Teile in webrtc: BSD-3-Clause
+   Text: lizenzen\native\webrtc-apm\ (UEBERSICHT.txt nennt Herkunft und SHA-256 jeder Datei)
+
+4a. DeepFilterNet 0.5.6 (Hendrik Schröter) mit dem Modell DeepFilterNet3 - deepfilternet.dll mit eigener dünner C-Schicht
+    (Rauschfilter "Stark", seit 0.6.0)
+    Lizenz: MIT oder Apache-2.0 nach Wahl (LICENSE, LICENSE-MIT, LICENSE-APACHE des Projekts).
+    Herkunft: https://github.com/Rikorose/DeepFilterNet, Tag v0.5.6, Archiv-SHA-256 0f9a219d...c2f579, unverändert, eigener Bau
+    mit Rust (native\BAUBERICHT.md).
+    Modellgewichte (einkompiliert): models/DeepFilterNet3_onnx.tar.gz aus demselben Archiv, SHA-256 c94d91f7...3616. Sie liegen
+    im Repository des Projekts und stehen unter dessen Lizenzdateien; eine eigene Lizenz nur für die Gewichte gibt es nicht, der
+    Lizenzsatz im README spricht von "All code in this repository". libDF selbst (MIT/Apache-2.0) kompiliert genau diese Datei ab
+    Werk ein (Feature default-model), der Autor gibt die Gewichte also mit seiner Crate weiter.
+    Darin enthalten: 79 Rust-Crates (unter anderem tract 0.19.16 für das neuronale Netz, ndarray, rustfft, realfft, flate2, tar),
+    alle unter MIT oder Apache-2.0, manche zusätzlich wahlweise Unlicense, Zlib oder 0BSD; prost nur Apache-2.0. Liste mit Version
+    und Lizenz in CRATES.txt; realfft bringt keine Lizenzdatei mit, dort steht der MIT-Text mit den Autoren aus Cargo.toml.
+    Dazu die statisch gelinkte Rust-Standardbibliothek (Rust 1.97.1): MIT oder Apache-2.0, einzelne Teile weitere freizügige
+    Lizenzen, alle Texte in rust-std\COPYRIGHT-library.html.
+    Text: lizenzen\native\deepfilternet\ (HERKUNFT.txt, CRATES.txt, DeepFilterNet-LICENSE*.txt, crates\<name>-<version>\,
+    rust-std\COPYRIGHT-library.html)
+
+5. NAudio.Core 3.1.0 und NAudio.Wasapi 3.1.0 - NAudio.Core.dll, NAudio.Wasapi.dll
+   Lizenz: MIT, Copyright Mark Heath (laut nuspec).
+   Herkunft: nuget.org, Zonen-Cache C:\Claude\tools\nuget-packages.
+   Text: lizenzen\nuget\naudio.core\LICENSE.txt und lizenzen\nuget\naudio.wasapi\LICENSE.txt. Die Pakete selbst enthalten
+   keinen Lizenztext; die Dateien sind der Standardtext der MIT-Lizenz mit dem Copyright aus der jeweiligen nuspec.
+
+6. System.Numerics.Tensors 9.0.0 (Abhängigkeit von NAudio.Core) - System.Numerics.Tensors.dll
+   Lizenz: MIT, Microsoft Corporation.
+   Text: lizenzen\nuget\system.numerics.tensors\LICENSE.TXT, THIRD-PARTY-NOTICES.TXT
+
+7. CommunityToolkit.Mvvm 8.4.2 - CommunityToolkit.Mvvm.dll
+   Lizenz: MIT, .NET Foundation and Contributors.
+   Text: lizenzen\nuget\communitytoolkit.mvvm\License.md, ThirdPartyNotices.txt
+
+8. gong-wpf-dragdrop 4.0.0 - GongSolutions.WPF.DragDrop.dll
+   Lizenz: BSD-3-Clause, Jan Karger, Steven Kirk and Contributors.
+   Text: lizenzen\nuget\gong-wpf-dragdrop\LICENSE
+
+9. .NET-Programmstarter (apphost) - TacRelay.exe, funk-testserver.exe, funk-testclient.exe
+   Lizenz: MIT, .NET Foundation and Contributors.
+   Text: lizenzen\dotnet\LICENSE.txt
+   Die .NET-Laufzeit selbst liegt nicht im Paket; alle Programme sind framework-abhängig und nutzen die installierte
+   Laufzeit von Microsoft.
+
+
+Testwerkzeuge für Windows (Ordner server, im Setup probefunk) und Server für Linux (Ordner linux)
+
+Nur eigener Code und der .NET-Programmstarter (Nr. 9). Die Linux-Programme sind portable DLLs ohne Programmstarter und
+laufen mit "dotnet <name>.dll" auf der installierten .NET-Laufzeit.
+
+
+Setup (nur JG-TacRelay-Setup-<Fassung>.exe)
+
+10. Inno Setup 6.7.3 (Jordan Russell, Martijn Laan) - das Setup selbst und das Deinstallationsprogramm unins000.exe,
+    das es im Programmordner anlegt, samt der deutschen Texte (Languages\German.isl, unverändert; die Texte in der
+    Sie-Form, die im Setup erscheinen, ersetzt installer\TacRelay.iss durch eigene per du) und der eingebauten
+    Bedienelemente des Assistenten.
+    Lizenz: Inno Setup License (freie Nutzung und Weitergabe, Hinweis auf den Ursprung).
+    Herkunft: https://github.com/jrsoftware/issrc, Release is-6_7_3, portabel unter C:\Claude\Eigene_Programme\innosetup.
+    Text: lizenzen\innosetup\LICENSE.txt
+
+
+Verwaltungsteil (nur Admin-Setup, Ordner verwaltung)
+
+11. QR Code generator library (Project Nayuki) - übertragen nach C# in Funk.Verwaltung.dll (src\Funk.Verwaltung\QrCode.cs),
+    für den QR-Code beim Einrichten des Zweitfaktors. Keine eigene DLL: Aufbau, Formeln und Schleifen stammen aus der
+    Bibliothek, Bezeichner, Byte-Modus als einziger Modus und die Strafpunktzählung sind angepasst.
+    Lizenz: MIT.
+    Herkunft: https://www.nayuki.io/page/qr-code-generator-library
+    Text:
+
+    Copyright (c) Project Nayuki. (MIT License)
+    https://www.nayuki.io/page/qr-code-generator-library
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+    persons to whom the Software is furnished to do so, subject to the following conditions:
+    - The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+      the Software.
+    - The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to
+      the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the
+      authors or copyright holders be liable for any claim, damages or other liability, whether in an action of
+      contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings
+      in the Software.
+
+
+Übertragung im Client (Funk.Klang.dll, Ordner client, im Setup im Programmordner)
+
+12. opus_pcm_soft_clip aus libopus 1.6.1 (src/opus.c, Funktion opus_pcm_soft_clip_impl) - übertragen nach C# in
+    Funk.Klang.dll (src\Funk.Klang\Verarbeitung\WeichesClipping.cs), das weiche Clipping am Ende des Mischers. Keine eigene
+    DLL: Ablauf, Sonderfall vor dem ersten Nulldurchgang, Rampe und Konstante stammen aus der Funktion; Bezeichner, nur ein
+    Kanal je Aufruf und ein abschließender Schutz auf [-1, 1] sind angepasst. Die Bibliothek selbst ist Nr. 1.
+    Lizenz: BSD, Text aus dem Kopf von src/opus.c (unten); für libopus als Ganzes gilt COPYING (BSD-3-Clause,
+    lizenzen\native\opus\COPYING).
+    Herkunft: https://downloads.xiph.org/releases/opus/opus-1.6.1.tar.gz (wie Nr. 1)
+    Text:
+
+    Copyright (c) 2011 Xiph.Org Foundation, Skype Limited
+    Copyright (c) 2024 Arm Limited
+    Written by Jean-Marc Valin and Koen Vos
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+    - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+    OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Schriften, Grafiken, Klänge
+
+Nur Systemschriften, eigene Vektorsymbole und ein zur Laufzeit erzeugter Funk-Klick. Keine fremden Grafiken, Schriften
+oder Klänge. Kein Logo einer Gruppe oder Gilde ist enthalten.
+
+Das Programmsymbol (src\Funk.Client\TacRelay.ico: Kopfhörer mit Mikrofon in einem Sechseck, Petrol #2F8A8C und
+Petrol hell #4FB3B4 auf Anthrazit #1F2326, Bügel weiß) und die Bilder des Setup-Assistenten sind Eigenbau vom
+19.10.2026 (Entwurf 3): selbst gezeichnet, ohne fremde Vorlage, ohne fremden Symbolsatz und ohne Gildenbezug. Quelle sind
+die SVG-Vorlagen in grafik\symbol\ (symbol.svg ab 32 Bildpunkten, symbol-klein.svg für 20 und 24, symbol-16.svg für 16)
+und der Rechenweg tools\symbol-zeichnen.ps1 (ImageMagick mit librsvg als Werkzeug beim Rechnen, nicht im Programm;
+GDI+ aus .NET für die Datei); das Setup nimmt nicht die Bilder von Inno Setup, sondern diese.

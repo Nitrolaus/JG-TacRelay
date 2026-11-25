@@ -1,0 +1,172 @@
+using System.Net;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Funk.ClientKern;
+using Funk.Protokoll.Steuerung;
+using Funk.Verwaltung;
+using I = Funk.Protokoll.Identitaet;
+
+namespace Funk.Tests;
+
+/// <summary>
+/// Erzeugt ein Zustandsverzeichnis im Format von JG TacRelay 0.4.0 mit den Programmteilen von 0.4.0 selbst (Stand d45e33f,
+/// Worktree modul/s2 vor jeder Änderung), für tests\Funk.Tests\Daten\zustand-0.4.0 in 0.5.0. Läuft nur mit FUNK_ERZEUGE_ZIEL.
+/// Ohne TLS, prozessintern, ohne Fenster. Alles sind Testwerte.
+/// </summary>
+internal static class Erzeuge040
+{
+    private static IPAddress Lokal(int n) => IPAddress.Parse("127.0.4." + n.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+    private static async Task<Antwort> Gedrosselt(Func<Task<Antwort>> anfrage)
+    {
+        for (var i = 0; ; i++)
+        {
+            var a = await anfrage();
+            if (a.Code != Fehlercode.Grenze || i == 12) return a;
+            await Task.Delay(3000);
+        }
+    }
+
+    private static async Task<Antwort> Ok(Func<Task<Antwort>> anfrage, string was)
+    {
+        var a = await Gedrosselt(anfrage);
+        Pruefe.Wahr(a.Ok, was + ": " + a.Fehler);
+        return a;
+    }
+
+    private static JsonNode Objekt(string json) => JsonNode.Parse(json)!;
+
+    private static async Task<bool> Warten(Func<bool> bedingung, int ms = 10_000)
+    {
+        var bis = DateTime.UtcNow.AddMilliseconds(ms);
+        while (!bedingung())
+        {
+            if (DateTime.UtcNow > bis) return false;
+            await Task.Delay(20);
+        }
+        return true;
+    }
+
+    [Test]
+    public static async Task Erzeuge040_Zustand()
+    {
+        var ziel = Environment.GetEnvironmentVariable("FUNK_ERZEUGE_ZIEL");
+        if (string.IsNullOrEmpty(ziel)) return;
+        if (Directory.Exists(ziel)) throw new PruefungException("Ziel existiert schon: " + ziel);
+        var uhr = new Testuhr();
+        var t = await Testserver.StartenAsync(verzeichnis: ziel, zeit: uhr);
+        var halter = new ServerHalter { Server = t };
+
+        // Flotte an der Konsole wie 0.4.0 sie kennt: Schiff 3 (Art SCHIFF, Typ, Mindestbesetzung) und Trupp Alpha (Art TRUPP).
+        await t.AdminOk("schiff-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":3,"name":"Schiff 3","reihenfolge":3,"netze":{},"plaetze":[],"art":"SCHIFF","typ":"Hammerhead"}""") });
+        await t.AdminOk("schiff-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":20,"name":"Trupp Alpha","reihenfolge":20,"netze":{},"plaetze":[],"art":"TRUPP","typ":"Infanterie"}""") });
+        await t.AdminOk("netz-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":2,"name":"Kommando","typ":"NORMAL","reihenfolge":1,"nurTaste":false,"ausloeserStandard":"TASTE","offen":"HOEREN_SENDEN","standard":true}""") });
+        await t.AdminOk("netz-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":7,"name":"Crew 3","typ":"NORMAL","reihenfolge":2,"nurTaste":false,"ausloeserStandard":"VA","offen":"NEIN","standard":false,"schiffId":3,"schiffsnetz":"CREW"}""") });
+        await t.AdminOk("netz-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":8,"name":"Brücke 3","typ":"NORMAL","reihenfolge":3,"nurTaste":true,"ausloeserStandard":"TASTE","offen":"NEIN","standard":false,"schiffId":3,"schiffsnetz":"BRUECKE"}""") });
+        await t.AdminOk("netz-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":50,"name":"Trupp Alpha","typ":"NORMAL","reihenfolge":5,"nurTaste":false,"ausloeserStandard":"TASTE","offen":"NEIN","standard":false,"schiffId":20,"schiffsnetz":"TRUPP"}""") });
+        await t.AdminOk("netz-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":90,"name":"Echo","typ":"NORMAL","reihenfolge":9,"nurTaste":false,"ausloeserStandard":"VA","offen":"HOEREN_SENDEN","standard":false}""") });
+        await t.AdminOk("rolle-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":10,"name":"Kapitän","reihenfolge":12,"selbstWaehlbar":true,"brauchtSchiff":true,"felder":[{"feld":0,"netzId":2,"senden":true,"hoeren":true,"sendenStandard":true,"fest":false},{"feld":1,"schiffsnetz":"CREW","senden":true,"hoeren":true,"sendenStandard":false,"fest":false},{"feld":2,"schiffsnetz":"BRUECKE","senden":true,"hoeren":true,"sendenStandard":false,"fest":false}]}""") });
+        await t.AdminOk("rolle-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":11,"name":"Pilot","reihenfolge":13,"selbstWaehlbar":true,"brauchtSchiff":true,"felder":[{"feld":0,"schiffsnetz":"BRUECKE","senden":true,"hoeren":true,"sendenStandard":true,"fest":false},{"feld":1,"schiffsnetz":"CREW","senden":false,"hoeren":true,"sendenStandard":false,"fest":false}]}""") });
+        await t.AdminOk("rolle-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":12,"name":"Gunner","reihenfolge":14,"selbstWaehlbar":true,"brauchtSchiff":true,"felder":[{"feld":0,"schiffsnetz":"CREW","senden":true,"hoeren":true,"sendenStandard":true,"fest":false}]}""") });
+        await t.AdminOk("rolle-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":13,"name":"Marine","reihenfolge":15,"selbstWaehlbar":true,"brauchtSchiff":true,"felder":[{"feld":0,"schiffsnetz":"CREW","senden":true,"hoeren":true,"sendenStandard":true,"fest":false},{"feld":1,"netzId":2,"senden":false,"hoeren":true,"sendenStandard":false,"fest":false}]}""") });
+        await t.AdminOk("schiff-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":3,"name":"Schiff 3","reihenfolge":3,"netze":{"CREW":7,"BRUECKE":8},"plaetze":[{"rolleId":10,"kapazitaet":1,"mindest":1},{"rolleId":11,"kapazitaet":2},{"rolleId":12,"kapazitaet":2,"mindest":1},{"rolleId":13,"kapazitaet":4}],"art":"SCHIFF","typ":"Hammerhead"}""") });
+        await t.AdminOk("schiff-setzen", new JsonObject { ["objekt"] = Objekt("""{"id":20,"name":"Trupp Alpha","reihenfolge":20,"netze":{"TRUPP":50},"plaetze":[{"rolleId":13,"kapazitaet":6,"mindest":2}],"art":"TRUPP","typ":"Infanterie"}""") });
+
+        await using var test = await KernFunker.AktivAsync(halter, "950000000000000001", "test", "ADMIN", Lokal(1));
+        await using var otto = await KernFunker.AktivAsync(halter, "950000000000000002", "otto", "FUNKER", Lokal(2));
+        await using var fritz = await KernFunker.AktivAsync(halter, "950000000000000003", "fritz", "FUNKER", Lokal(3));
+        await using var gina = await KernFunker.AktivAsync(halter, "950000000000000004", "gina", "FUNKER", Lokal(4));
+        var hans = await KernFunker.AktivAsync(halter, "950000000000000005", "hans", "FUNKER", Lokal(5));
+        await using var anker = await KernFunker.AktivAsync(halter, "950000000000000006", "anker", "FUNKER", Lokal(6));
+
+        await t.AdminOk("eigentuemer", new JsonObject { ["konto"] = test.KontoId });
+        await t.AdminOk("scnamen", new JsonObject { ["konto"] = test.KontoId, ["namen"] = new JsonArray("Sarevoc") });
+        await t.AdminOk("discordname", new JsonObject { ["konto"] = test.KontoId, ["name"] = "Sarevoc/Otto" });
+        await t.AdminOk("discordname", new JsonObject { ["konto"] = fritz.KontoId, ["name"] = "Fritz/DC" });
+        await t.AdminOk("scnamen", new JsonObject { ["konto"] = otto.KontoId, ["namen"] = new JsonArray("Ferox") });
+
+        // Admin-Nachweis wie in 3.9, dann eine Admin-Sitzung.
+        var c = test.Client;
+        using var schluessel = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        await t.AdminOk("admin-vorsehen", new JsonObject { ["konto"] = test.KontoId });
+        var antrag = await Ok(() => c.AdminAntragAsync(schluessel), "Antrag");
+        await t.AdminOk("admin-ernennen", new JsonObject { ["konto"] = test.KontoId, ["kennung"] = antrag.Als<AdminEinrichtungAntwort>().Kennung });
+        var abholen = await Ok(() => c.GeheimnisAbholenAsync(schluessel), "Geheimnis");
+        I.Base32.TryDekodieren(abholen.Als<AdminEinrichtungAntwort>().Geheimnis!, out var g);
+        await Ok(() => c.EinrichtungBestaetigenAsync(schluessel, I.Totp.CodeText(g, I.Totp.Zeitschritt(uhr.GetUtcNow()))), "erster Code");
+        uhr.Vor(TimeSpan.FromSeconds(30));
+        await Ok(() => c.AdminAnmeldenAsync(schluessel, I.Totp.CodeText(g, I.Totp.Zeitschritt(uhr.GetUtcNow()))), "Admin-Sitzung");
+
+        // Mitglieder (6.13): Katalog, Rollen, Vormerkung, Untergilde, Wünsche, weitere SC-Namen.
+        await Ok(() => c.AnfrageAsync(Nachrichtentyp.Rollenkatalog, new RollenkatalogAnfrage
+        {
+            Op = RegelOperation.Setzen,
+            Eintraege = [new Rollenkatalogeintrag { Id = 1, Name = "Medium Fighter Pilot", Rollen = [11] }, new Rollenkatalogeintrag { Id = 2, Name = "Marine", Rollen = [13] }],
+        }), "Katalog");
+        await Ok(() => c.AnfrageAsync(Nachrichtentyp.Mitglied, new MitgliedAnfrage { Op = MitgliedOperation.Aendern, KontoId = fritz.KontoId, Rollen = [1] }), "Rolle für Fritz");
+        var vm = await Ok(() => c.AnfrageAsync(Nachrichtentyp.Mitglied, new MitgliedAnfrage { Op = MitgliedOperation.Vormerken, ScName = "Eule", DiscordName = "Eule/BS", Rollen = [2], Notiz = "kommt Samstag" }), "Vormerkung");
+        var vmId = vm.Als<MitgliedAntwort>().Ids![0];
+        await Ok(() => c.AnfrageAsync(Nachrichtentyp.Untergilde, new UntergildeAnfrage { Op = UntergildeOperation.Setzen, Name = "Beispielstaffel", Kuerzel = "BS", Konten = [fritz.KontoId, gina.KontoId], Vormerkungen = [vmId] }), "Untergilde");
+        await Ok(() => gina.Client.AnfrageAsync(Nachrichtentyp.Lieblingsrollen, new LieblingsrollenAnfrage { Rollen = [2], ErsteWahl = 2 }), "Wünsche Gina");
+        await Ok(() => fritz.Client.AnfrageAsync(Nachrichtentyp.ProfilSetzen, new ProfilSetzenAnfrage { ScNamen = ["Fritz", "Fritz Zwei"] }), "SC-Namen Fritz");
+
+        // Aufträge (6.12): Otto leitet heute (an der Konsole, bis 04:00), Anker ist für übermorgen geplant.
+        await t.AdminOk("auftrag", new JsonObject { ["konto"] = otto.KontoId, ["grund"] = "Op Nachtfalke" });
+        var morgen = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow.AddDays(2), Auftragszeit.Zone);
+        var von = morgen.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + " 19:30";
+        await t.AdminOk("auftrag", new JsonObject { ["konto"] = anker.KontoId, ["von"] = von, ["grund"] = "Op Morgenrot" });
+        Pruefe.Wahr(await Warten(() => otto.Client.Lage.HatRecht(Recht.Zuweisen)), "Otto im Auftrag");
+
+        // Plätze: Test (ADMIN) steigt als CO ein, Fritz als Pilot, Hans als Gunner und geht; Otto setzt Gina als Marine mit
+        // Zusatznetz Echo (fest), schaltet Fritz in Crew 3 stumm, gibt Plätze frei.
+        await Ok(() => test.Client.AnfrageAsync(Nachrichtentyp.EinsteigenRolleSchiff, new EinsteigenRolleSchiffAnfrage { RolleId = 10, SchiffId = 3 }), "Test CO");
+        await Ok(() => fritz.Client.AnfrageAsync(Nachrichtentyp.EinsteigenRolleSchiff, new EinsteigenRolleSchiffAnfrage { RolleId = 11, SchiffId = 3 }), "Fritz Pilot");
+        await Ok(() => hans.Client.AnfrageAsync(Nachrichtentyp.EinsteigenRolleSchiff, new EinsteigenRolleSchiffAnfrage { RolleId = 12, SchiffId = 3 }), "Hans Gunner");
+        var hansKonto = hans.KontoId;
+        await hans.DisposeAsync();
+        await Task.Delay(500);
+        await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.PlaetzeFreigeben, new LeererBody()), "Plätze freigeben (Hans: letzter Stand)");
+        await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.Verschieben, new VerschiebenAnfrage
+        {
+            Aenderungen = [new Verschiebung { KontoId = gina.KontoId, RolleId = 13, SchiffId = 3, FelderPatch = [new FeldPatch { NetzId = 90, Senden = true }] }],
+        }), "Gina Marine mit Echo");
+        await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.Stummschalten, new StummschaltenAnfrage { KontoId = fritz.KontoId, NetzId = 7, Sekunden = 3600 }), "Fritz stumm in Crew 3");
+        var auf = await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.AufstellungSpeichern, new AufstellungSpeichernAnfrage
+        {
+            Name = "Entern",
+            Eintraege =
+            [
+                new AufstellungsEintrag { KontoId = anker.KontoId, RolleId = 13, SchiffId = 20 },
+                new AufstellungsEintrag { DiscordId = "950000000000000999", RolleId = 13, SchiffId = 20 },
+            ],
+        }), "Aufstellung speichern");
+        await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.AufstellungAnwenden, new AufstellungAnwendenAnfrage { Id = auf.Als<AufstellungsVerweis>().Id, Modus = AufstellungsModus.Ergaenzen }), "Aufstellung anwenden");
+        await Ok(() => otto.Client.AnfrageAsync(Nachrichtentyp.Verwaltung, new VerwaltungAnfrage
+        {
+            Op = VerwaltungsOperation.Selbstwahl,
+            Version = otto.Client.Lage.NetzListe!.Version,
+            Objekt = JsonSerializer.SerializeToElement(new { an = false, nachzuegler = false }),
+        }), "Ganz sperren");
+
+        // Komfort: Gina sendet selbst ins Echo (Sendeauswahl), Pegel und Ablage.
+        Pruefe.Wahr(await Warten(() => gina.Client.Lage.Mitgliedschaften?.Felder.Any(f => f.NetzId == 90) == true), "Gina hat Echo");
+        var echoFeld = gina.Client.Lage.Mitgliedschaften!.Felder.Single(f => f.NetzId == 90).Feld;
+        await Ok(() => gina.Client.AnfrageAsync(Nachrichtentyp.SendeauswahlSetzen, new SendeauswahlSetzenAnfrage { Felder = [echoFeld], Global = false }), "Gina sendet ins Echo");
+        await Ok(() => gina.Client.AnfrageAsync(Nachrichtentyp.PegelSetzen, new PegelSetzenAnfrage { KontoId = fritz.KontoId, NetzId = 0, Db = -6 }), "Pegel");
+        await Ok(() => gina.Client.AnfrageAsync(Nachrichtentyp.Ablage, new AblageAnfrage { Op = AblageOperation.Schreiben, Bereich = AblageBereich.Saetze, Daten = JsonSerializer.SerializeToElement(new { satz = "Marine" }) }), "Ablage");
+
+        // Ein offener Antrag ohne Code (3.4 Weg B) und ein gesperrtes Konto.
+        var neuling = await t.VerbindenAsync(null, Lokal(9));
+        await neuling.HelloAsync();
+        var a = await neuling.AnfrageAsync(Nachrichtentyp.Registrierung, new RegistrierungAnfrage { Geraetename = "PC Neuling", ScName = "Neuling", DiscordName = "Neuling/DC" });
+        Pruefe.Wahr(a.Json<RegistrierungAntwort>().Antrag == true, "Antrag ohne Code");
+        await neuling.ErwarteAsync(Nachrichtentyp.GeraetStatus);
+        await t.AdminOk("konto-sperren", new JsonObject { ["konto"] = hansKonto });
+
+        await Task.Delay(1500);
+        await neuling.DisposeAsync();
+        // Nur den Dienst beenden: Er schreibt alles; Testserver.DisposeAsync löschte das Verzeichnis.
+        await t.DienstBeendenAsync();
+    }
+}

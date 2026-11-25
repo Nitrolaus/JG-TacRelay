@@ -1,0 +1,15 @@
+Die Vorgabe, nach der die Vorlage "Star Citizen" (Flottenvorlagen.StarCitizen) gebaut ist: VORLAGE.md enthält den Abschnitt
+"Kanalvorlage Star Citizen" aus den Entscheidungen der Fragerunden mit Sarevoc vom 18. und 19.10.2026 (Q13, Q18, Q26, "so übernehmen"),
+Wortlaut unverändert, nur mit eigenem Kopf. Prüfsumme des übernommenen Abschnitts (UTF-8, LF): SHA-256 fc4cd45759bb7ad0c5fccc02602392b4aa3a44d296f5e0640c3f8137c2d88f9b
+
+Stufe3VorlageTests liest die Kanäle mit ihren Ch. und die Rollen mit ihren Feldern daraus und gleicht die Vorlage dagegen ab. So ist die
+Vorgabe abgebildet (Flottenvorlagen.StarCitizen, Annahmen in der Vorlage):
+- "Schiff n", "Staffel n", "Trupp n": Rollenfeld ohne festen Ch.; den Ch. wählt der Funker oder die Leitung (Ch.-Auflösung 6.16).
+- "alle": der gemeinsame Ch. "Alle" am Ende der Liste von Brücke, Jäger und Bodentrupp, fest im Rollenfeld.
+- Kanäle ohne Nummer (Kommando, Flotte, Logistik, Bergung und Bergbau, Sanität, Allgemein): fest der erste Ch. der Liste.
+- "Bergung" in den Rollen ist der Kanal 8 "Bergung und Bergbau".
+
+Ändert Sarevoc die Vorgabe, kommt eine neue Fassung hierher, und der Test zeigt, was die Vorlage nachziehen muss.
+
+Bis zum 19.10.2026 lagen hier, unter einem anderen Ordnernamen, die Arbeitsdateien einer früheren Vorlage; sie sind mit ihr entfernt
+(Umbau JG TacRelay, Schritt 4).

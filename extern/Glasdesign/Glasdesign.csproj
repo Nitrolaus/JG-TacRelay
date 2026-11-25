@@ -1,0 +1,21 @@
+<!-- Glasdesign - Maintainer: Sarevoc -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Glasdesign</RootNamespace>
+    <AssemblyName>Glasdesign</AssemblyName>
+    <!-- Für die erzeugten Aufrufe in dwmapi (Fensterglas, LibraryImport). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Keine Pakete, keine eingebetteten Schriften oder Bilder: nur XAML und Code. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Glasdesign.Tests" />
+    <Using Include="System.IO" />
+    <!-- Die Farbstellungen zusätzlich als Text (Thema.Quelltext): daraus erzeugt Glint einen Patch für dieses Repository. -->
+    <EmbeddedResource Include="Farbstellungen\*.xaml" LogicalName="Glasdesign.Farbstellungen.%(Filename).xaml" />
+  </ItemGroup>
+
+</Project>

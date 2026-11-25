@@ -1,0 +1,48 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Meldezeile (RAID-S2-ENTWURF Abschnitt 3): ein kleines Fenster an einem festen Platz des Monitors (seit 0.11.1, Sarevoc 12.10.2026; bis 0.11.0
+  am Platz des Funkfelds), immer oben, nie aktiviert, durchklickbar, nicht in Alt+Tab und Taskleiste; Fehler in der roten Schrift der
+  Farbstellung. Die Farben kommen als DynamicResource, damit ein Wechsel der Farbstellung kein neues Fenster braucht.
+  Seit 0.11.0 (Sarevoc, 12.10.2026: "maximal einzeilig, das Funkfeld muss klein bleiben"): genau eine Meldung (Q112, Meldezeile.ZeilenMax;
+  bis dahin höchstens drei) in genau einer Zeile (kein Umbruch, zu Langes kürzt mit "..."), Schrift 12 und weniger Innenrand bei 0 %;
+  MeldezeileFenster.GroesseSetzen setzt die Breite fest auf 640 bei 0 % (bis 0.11.0 höchstens die des Funkfelds) und skaliert den
+  Rahmen mit dem Funkfeld (Q111, LayoutTransform: Schrift, Innenrand und Höhe -30 bis +30 %).
+-->
+<Window x:Class="Funk.Client.Fenster.MeldezeileFenster"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:m="clr-namespace:Funk.Client.Modelle"
+        Title="JG TacRelay Meldezeile" WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowActivated="False" ShowInTaskbar="False" Topmost="True" SizeToContent="WidthAndHeight" Focusable="False" IsHitTestVisible="False">
+    <Border x:Name="Rahmen" Background="{DynamicResource Pinsel.FlaecheTief}" BorderBrush="{DynamicResource Pinsel.Akzent}" BorderThickness="1"
+            CornerRadius="4" Padding="8,3" MaxWidth="640">
+        <ItemsControl x:Name="Zeilen" ItemsSource="{Binding Zeilen}" Focusable="False">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type m:Zeilenmeldung}">
+                    <!-- Klangstufe C2b: das eigene Urteil der Auto Dauersend-Dämpfung mit dem gelben "!" davor; seit 0.11.0 als kurzer Satz, Ursache und Hinweis ganz am "!" im Funkfeld (die Meldezeile ist durchklickbar, ohne Hovertext) -->
+                    <DockPanel Margin="0,1">
+                        <ContentControl x:Name="Ausrufe" DockPanel.Dock="Left" Style="{DynamicResource Ausrufe}" Margin="0,1,6,0" VerticalAlignment="Top" Visibility="Collapsed" />
+                        <TextBlock x:Name="Satz" Text="{Binding Text}" FontSize="12" FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource Pinsel.Text}" />
+                    </DockPanel>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Ausrufe}" Value="True">
+                            <Setter TargetName="Ausrufe" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Art}" Value="{x:Static m:Meldeart.Fehler}">
+                            <Setter TargetName="Satz" Property="Foreground" Value="{DynamicResource Pinsel.RotSchrift}" />
+                        </DataTrigger>
+                        <!-- Q41: eine Zeile über das eigene Senden (Melden) grün, solange tatsächlich etwas hinausgeht -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Senden}" Value="True" />
+                                <Condition Binding="{Binding DataContext.Sendet, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="Satz" Property="Foreground" Value="{DynamicResource Pinsel.Senden}" />
+                        </MultiDataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Border>
+</Window>

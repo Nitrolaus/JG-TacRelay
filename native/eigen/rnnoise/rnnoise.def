@@ -1,0 +1,18 @@
+; Exporte von rnnoise.dll (JG-TacRelay-Eigenbau).
+; rnnoise.h setzt __declspec(dllexport) nur bei WIN32 + RNNOISE_BUILD + DLL_EXPORT;
+; die .def-Datei ist hier die einzige Quelle fuer die Exportliste.
+;
+; Nicht exportiert: rnnoise_model_from_file(FILE *f). Die DLL hat eine statische CRT
+; (/MT); ein FILE* aus einer anderen CRT waere in der DLL ungueltig. Ersatz:
+; rnnoise_model_from_filename oder rnnoise_model_from_buffer.
+LIBRARY rnnoise
+EXPORTS
+    rnnoise_get_size
+    rnnoise_get_frame_size
+    rnnoise_init
+    rnnoise_create
+    rnnoise_destroy
+    rnnoise_process_frame
+    rnnoise_model_from_buffer
+    rnnoise_model_from_filename
+    rnnoise_model_free

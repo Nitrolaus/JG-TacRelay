@@ -1,0 +1,35 @@
+Zustandsverzeichnis im Format von JG TacRelay 0.2.0 (Stand b181e4b auf main), erzeugt am 01.10.2026 um 08:24 Uhr
+(06:24 UTC) von den Programmteilen dieses Stands selbst: Funk.Server, Funk.ClientKern und das Admin-Werkzeug von 0.2.0,
+prozessintern im Testlauf von 0.2.0, ohne TLS, ohne Fenster, nur Loopback. Der Erzeuger steht als Erzeuge020.cs.txt
+daneben; er lief in einer Kopie des Stands b181e4b unter C:\Claude\tmp\tr-030\v020 mit FUNK_ERZEUGE_ZIEL.
+
+Nachgestellt ist ein Abend auf dem Heimserver mit 0.2.0:
+- Flotte an der Konsole: Netz 2 "Kommando" (Standard, Taste), Schiff 3 mit Crew 3 (Netz 7) und Brücke 3 (Netz 8), Netz 90
+  "Echo", Rollen 10 "Kapitän" und 11 "Pilot", Plätze auf Schiff 3: CO 1, Pilot 2
+- Konto 1 "test" (ADMIN, Eigentümer, SC-Name Sarevoc, Discord-Name Sarevoc/Otto) mit Admin-Nachweis und Admin-Sitzung
+- Konto 2 "otto" (RAIDLEITER, SC-Name Ferox): gibt Plätze frei, setzt Gina als CO, schaltet Fritz in Crew 3 stumm,
+  speichert die Aufstellung "Phase 2" und wendet sie an, sperrt die Selbstwahl (in 0.2.0 hatte RAIDLEITER ZUWEISEN)
+- Konto 3 "fritz" (FUNKER, Discord-Name Fritz/DC, SC-Namen Fritz und Fritz Zwei): Pilot auf Schiff 3, Rolle "Medium
+  Fighter Pilot" aus dem Katalog, Untergilde "Beispielstaffel" (BS)
+- Konto 4 "gina" (FUNKER): Wünsche im Katalog, Pegel und Ablage gesetzt, Untergilde BS
+- Konto 5 "hans" (FUNKER): wählte Pilot, ging, Otto gab die Plätze frei (letzter Stand), danach gesperrt
+- Konto 6: offener Antrag "Neuling" ohne Code (3.4 Weg B)
+- Vormerkung "Eule" (Eule/BS) in der Untergilde BS, Rollenkatalog mit zwei Einträgen
+
+Alles darin sind Testwerte: Fingerabdrücke flüchtiger Schlüssel, erfundene Discord-Zahlen (9400...), ein Admin-Geheimnis,
+das mit einem nur im Speicher gehaltenen und längst verworfenen Schlüssel verschlüsselt ist, und HMAC-Werte eines
+Test-Geheimnisses. Die profil.json des Laufs fehlt mit Absicht; der Testserver schreibt eine eigene. Gebraucht von
+Uebergang020Tests.cs.
+
+Nachtrag 01.10.2026 (Fassung 0.5.0, A65): In allen Dateien dieses Ordners ist ein echter Vorname nachträglich durch Otto ersetzt
+(Konto 2 und hinter dem Schrägstrich im Discord-Namen von Konto 1), in allen Schreibweisen, gleich lang und im Namensindex von konten.json an
+derselben Stelle der Sortierung. Sonst ist nichts geändert; die Übergangstests laden und schreiben die Dateien weiter ohne Verlust.
+
+Nachtrag 15.10.2026: In allen Dateien dieses Ordners ist der Name einer echten Gruppe nachträglich ersetzt, der Name
+der Untergilde durch "Beispielstaffel" und ihr Kürzel durch "BS" (auch im Discord-Namen der Vormerkung und im Journal).
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.
+
+Nachtrag 19.10.2026 (Umbau JG TacRelay, Schritt 4): Namen am 19.10.2026 neutralisiert. Netz 2 heißt "Kommando", Rolle 10
+"Kapitän" (vorher Namen aus einer früheren Kanalvorlage), das Testkonto 1 "test" (vorher ein anderer Name; auch im Gerätenamen, im
+Namensindex von konten.json an seiner Stelle der Sortierung und im Journal), in allen Dateien dieses Ordners und im Erzeuger.
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.

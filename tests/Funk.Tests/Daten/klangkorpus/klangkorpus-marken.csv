@@ -1,0 +1,212 @@
+aeusserung;0;Stefan;normal;-26;16000;104320;Staffel Eins an Leitstand, wir haben die Station erreicht und warten auf Freigabe.
+wort;0;16000;Staffel
+wort;0;23383;Eins
+wort;0;28148;an
+wort;0;30423;Leitstand
+wort;0;48983;wir
+wort;0;52015;haben
+wort;0;56991;die
+wort;0;58962;Station
+wort;0;70854;erreicht
+wort;0;78743;und
+wort;0;81910;warten
+wort;0;88988;auf
+wort;0;92259;Freigabe
+aeusserung;1;Stefan;leise;-38;113920;176160;Verstanden, ich halte Position am zweiten Wegpunkt.
+wort;1;113920;Verstanden
+wort;1;133463;ich
+wort;1;136199;halte
+wort;1;141434;Position
+wort;1;153814;am
+wort;1;156372;zweiten
+wort;1;163692;Wegpunkt
+aeusserung;2;Stefan;laut;-22;181760;252320;Achtung, Kontakt auf drei Uhr, zwei Jäger im Anflug!
+wort;2;181760;Achtung
+wort;2;197623;Kontakt
+wort;2;206583;auf
+wort;2;209623;drei
+wort;2;214150;Uhr
+wort;2;227863;zwei
+wort;2;232657;Jäger
+wort;2;239121;im
+wort;2;241809;Anflug
+aeusserung;3;Stefan;abfallend;-24;266720;346880;Schilde vorne verstärken, Raketen bereithalten und auf mein Zeichen warten.
+wort;3;266720;Schilde
+wort;3;273303;vorne
+wort;3;279063;verstärken
+wort;3;297783;Raketen
+wort;3;307935;bereithalten
+wort;3;319863;und
+wort;3;323186;auf
+wort;3;326513;mein
+wort;3;330403;Zeichen
+wort;3;337496;warten
+aeusserung;4;Stefan;normal;-28;354080;367840;Bestätigt.
+wort;4;354080;Bestätigt
+aeusserung;5;Stefan;anschwellend;-30;391840;468000;Ich wiederhole, alle Einheiten sammeln sich sofort am Treffpunkt Bravo.
+wort;5;391840;Ich
+wort;5;394408;wiederhole
+wort;5;413943;alle
+wort;5;418321;Einheiten
+wort;5;428640;sammeln
+wort;5;435065;sich
+wort;5;438423;sofort
+wort;5;446263;am
+wort;5;448983;Treffpunkt
+wort;5;458903;Bravo
+aeusserung;6;Stefan;wort;-30;472800;551360;Wir landen auf Plattform vier, Vorsicht, der Boden ist uneben.
+wort;6;472800;Wir
+wort;6;475714;landen
+wort;6;481956;auf
+wort;6;485303;Plattform
+wort;6;494743;vier
+wort;6;509463;Vorsicht
+wort;6;528343;der
+wort;6;531205;Boden
+wort;6;537474;ist
+wort;6;541303;uneben
+aeusserung;7;Stefan;leise;-42;562560;606880;Sensoren aus, wir bleiben leise.
+wort;7;562560;Sensoren
+wort;7;573748;aus
+wort;7;587383;wir
+wort;7;590743;bleiben
+wort;7;598094;leise
+aeusserung;8;Katja;normal;-25;654880;740000;Leitstand an Staffel Eins, Freigabe erteilt, Andockbucht sieben ist frei.
+wort;8;654880;Leitstand
+wort;8;664823;an
+wort;8;667580;Staffel
+wort;8;674423;Eins
+wort;8;687223;Freigabe
+wort;8;697922;erteilt
+wort;8;713943;Andockbucht
+wort;8;724964;sieben
+wort;8;730743;ist
+wort;8;734434;frei
+aeusserung;9;Katja;laut;-22;748800;808960;Abbrechen, sofort abbrechen, die Bucht ist belegt!
+wort;9;748823;Abbrechen
+wort;9;765143;sofort
+wort;9;772983;abbrechen
+wort;9;789783;die
+wort;9;791932;Bucht
+wort;9;797143;ist
+wort;9;800595;belegt
+aeusserung;10;Katja;leise;-37;812960;870560;Entschuldigung, mein Fehler, Bucht neun ist frei.
+wort;10;812960;Entschuldigung
+wort;10;832983;mein
+wort;10;836965;Fehler
+wort;10;851703;Bucht
+wort;10;856823;neun
+wort;10;861303;ist
+wort;10;864857;frei
+aeusserung;11;Katja;abfallend;-25;880960;959680;Fracht ist gesichert, wir übergeben die Ladung an die Logistik und melden uns ab.
+wort;11;880983;Fracht
+wort;11;887728;ist
+wort;11;891310;gesichert
+wort;11;907383;wir
+wort;11;910583;übergeben
+wort;11;919441;die
+wort;11;921143;Ladung
+wort;11;928023;an
+wort;11;930423;die
+wort;11;931979;Logistik
+wort;11;940663;und
+wort;11;944163;melden
+wort;11;950960;uns
+wort;11;955063;ab
+aeusserung;12;Katja;normal;-26;966080;1035520;Treibstoff bei sechzig Prozent, die Reichweite reicht für den Rückflug.
+wort;12;966080;Treibstoff
+wort;12;975634;bei
+wort;12;978340;sechzig
+wort;12;986219;Prozent
+wort;12;1002743;die
+wort;12;1004639;Reichweite
+wort;12;1014953;reicht
+wort;12;1020183;für
+wort;12;1023156;den
+wort;12;1025762;Rückflug
+aeusserung;13;Katja;anschwellend;-30;1054720;1140000;Mehrere Signaturen nähern sich, der Abstand sinkt, ich brauche Unterstützung.
+wort;13;1054726;Mehrere
+wort;13;1062059;Signaturen
+wort;13;1074063;nähern
+wort;13;1079015;sich
+wort;13;1090903;der
+wort;13;1093783;Abstand
+wort;13;1102903;sinkt
+wort;13;1116503;ich
+wort;13;1118850;brauche
+wort;13;1126143;Unterstützung
+aeusserung;14;Katja;wort;-30;1148000;1210240;Medizinisches Team zum Hangar, wir haben Verletzte an Bord.
+wort;14;1148006;Medizinisches
+wort;14;1162423;Team
+wort;14;1167383;zum
+wort;14;1170562;Hangar
+wort;14;1184983;wir
+wort;14;1187829;haben
+wort;14;1192787;Verletzte
+wort;14;1202130;an
+wort;14;1204696;Bord
+aeusserung;15;Hedda;normal;-26;1258240;1322240;Hier Bergungsteam Zwei, wir beginnen mit dem Zerlegen des Wracks.
+wort;15;1258240;Hier
+wort;15;1262423;Bergungsteam
+wort;15;1274983;Zwei
+wort;15;1288823;wir
+wort;15;1291783;beginnen
+wort;15;1298743;mit
+wort;15;1300823;dem
+wort;15;1303303;Zerlegen
+wort;15;1310823;des
+wort;15;1314343;Wracks
+aeusserung;16;Hedda;leise;-39;1329440;1380160;Kurze Pause, das Werkzeug wird gewechselt.
+wort;16;1329440;Kurze
+wort;16;1335303;Pause
+wort;16;1352103;das
+wort;16;1355863;Werkzeug
+wort;16;1365383;wird
+wort;16;1368983;gewechselt
+aeusserung;17;Hedda;laut;-22;1392960;1433120;Feuer im Maschinenraum, alle raus!
+wort;17;1392983;Feuer
+wort;17;1399383;im
+wort;17;1401143;Maschinenraum
+wort;17;1423223;alle
+wort;17;1426983;raus
+aeusserung;18;Hedda;normal;-27;1435520;1516640;Lage unter Kontrolle, der Schaden ist gering, wir setzen die Arbeit fort.
+wort;18;1435520;Lage
+wort;18;1442103;unter
+wort;18;1446103;Kontrolle
+wort;18;1464183;der
+wort;18;1466663;Schaden
+wort;18;1473623;ist
+wort;18;1476983;gering
+wort;18;1491463;wir
+wort;18;1494263;setzen
+wort;18;1500903;die
+wort;18;1502903;Arbeit
+wort;18;1509943;fort
+aeusserung;19;Hedda;abfallend;-25;1526240;1599040;Das war es für heute, gute Arbeit, alle zurück zur Basis.
+wort;19;1526423;Das
+wort;19;1530503;war
+wort;19;1533943;es
+wort;19;1536583;für
+wort;19;1539223;heute
+wort;19;1554903;gute
+wort;19;1560583;Arbeit
+wort;19;1577303;alle
+wort;19;1580823;zurück
+wort;19;1586663;zur
+wort;19;1589783;Basis
+aeusserung;20;Hedda;leise;-42;1631040;1636960;Ende.
+wort;20;1631040;Ende
+aeusserung;21;Hedda;anschwellend;-30;1642560;1732160;Zum Schluss noch einmal, alle Kanäle prüfen, und dann Funkstille bis morgen früh.
+wort;21;1642583;Zum
+wort;21;1646663;Schluss
+wort;21;1652183;noch
+wort;21;1655223;einmal
+wort;21;1671863;alle
+wort;21;1675223;Kanäle
+wort;21;1683143;prüfen
+wort;21;1700103;und
+wort;21;1703143;dann
+wort;21;1706263;Funkstille
+wort;21;1715943;bis
+wort;21;1719463;morgen
+wort;21;1726503;früh

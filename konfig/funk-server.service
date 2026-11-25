@@ -1,0 +1,65 @@
+# JG TacRelay - Maintainer: Sarevoc
+# Beispiel-Unit für den Heimbetrieb im LXC (7.6). Nach /etc/systemd/system/funk-server.service kopieren.
+# Schlüssel, Betriebsgeheimnis und TOTP-Schlüssel kommen per LoadCredential; sie liegen nie in der Konfiguration (3.1, 3.9, 7.5).
+# TOTP braucht eine richtige Uhr: Zeitsynchronisierung am Host (systemd-timesyncd oder chrony) ist Pflicht.
+
+[Unit]
+Description=JG TacRelay Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=funk
+Group=funk
+ExecStart=/usr/bin/dotnet /opt/funk/funk-server.dll --konfig /etc/funk/server.json
+Restart=on-failure
+RestartSec=2
+# Geordnetes Beenden: SIGTERM, der Server schickt Bye{WARTUNG, 10000} an alle Sitzungen (7.2).
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+LoadCredential=server.crt:/etc/funk/credentials/server.crt
+LoadCredential=server.key:/etc/funk/credentials/server.key
+LoadCredential=funk-geheimnis:/etc/funk/credentials/funk-geheimnis
+# TOTP-Geheimnisse der Admins liegen nur damit verschlüsselt in admins.json (3.9); nie in eine Sicherung.
+LoadCredential=funk-totp-schluessel:/etc/funk/credentials/funk-totp-schluessel
+
+StateDirectory=funk
+StateDirectoryMode=0700
+RuntimeDirectory=funk
+RuntimeDirectoryMode=0700
+# Nur für die optionale Klartextzeile der Sperrliste ("sperrliste": {"klartextDatei": "/var/log/funk/sperren.log"}, fail2ban
+# auf dem Proxmox-Host). Ohne diese Zeile ist /var/log unter ProtectSystem=strict nicht schreibbar.
+LogsDirectory=funk
+LogsDirectoryMode=0750
+
+# Keine Speicherabbilder mit Sitzungs- oder Identitätsschlüsseln (7.5).
+LimitCORE=0
+Environment=DOTNET_DbgEnableMiniDump=0
+Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+# Härtung nach server-sicherheit.md; MemoryDenyWriteExecute bleibt aus (JIT).
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

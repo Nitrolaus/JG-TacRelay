@@ -1,0 +1,181 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Seite Abzeichen (0.11.7, Sarevoc 14./15.10.2026): eigener Eintrag ganz unten im Hauptmenü, nur in der Admin-Sitzung. Links die Mitglieder mit
+  Suche, rechts das gewählte: je Laufbahn eine Zeile (Bild, Rang, befördern, zurückstufen, entfernen; ohne Rang aufnehmen), darunter die
+  Tätigkeiten nach Gruppe als Umschalter mit Bild. Jede Änderung gilt sofort. Stile, Farben und die Bilder (AbzeichenBild) kommen zur Laufzeit
+  aus den Ressourcen der Anwendung, wie bei VerwaltungAnsicht.xaml, ohne Verweis auf den Client. Keine Zugriffstasten.
+-->
+<UserControl x:Class="Funk.Verwaltung.Ansichten.AbzeichenAnsicht"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:m="clr-namespace:Funk.Verwaltung.Modelle"
+             xmlns:an="clr-namespace:Funk.Verwaltung.Ansichten"
+             xmlns:gd="clr-namespace:Glasdesign;assembly=Glasdesign"
+             Focusable="False" gd:Glas.Schatten="Einfach">
+    <UserControl.Resources>
+        <Style x:Key="Etikett" TargetType="TextBlock" BasedOn="{StaticResource Text.Etikett}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <!-- Ein Mitglied der Liste als Knopf, links ausgerichtet; das gewählte mit Rand im Akzent. -->
+        <Style x:Key="Knopf.Zeile" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Gewaehlt}" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="Knopf.Laufbahn" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Margin" Value="0,0,8,6" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer x:Name="AbzeichenBildlauf" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <StackPanel x:Name="Seite" Margin="16,18,24,16" MaxWidth="1240" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource Text.Ueberschrift}" Text="Abzeichen" />
+            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,12"
+                       Text="Ränge und Tätigkeiten der Mitglieder. Jede Änderung gilt sofort. Bilder und Namen kommen mit dem Programm; ob ein Mitglied ein Abzeichen zeigt, entscheidet es selbst." />
+
+            <an:Zweispalter x:Name="AbzeichenBereich" Ab="612" Anteil="0.36" ErsteMin="260" ErsteMax="400">
+                <!-- Links: Mitglieder mit Suche -->
+                <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Mitglieder" Margin="0,0,0,2" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,8" Text="{Binding Zaehlung}" />
+                        <TextBlock Style="{StaticResource Etikett}" Text="Suchen (SC-Name, Discord-Name, Name)" Margin="0,0,0,2" />
+                        <TextBox x:Name="AbzeichenSuche" Text="{Binding Suche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"
+                                 AutomationProperties.Name="Mitglieder für Abzeichen suchen" ToolTip="Suche über SC-Namen, Discord-Namen und Namen, auch Teile" />
+                        <ItemsControl x:Name="AbzeichenMitglieder" ItemsSource="{Binding Sichtbar}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:AbzeichenMitglied}">
+                                    <Button Style="{StaticResource Knopf.Zeile}"
+                                            Command="{Binding DataContext.WaehlenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                            AutomationProperties.Name="{Binding Name}"
+                                            gd:Hilfe.Text="{Binding Zusammenfassung, StringFormat='Zeigt rechts die Abzeichen dieses Mitglieds. Jetzt: {0}.'}">
+                                        <StackPanel>
+                                            <TextBlock TextWrapping="Wrap">
+                                                <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" /><Run
+                                                    Text="{Binding DiscordName, Mode=OneWay, StringFormat='  {0}', TargetNullValue=''}" Foreground="{StaticResource Pinsel.Text2}" />
+                                            </TextBlock>
+                                            <!-- Alle Abzeichen klein, auch ausgeblendete: Der Admin sieht, was das Mitglied besitzt. -->
+                                            <ItemsControl ItemsSource="{Binding Alle}" Focusable="False" Margin="0,3,0,0">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Image Source="{Binding Converter={StaticResource AbzeichenBild}}" Width="18" Height="18" Margin="0,0,3,0" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Rechts: das gewählte Mitglied -->
+                <StackPanel>
+                    <Border Style="{StaticResource Karte}" Visibility="{Binding OhneKarte, Converter={StaticResource SichtbarWenn}}">
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" TextWrapping="Wrap"
+                                   Text="Links ein Mitglied wählen; dann stehen hier seine Ränge und Tätigkeiten zum Vergeben." />
+                    </Border>
+                    <Border x:Name="AbzeichenKarteRand" Style="{StaticResource Karte}" DataContext="{Binding Karte}"
+                            Visibility="{Binding DataContext.HatKarte, RelativeSource={RelativeSource AncestorType=an:Zweispalter}, Converter={StaticResource SichtbarWenn}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="{Binding Titel}" TextWrapping="Wrap" />
+                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"
+                                       Text="Hier steht alles, was das Mitglied besitzt, auch was es selbst ausgeblendet hat." />
+                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,0,0,8" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock x:Name="AbzeichenFehler" Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding Fehler}" />
+                            </Border>
+                            <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,6" Margin="0,0,0,8"
+                                    Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock x:Name="AbzeichenHinweis" TextWrapping="Wrap" FontSize="13" Text="{Binding Hinweis}" />
+                            </Border>
+
+                            <TextBlock Style="{StaticResource Etikett}" Text="Ränge (einer je Laufbahn)" Margin="0,4,0,4" />
+                            <ItemsControl x:Name="AbzeichenLaufbahnen" ItemsSource="{Binding Laufbahnen}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type m:LaufbahnZeile}">
+                                        <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,8,10,2" Margin="0,0,0,6"
+                                                AutomationProperties.Name="{Binding Ansage}">
+                                            <DockPanel>
+                                                <Grid DockPanel.Dock="Left" Width="40" Height="40" Margin="0,0,10,6" VerticalAlignment="Top">
+                                                    <Image Source="{Binding RangKennung, Converter={StaticResource AbzeichenBild}}" Width="40" Height="40"
+                                                           Visibility="{Binding HatRang, Converter={StaticResource SichtbarWenn}}" />
+                                                    <Ellipse Width="34" Height="34" Stroke="{StaticResource Pinsel.Linie}" StrokeThickness="1.4" StrokeDashArray="3,2"
+                                                             Visibility="{Binding OhneRang, Converter={StaticResource SichtbarWenn}}" />
+                                                </Grid>
+                                                <StackPanel>
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="  " /><Run Text="{Binding RangText, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <WrapPanel Margin="0,6,0,0">
+                                                        <Button Style="{StaticResource Knopf.Laufbahn}" Content="befördern" Command="{Binding BefoerdernCommand}"
+                                                                Visibility="{Binding HatRang, Converter={StaticResource SichtbarWenn}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='{}{0} befördern'}"
+                                                                gd:Hilfe.Text="{Binding BefoerdernHilfe}" gd:Hilfe.Gesperrt="{Binding BefoerdernGesperrt}" />
+                                                        <Button Style="{StaticResource Knopf.Laufbahn}" Content="zurückstufen" Command="{Binding ZurueckstufenCommand}"
+                                                                Visibility="{Binding HatRang, Converter={StaticResource SichtbarWenn}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='{}{0} zurückstufen'}"
+                                                                gd:Hilfe.Text="{Binding ZurueckstufenHilfe}" gd:Hilfe.Gesperrt="{Binding ZurueckstufenGesperrt}" />
+                                                        <Button Style="{StaticResource Knopf.Laufbahn}" Content="entfernen" Command="{Binding EntfernenCommand}"
+                                                                Visibility="{Binding HatRang, Converter={StaticResource SichtbarWenn}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='Rang in {0} entfernen'}"
+                                                                gd:Hilfe.Text="{Binding EntfernenHilfe}" />
+                                                        <Button Style="{StaticResource Knopf.Laufbahn}" Content="aufnehmen" Command="{Binding AufnehmenCommand}"
+                                                                Visibility="{Binding OhneRang, Converter={StaticResource SichtbarWenn}}"
+                                                                AutomationProperties.Name="{Binding Name, StringFormat='In {0} aufnehmen'}"
+                                                                gd:Hilfe.Text="{Binding AufnehmenHilfe}" />
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Style="{StaticResource Etikett}" Text="{Binding TaetigkeitenTitel}" Margin="0,10,0,0" />
+                            <ItemsControl x:Name="AbzeichenGruppen" ItemsSource="{Binding Gruppen}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type m:TaetigkeitGruppe}">
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="12.5" FontWeight="SemiBold" Text="{Binding Name}" Margin="0,8,0,4" />
+                                            <ItemsControl ItemsSource="{Binding Eintraege}" Focusable="False">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type m:TaetigkeitFeld}">
+                                                        <ToggleButton Style="{StaticResource Umschalter}" IsChecked="{Binding Vergeben}" Padding="6,3,10,3" Margin="0,0,6,6"
+                                                                      AutomationProperties.Name="{Binding Name}" gd:Hilfe.Text="{Binding Hilfe}">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Image Source="{Binding Kennung, Converter={StaticResource AbzeichenBild}}" Width="24" Height="24" Margin="0,0,6,0" />
+                                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                                            </StackPanel>
+                                                        </ToggleButton>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </an:Zweispalter>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

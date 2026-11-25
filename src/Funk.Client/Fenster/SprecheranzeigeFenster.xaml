@@ -1,0 +1,14 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Sprecheranzeige (0.11.9, Sarevoc 11.10. und 15.10.2026): ein kleines Fenster über dem Spiel nach dem Muster der Meldezeile, nur so groß wie die Zeilen
+  samt Schatten (SizeToContent), ohne Fläche und ohne Rahmen; immer oben, nie aktiviert, durchklickbar, nicht in Alt+Tab und Taskleiste, ohne Owner.
+  Die Zeilen und ihr Aussehen kommen aus der gemeinsamen Vorlage Sprecheranzeige.Bild (Design\Stile.xaml), dieselbe wie die Vorschau unter
+  Einstellungen. Verborgen, solange nichts zu zeigen ist.
+-->
+<Window x:Class="Funk.Client.Fenster.SprecheranzeigeFenster"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="JG TacRelay Sprecheranzeige" WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowActivated="False" ShowInTaskbar="False" Topmost="True" SizeToContent="WidthAndHeight" Focusable="False" IsHitTestVisible="False">
+    <ContentControl x:Name="Inhalt" Content="{Binding Bild}" ContentTemplate="{StaticResource Sprecheranzeige.Bild}" Focusable="False" IsTabStop="False" />
+</Window>

@@ -1,0 +1,247 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  A26-A28: Sprachaktivierung genau einstellen (Sarevoc, 29.09.2026: kein eigenes Fenster). Seit 0.10.0 nur noch als Seite, Unterpunkt unter
+  Einstellungen (Strg+T, "Genau einstellen ..." unter Einstellungen > Senden); bis 0.9.3 klappte derselbe Bereich auch unten im
+  Hauptfenster unter seiner Leiste auf, dort steht jetzt die Statuszeile. Links die Verlaufsgrafik der letzten 10 s in fester Größe, darunter die
+  Mindest-Funklautstärke; rechts die Schalter Automatik und Lernen (keine Rückmeldeknöpfe, gelernt wird still) und die Werte, in schmalen
+  Fenstern darunter (Schwellenbereich.xaml.cs). Hörprobe und Mithören standen bis 0.9.3 auch hier; seit 0.10.0 gibt es eine Hörprobe, auf Start,
+  und Mithören unter Senden > Erweitert (E19). DataContext: SchwellenViewModel.
+-->
+<UserControl x:Class="Funk.Client.Fenster.Schwellenbereich"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:se="clr-namespace:Funk.Client.Steuerelemente"
+             xmlns:m="clr-namespace:Funk.Client.Modelle"
+             xmlns:gd="clr-namespace:Glasdesign;assembly=Glasdesign"
+             Focusable="False">
+
+    <UserControl.Resources>
+        <Style x:Key="Wertzeile" TargetType="DockPanel">
+            <Setter Property="Margin" Value="0,8,0,0" />
+        </Style>
+        <Style x:Key="WertText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="DockPanel.Dock" Value="Right" />
+        </Style>
+        <Style x:Key="Live" TargetType="TextBlock" BasedOn="{StaticResource Text.Etikett}">
+            <Setter Property="Margin" Value="0,0,16,4" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="Raster" Margin="20,10,14,10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="260" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+        <!-- Überschrift (nur als Seite), darunter die zwei Spalten -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <!-- ui-fix 0.6.2: als Seite stehen die Einstellungen hier, wenn rechts neben der festen Grafik kein Platz ist -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="Ueberschrift" Grid.ColumnSpan="2" Style="{StaticResource Text.Ueberschrift}" Text="Sprachaktivierung" />
+
+        <!--
+          Links: Erklärung, Grafik, Legende und Livewerte, darunter die Mindest-Funklautstärke (Schwellenbereich.xaml.cs). In einer Zeile
+          mit der rechten Spalte, nicht über zwei: Ein Element über eine Stern- und eine Auto-Zeile gäbe seine ganze Höhe der Sternzeile,
+          und die Seite rollte, obwohl alles passt.
+        -->
+        <Grid x:Name="Links" Grid.Row="1" Margin="0,0,16,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,0,0,6" Text="{Binding ModusErklaerung}" />
+
+            <se:SchwellenGrafik x:Name="Grafik" Grid.Row="1" Modell="{Binding}" MinHeight="120" AutomationProperties.Name="Verlauf der letzten 10 Sekunden"
+                                ToolTip="{Binding GrafikHilfe}" />
+
+            <!-- Legende: jede Farbe zusätzlich mit Form; dahinter die Livewerte -->
+            <WrapPanel Grid.Row="2" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                    <Rectangle Width="18" Height="2" Fill="{StaticResource Pinsel.Text}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Pegel" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                    <Line X1="0" X2="18" Y1="1" Y2="1" Stroke="{StaticResource Pinsel.TextAus}" StrokeThickness="2" StrokeDashArray="2 1.5"
+                          VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Rauschboden" />
+                </StackPanel>
+                <!-- Ohne Automatik die gezogene Linie (dick, Akzent), mit Automatik die dünne rote Linie -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4" Visibility="{Binding ZeigeSchwelle, Converter={StaticResource SichtbarWenn}}">
+                    <Rectangle Width="18" Height="3" Fill="{StaticResource Pinsel.Akzent}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Schwelle" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4" Visibility="{Binding ZeigeSchwelle, Converter={StaticResource SichtbarWennNicht}}">
+                    <Rectangle Width="18" Height="2" Fill="{StaticResource Pinsel.RotSchrift}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Schwelle der Automatik" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                    <Rectangle Width="14" Height="12" Fill="{StaticResource Pinsel.SendenFlaeche}" Stroke="{StaticResource Pinsel.Senden}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="gesendet" />
+                </StackPanel>
+                <!-- Q43: gelb, wo die Sprachaktivierung ausgelöst hätte, aber nichts hinausging; Farben wie die Kurve (Farbe.WuerdeSenden) -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,16,4">
+                    <Rectangle Width="14" Height="12" Fill="{StaticResource Pinsel.WuerdeSendenFlaeche}" Stroke="{StaticResource Pinsel.WuerdeSenden}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="würde senden, geht nirgends hin" />
+                </StackPanel>
+                <!-- Klangstufe C1: der Korridor relativ zur Stimme, wie am Pegelbalken (ersetzt die Grenzlinie aus Stufe 2c) -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,24,4" Visibility="{Binding Korridor.Sichtbar, Converter={StaticResource SichtbarWenn}}">
+                    <Rectangle Width="14" Height="12" Fill="{StaticResource Pinsel.GrenzlinieFlaeche}" Stroke="{StaticResource Pinsel.Akzent}" StrokeThickness="2"
+                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Korridor: Mindest bis Obergrenze" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,24,4" Visibility="{Binding ZeigeKorridor, Converter={StaticResource SichtbarWenn}}">
+                    <Rectangle Width="14" Height="12" Fill="{StaticResource Pinsel.KorridorFlaeche}" Stroke="{StaticResource Pinsel.Akzent}" StrokeDashArray="2 1.5"
+                               VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Korridor (Griffe rechts)" />
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource Live}">
+                    <Run Text="Pegel " /><Run Text="{Binding PegelDbfs, Mode=OneWay, StringFormat='0'}" Foreground="{StaticResource Pinsel.Text}" FontWeight="SemiBold" /><Run Text=" dBFS" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource Live}">
+                    <Run Text="Boden " /><Run Text="{Binding RauschbodenDb, Mode=OneWay, StringFormat='0'}" Foreground="{StaticResource Pinsel.Text}" FontWeight="SemiBold" /><Run Text=" dBFS" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource Live}">
+                    <Run Text="Schwelle " /><Run Text="{Binding LinieDb, Mode=OneWay, StringFormat='0.0'}" Foreground="{StaticResource Pinsel.Text}" FontWeight="SemiBold" /><Run Text=" dBFS" />
+                </TextBlock>
+                <TextBlock Style="{StaticResource Live}">
+                    <Run Text="Sprache " /><Run Text="{Binding Sprachwahrscheinlichkeit, Mode=OneWay, StringFormat='0 %'}" Foreground="{StaticResource Pinsel.Text}" FontWeight="SemiBold" />
+                </TextBlock>
+                <Border CornerRadius="3" Padding="8,1" Margin="0,0,0,4" VerticalAlignment="Center">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Sendet}" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource Pinsel.Senden}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock FontSize="12" FontWeight="Bold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="Ruhe" />
+                                <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Sendet}" Value="True">
+                                        <Setter Property="Text" Value="SENDET" />
+                                        <Setter Property="Foreground" Value="{StaticResource Pinsel.AufFarbe}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+            </WrapPanel>
+        </Grid>
+
+        <!--
+          Rechts: Schalter (A27, A28), Werte. Der Bildlauf schneidet ab, was über seinen Rand ragt; der Schatten der
+          Glasknöpfe (Glasdesign 0.3.1) reicht etwa 7 Einheiten zur Seite. Er beginnt deshalb 8 links im Abstand zur Grafik, und
+          der Inhalt hält 8 Abstand (ein Innenrand des Bildlaufs läge außerhalb seines Ausschnitts und hülfe nicht): Die Knöpfe
+          bleiben, wo sie waren, und ihr Schatten ist ganz zu sehen. Unten 12 Abstand, weil als Seite der Knopf Standardwerte zuletzt
+          steht und der Bildlauf sonst seinen Schatten an seinem Ende kappte.
+        -->
+        <ScrollViewer x:Name="EinstellRahmen" Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" Focusable="False" Margin="-8,0,0,0">
+            <StackPanel x:Name="Einstellteil" Margin="8,0,6,12">
+                <CheckBox IsChecked="{Binding Automatik}" AutomationProperties.Name="Automatik"
+                          gd:Hilfe.Text="Schaltet um, ob sich die Schwelle selbst bestimmt und nachjustiert oder ob die Linie steht, wo du sie hinziehst.">
+                    <StackPanel>
+                        <AccessText Text="Auto_matik" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="Schwelle bestimmt sich selbst und justiert laufend nach." />
+                    </StackPanel>
+                </CheckBox>
+                <CheckBox IsChecked="{Binding Lernen}" IsEnabled="{Binding KannLernen}" Margin="0,6,0,4" AutomationProperties.Name="Lernen"
+                          gd:Hilfe.Text="Lässt die Schwelle mitlernen: Sie steigt bei Lärm im Hintergrund und sinkt danach wieder, immer innerhalb des Korridors."
+                          gd:Hilfe.Gesperrt="Lernen geht nur mit eingeschalteter Automatik.">
+                    <StackPanel>
+                        <!-- Alt+L. Bis 0.9.3 konnte dieser Bereich unter jedem Bereich offen sein, seine Tasten waren darum überall frei;
+                             seit 0.10.0 gelten sie nur auf seiner Seite (Test in OberflaecheHauptfensterTests). -->
+                        <AccessText Text="_Lernen" FontWeight="SemiBold" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="Hebt die Schwelle bei Lärm im Hintergrund, nur im Korridor. Gelernt wird still." />
+                    </StackPanel>
+                </CheckBox>
+
+                <Rectangle Height="1" Fill="{StaticResource Pinsel.Linie}" Margin="0,8,0,2" />
+
+                <StackPanel Visibility="{Binding ZeigeSchwelle, Converter={StaticResource SichtbarWenn}}">
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding SchwelleDb, StringFormat='0.0 dBFS'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Schwelle" />
+                    </DockPanel>
+                    <Slider Minimum="-90" Maximum="0" SmallChange="0.5" LargeChange="5" Value="{Binding SchwelleDb}" AutomationProperties.Name="Schwelle" />
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ZeigeAbstand, Converter={StaticResource SichtbarWenn}}">
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding AbstandDb, StringFormat='0.0 dB'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Abstand zum Rauschboden" />
+                    </DockPanel>
+                    <Slider Minimum="3" Maximum="30" SmallChange="0.5" LargeChange="3" Value="{Binding AbstandDb}" AutomationProperties.Name="Abstand zum Rauschboden" />
+                </StackPanel>
+
+                <!--
+                  Klangstufe C1: Mindest-Funklautstärke (ersetzt die Grenzlinie aus Stufe 2c). Liegt relativ zur gelernten Stimme und wird in der
+                  Grafik und am Pegelbalken gezogen; hier in Wörtern, dazu "Mindestlautstärke einmessen".
+                -->
+                <StackPanel x:Name="MindestTeil" DataContext="{Binding Korridor}" Visibility="{Binding Automatik, Converter={StaticResource SichtbarWenn}}">
+                    <TextBlock Style="{StaticResource Text.Etikett}" Text="Mindest-Funklautstärke" Margin="0,8,0,2" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" TextWrapping="Wrap" Text="{Binding StandText}" />
+                    <!-- Unten 6 Luft: Seit 0.10.0 (E19) steht hier oft nichts mehr darunter, und der Bildlauf schnitte sonst den Glasschatten ab. -->
+                    <Button x:Name="SchwelleEinmessenKnopf" HorizontalAlignment="Left" Margin="0,6,0,6" Content="{Binding EinmessKnopf}" Command="{Binding EinmessenCommand}"
+                            AutomationProperties.Name="Mindestlautstärke einmessen"
+                            gd:Hilfe.Text="{x:Static m:KorridorViewModel.HilfeEinmessen}"
+                            gd:Hilfe.Gesperrt="{Binding EinmessenGesperrt}" />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" TextWrapping="Wrap" Margin="0,4,0,0" Text="{Binding EinmessText}"
+                               Visibility="{Binding EinmessText, Converter={StaticResource SichtbarWennWert}}" />
+                </StackPanel>
+
+                <StackPanel Visibility="{Binding ZeigeKorridor, Converter={StaticResource SichtbarWenn}}">
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding KorridorBisDb, StringFormat='0.0 dBFS'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Korridor bis" />
+                    </DockPanel>
+                    <Slider Minimum="-90" Maximum="0" SmallChange="0.5" LargeChange="5" Value="{Binding KorridorBisDb}" AutomationProperties.Name="Korridor bis" />
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding KorridorVonDb, StringFormat='0.0 dBFS'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Korridor von" />
+                    </DockPanel>
+                    <Slider Minimum="-90" Maximum="0" SmallChange="0.5" LargeChange="5" Value="{Binding KorridorVonDb}" AutomationProperties.Name="Korridor von" />
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding AnstiegSekunden, StringFormat='0.0 s'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Anstieg" />
+                    </DockPanel>
+                    <Slider Minimum="0.1" Maximum="30" SmallChange="0.1" LargeChange="1" Value="{Binding AnstiegSekunden}" AutomationProperties.Name="Anstieg" />
+                    <DockPanel Style="{StaticResource Wertzeile}">
+                        <TextBlock Style="{StaticResource WertText}" Text="{Binding RueckkehrSekunden, StringFormat='0.0 s'}" />
+                        <TextBlock Style="{StaticResource Text.Etikett}" Text="Rückkehr" />
+                    </DockPanel>
+                    <Slider Minimum="0.1" Maximum="60" SmallChange="0.1" LargeChange="2" Value="{Binding RueckkehrSekunden}" AutomationProperties.Name="Rückkehr" />
+                </StackPanel>
+
+                <DockPanel Style="{StaticResource Wertzeile}">
+                    <TextBlock Style="{StaticResource WertText}" Text="{Binding Sprachsicherheit, StringFormat='0 %'}" />
+                    <TextBlock Style="{StaticResource Text.Etikett}" Text="Sprache ab" />
+                </DockPanel>
+                <Slider Minimum="0" Maximum="1" SmallChange="0.01" LargeChange="0.1" Value="{Binding Sprachsicherheit}" AutomationProperties.Name="Sprache ab" />
+
+                <DockPanel Margin="0,12,0,0">
+                    <!-- Ohne Zugriffstaste: Jeder Buchstabe von Standardwerte ist in einem Bereich darüber belegt (Alt+D etwa von
+                         der Durchsichtigkeit), und Zurücksetzen soll ohnehin nicht über eine verrutschte Alt-Taste geschehen. -->
+                    <Button DockPanel.Dock="Left" Content="Standardwerte" Command="{Binding ZuruecksetzenCommand}" Margin="0,0,10,0"
+                            gd:Hilfe.Text="Setzt alle Werte dieses Bereichs auf die Standardwerte zurück; Automatik und Lernen bleiben, wie sie sind." />
+                    <TextBlock Style="{StaticResource Text.Hinweis}" VerticalAlignment="Center" Text="{Binding Hinweis}" />
+                </DockPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

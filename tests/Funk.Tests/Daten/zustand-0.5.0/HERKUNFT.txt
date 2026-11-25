@@ -1,0 +1,25 @@
+Zustandsverzeichnis im Format von JG TacRelay 0.5.0, erzeugt am 03.10.2026 um 00:44 Uhr von den Programmteilen von Server und
+Protokoll im Stand 0.5.0: Worktree modul/s3 auf 2fde4e3 (Zwischenstufe 2c) vor jeder Änderung der Stufe 3. In diesem Stand sind
+src/Funk.Server und src/Funk.Protokoll unverändert seit 95aa78b (Fassung 0.5.0, Schritt 2); nur die Fassungsnummer in
+Directory.Build.props steht schon auf 0.6.0, und die steht in keiner Zustandsdatei. Der Erzeuger steht als Erzeuge050.cs.txt
+daneben; er lief als tests\Funk.Tests\Erzeuge050.cs mit FUNK_ERZEUGE_ZIEL (C:\Claude\tmp\tr-s3\v050-zustand), prozessintern,
+ohne Netz, ohne Fenster.
+
+Grundlage ist der Abend aus zustand-0.4.0 (Herkunft dort): Die Dateien wurden kopiert, konten.json, admins.json und
+mitglieder.json einmal durch 0.5.0 gelesen und geschrieben, lage.json bei jedem Schritt vom Zustandsschreiber von 0.5.0
+geschrieben. journal.json und vorrangspur.json sind die von 0.4.0 (0.5.0 liest und schreibt sie gleich). Dazu kam:
+- Grundstellung "Anflug" und Phase 2 "Entern" mit Varianten für Marine (13) und Kapitän (10), angelegt von Test
+- Test (Konto 1, ADMIN) kurz online, "Heute als Funker" für 6 h, dann wieder offline
+- Otto (Konto 2, Auftrag) schaltet Phase 2: Gina und Anker (Marine) senden in Trupp Alpha, Test (CO, Funker-Modus) hört ihn mit
+- Otto legt das offene Netz Echo (90) selbst in sein Feld 1 (FeldSetzen)
+
+Alles darin sind Testwerte wie in zustand-0.4.0. Gebraucht von Stufe3UebergangTests.cs.
+
+Nachtrag 15.10.2026: In allen Dateien dieses Ordners ist der Name einer echten Gruppe nachträglich ersetzt, der Name
+der Untergilde durch "Beispielstaffel" und ihr Kürzel durch "BS" (auch im Discord-Namen der Vormerkung und im Journal).
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.
+
+Nachtrag 19.10.2026 (Umbau JG TacRelay, Schritt 4): Namen am 19.10.2026 neutralisiert. Netz 2 heißt "Kommando", Rolle 10
+"Kapitän" (vorher Namen aus einer früheren Kanalvorlage), das Testkonto 1 "test" (vorher ein anderer Name; auch im Gerätenamen, im
+Namensindex von konten.json an seiner Stelle der Sortierung und im Journal), in allen Dateien dieses Ordners und im Erzeuger.
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.

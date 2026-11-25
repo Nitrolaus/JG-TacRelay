@@ -1,0 +1,26 @@
+<Project>
+  <!-- Gilt für alle Projekte der Lösung. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <Deterministic>true</Deterministic>
+    <!-- Aus: Namen muessen nach NFKC normalisiert werden (Spezifikation 3.3); braucht ICU (Windows eingebaut, Linux libicu). -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <Company>Sarevoc</Company>
+    <Authors>Sarevoc</Authors>
+    <!-- Nur der Maintainer, ohne Jahr und ohne Aussage über den Umfang von Rechten (A58, A59); die Lizenz ist noch nicht entschieden. -->
+    <Copyright>Maintainer: Sarevoc</Copyright>
+    <Product>JG TacRelay</Product>
+    <!-- Die eine Quelle der Fassung: Dateiversion der Programme und Setup (tools\setup-bauen.ps1 liest sie hier, gibt sie
+         an installer\TacRelay.iss, und das Setup prüft sie gegen TacRelay.exe). Nur Major.Minor.Patch. -->
+    <Version>0.13.1</Version>
+    <!-- Neutrale Baupfade (Befund 01.10.2026): PDB-Pfad und Quellpfade in den Programmen zeigen nicht auf C:\Claude, und eine
+         zweite Arbeitskopie baut dieselben Bytes. Gilt nur für die .NET-Projekte; die native Kette (native\skripte, Ninja) liest
+         diese Datei nicht, deren Bitgleichheit hängt weiter am Baupfad (CODEMAP, Fallen). -->
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=/_/</PathMap>
+  </PropertyGroup>
+</Project>
+

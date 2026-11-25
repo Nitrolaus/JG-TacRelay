@@ -1,0 +1,63 @@
+// server.json in der Form, die Sarevoc unter 0.2.0 hat: konfig/server.beispiel.json aus b181e4b (Fassung 0.2.0) mit dem
+// öffentlichen TCP-Port 8443 aus HEIMSERVER-PROXMOX.md, Abschnitt 7. Kein Abschnitt "sperrliste" (den kennt 0.2.0 nicht).
+// Gebraucht von HaertungTests.Anleitung_SperrlistenZeile_AnDerGenanntenStelleGueltig.
+{
+  // Beispiel für den Heimbetrieb im LXC (7.6). Keine Geheimnisse: Schlüssel und Betriebsgeheimnis kommen
+  // als Dateien aus $CREDENTIALS_DIRECTORY (systemd LoadCredential). Kommentare sind erlaubt.
+
+  // Feste IPv4 des LXC, im Container eingetragen und außerhalb des DHCP-Bereichs des Routers. TCP und UDP binden je
+  // Adresse mit gleicher IP (4.1).
+  "binden": ["192.168.1.50"],
+  "alleAdressen": false,
+
+  // Bindports im Container und öffentliche Ports am Router. Daheim außen 8443, weil 443 dort schon nginx gehört:
+  // dann "oeffentlicherTcpPort": 8443 (HEIMSERVER-PROXMOX.md, Abschnitt 7). 443 -> 8443 geht nur ohne nginx.
+  "tcpPort": 8443,
+  "oeffentlicherTcpPort": 8443,
+  "udpPort": 47443,
+  "oeffentlicherUdpPort": 47443,
+
+  // TLS 1.2 bleibt für Windows-10-Clients; auf true, sobald niemand mehr Windows 10 nutzt.
+  "nurTls13": false,
+
+  "zustandsverzeichnis": "/var/lib/funk",
+  "identitaet": {
+    "zertifikat": "${CREDENTIALS_DIRECTORY}/server.crt",
+    "schluessel": "${CREDENTIALS_DIRECTORY}/server.key"
+  },
+  "geheimnis": "${CREDENTIALS_DIRECTORY}/funk-geheimnis",
+  // Schlüssel für die TOTP-Geheimnisse der Admins (3.9), 32 Byte, erzeugt mit "funk-admin totp-schluessel-erzeugen".
+  "totpSchluessel": "${CREDENTIALS_DIRECTORY}/funk-totp-schluessel",
+  "profil": "/etc/funk/profil.json",
+  // Clients 0.1.0 verbinden mit einem Server 0.2.0 weiter (ohne Namen, Wer ist da und Verwaltung). Erst auf "0.2.0" setzen,
+  // wenn alle das neue Setup haben; ältere bekommen dann VERSION_ZU_ALT.
+  "mindestClientVersion": "0.1.0",
+
+  // Mitgliedskarte (6.13): Rollen und Wünsche für alle sichtbar; false = nur Einsatzleitung, Admins und das Konto selbst.
+  "mitgliedskarte": { "rollenFuerAlle": true },
+
+  "verwaltungsSocket": "/run/funk/verwaltung.sock",
+  "verwaltungsUids": [],
+  "vertrauenswuerdigeWeiterleiter": [],
+
+  "grenzen": {
+    "ausgangMbit": 35,
+    "leitungsZuschlag": 26,
+    "maxSitzungen": 100,
+    "unbekannteGlobal": 20,
+    "unbekannteJePraefix": 2,
+    "verbindungenJePraefix": 8,
+    "handshakesUnbekanntJeMinute": 10,
+    "handshakesUnbekanntStoss": 5,
+    "handshakesVorrangJeMinute": 60,
+    "handshakesVorrangStoss": 10,
+    "handshakesGlobalJeSekunde": 200,
+    "udpEmpfangspuffer": 1048576,
+    "relaisKapazitaet": 4096
+  },
+
+  "log": {
+    "stufe": "INFO",
+    "datei": null
+  }
+}

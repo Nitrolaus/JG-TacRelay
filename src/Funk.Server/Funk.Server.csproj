@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Funk.Protokoll\Funk.Protokoll.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Funk.Tests" />
+    <!-- Testwerkzeug für den Lasttest (Testzugang auf Loopback, braucht Dienst.NachHandshakeAsync). -->
+    <InternalsVisibleTo Include="funk-testserver" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>funk-server</AssemblyName>
+    <RootNamespace>Funk.Server</RootNamespace>
+    <!-- Server-GC mit wenig Pausen; Speicherabbilder schaltet systemd ab (7.5: LimitCORE=0, DOTNET_DbgEnableMiniDump=0). -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <!-- LibraryImport (adjtimex in Betrieb\Uhrpruefung.cs) erzeugt Code, der unsafe übersetzt wird; selbst geschrieben ist keiner. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

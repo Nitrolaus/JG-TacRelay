@@ -1,0 +1,97 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Farbstellung Anthrazit (Sarevoc, 18./19.10.2026, Q5, Q12, Q17): Anthrazit und Grau, neutral und ruhig, mit einem gedämpften Akzent
+  Petrol #2F8A8C (hell #4FB3B4); Grün (Senden), Orange (Hören), Gelb und Rot (Warnungen) für Zustände. Die Werte stehen
+  zusätzlich in Design\Palette.cs; der Test OberflaecheKontrastTests prüft beide gegeneinander und rechnet die Kontraste nach
+  WCAG.
+
+  Regeln:
+  - Leitfarbe (dunkles Petrol #0D3536) nur als Fläche mit weißer Schrift (13,3:1), nie als Schrift oder dünne Linie auf
+    Anthrazit (1,2:1).
+  - Rote Schrift #F07878 (5,6:1 auf Anthrazit, 4,9:1 auf der Kachelfläche), Rahmen und Fokus im Akzent Petrol #2F8A8C (3,7:1).
+  - Grün (Senden) und Orange (Hören) nie allein: immer mit Symbol und Text.
+
+  Die Oberfläche nimmt für Akzente nie feste Farbwerte, sondern die Rollen Pinsel.Akzent (Rahmen, Linien, Fokus, Reglerspur),
+  Pinsel.AkzentFlaeche (gefüllte Akzente: Schalter an), Pinsel.SchliessenFlaeche (Schließen unter der Maus) und Pinsel.Glut
+  (Glühen um den Strich des offenen Reiters). Design\Farbvorschlaege.cs legt dieselben Rollen als Farbstellung Anthrazit
+  darüber (App.OnStartup, vor dem ersten Fenster); eine spätere Farbstellung ersetzt genau diese Rollen und die Leitfarbe.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Grautöne und Schrift -->
+    <Color x:Key="Farbe.Anthrazit">#FF252525</Color>
+    <Color x:Key="Farbe.Flaeche">#FF2F2F2F</Color>
+    <!-- Leitfarbe: die großen Flächen der Farbstellung (Titelleiste, Global, Gewähltes, Hauptaktion) in dunklem Petrol -->
+    <Color x:Key="Farbe.Leitfarbe">#FF0D3536</Color>
+    <Color x:Key="Farbe.LeitfarbeGedrueckt">#FF082627</Color>
+    <Color x:Key="Farbe.Text">#FFFFFFFF</Color>
+    <Color x:Key="Farbe.Text2">#FFCCCCCC</Color>
+    <Color x:Key="Farbe.TextAus">#FF8D8D8D</Color>
+
+    <!-- Rot für Warnungen und Fehler in Schrift -->
+    <Color x:Key="Farbe.RotSchrift">#FFF07878</Color>
+
+    <!-- Rollen der Akzente; eine Farbstellung ersetzt genau diese und die Leitfarbe -->
+    <Color x:Key="Farbe.Akzent">#FF2F8A8C</Color>
+    <Color x:Key="Farbe.AkzentFlaeche">#FF2F8A8C</Color>
+    <!-- Schließen unter der Maus: gedecktes Rot, damit es sich von der Titelleiste in der Leitfarbe abhebt -->
+    <Color x:Key="Farbe.SchliessenFlaeche">#FFC8504E</Color>
+    <!-- Glühen um den Strich des offenen Reiters auf der Raid-Seite (0.11.3): Petrol hell -->
+    <Color x:Key="Farbe.Glut">#FF4FB3B4</Color>
+
+    <!-- Neutrale Abstufungen zwischen den Grautönen (nur Flächen und Trennlinien, nie Schrift) -->
+    <Color x:Key="Farbe.FlaecheHover">#FF383838</Color>
+    <Color x:Key="Farbe.FlaecheTief">#FF1E1E1E</Color>
+    <Color x:Key="Farbe.Linie">#FF454545</Color>
+    <!-- Grenze kleiner Bedienelemente im Funkfeld: 5,1:1 auf der Kachel, 5,1:1 auf Global (Palette.Grenze) -->
+    <Color x:Key="Farbe.Grenze">#FFA0A0A0</Color>
+
+    <!-- Zustände: Grün = Senden, Orange = Hören, auf Anthrazit abgestimmt -->
+    <Color x:Key="Farbe.Senden">#FF33CC66</Color>
+    <Color x:Key="Farbe.Hoeren">#FFFF9F1A</Color>
+    <!-- Startseite: Sprache über den Tunnel (Steuerkanal statt UDP), immer mit dem Wort "Tunnel" daneben -->
+    <Color x:Key="Farbe.Tunnel">#FFF2C94C</Color>
+    <!-- Q43: Pegelanzeigen gelb, wenn die Sprachaktivierung auslösen würde, aber nichts hinausgeht; dasselbe Gelb wie der Tunnel, immer mit dem Satz in Wörtern -->
+    <Color x:Key="Farbe.WuerdeSenden">#FFF2C94C</Color>
+    <!-- Legende der Schwellengrafik: die gelbe Hinterlegung, wie Akzente.WuerdeSendenFlaecheFarbe sie baut (Deckkraft 0x34) -->
+    <Color x:Key="Farbe.WuerdeSendenFlaeche">#34F2C94C</Color>
+    <Color x:Key="Farbe.AufFarbe">#FF141414</Color>
+    <Color x:Key="Farbe.SendenFlaeche">#4033CC66</Color>
+    <Color x:Key="Farbe.KorridorFlaeche">#262F8A8C</Color>
+    <!-- Grenzlinie der Automatik und ihre Zone (Schwellengrafik), in jeder Farbstellung gleich; Palette.Grenzlinie und Palette.GrenzlinieFlaeche -->
+    <Color x:Key="Farbe.Grenzlinie">#FF5EA9FF</Color>
+    <Color x:Key="Farbe.GrenzlinieFlaeche">#1A5EA9FF</Color>
+
+    <SolidColorBrush x:Key="Pinsel.Anthrazit" Color="{StaticResource Farbe.Anthrazit}" />
+    <SolidColorBrush x:Key="Pinsel.Flaeche" Color="{StaticResource Farbe.Flaeche}" />
+    <SolidColorBrush x:Key="Pinsel.FlaecheHover" Color="{StaticResource Farbe.FlaecheHover}" />
+    <SolidColorBrush x:Key="Pinsel.FlaecheTief" Color="{StaticResource Farbe.FlaecheTief}" />
+    <SolidColorBrush x:Key="Pinsel.Linie" Color="{StaticResource Farbe.Linie}" />
+    <SolidColorBrush x:Key="Pinsel.Grenze" Color="{StaticResource Farbe.Grenze}" />
+    <SolidColorBrush x:Key="Pinsel.Leitfarbe" Color="{StaticResource Farbe.Leitfarbe}" />
+    <SolidColorBrush x:Key="Pinsel.LeitfarbeGedrueckt" Color="{StaticResource Farbe.LeitfarbeGedrueckt}" />
+    <SolidColorBrush x:Key="Pinsel.RotSchrift" Color="{StaticResource Farbe.RotSchrift}" />
+    <SolidColorBrush x:Key="Pinsel.Akzent" Color="{StaticResource Farbe.Akzent}" />
+    <SolidColorBrush x:Key="Pinsel.AkzentFlaeche" Color="{StaticResource Farbe.AkzentFlaeche}" />
+    <SolidColorBrush x:Key="Pinsel.SchliessenFlaeche" Color="{StaticResource Farbe.SchliessenFlaeche}" />
+    <SolidColorBrush x:Key="Pinsel.Glut" Color="{StaticResource Farbe.Glut}" />
+    <SolidColorBrush x:Key="Pinsel.Text" Color="{StaticResource Farbe.Text}" />
+    <SolidColorBrush x:Key="Pinsel.Text2" Color="{StaticResource Farbe.Text2}" />
+    <SolidColorBrush x:Key="Pinsel.TextAus" Color="{StaticResource Farbe.TextAus}" />
+    <SolidColorBrush x:Key="Pinsel.Senden" Color="{StaticResource Farbe.Senden}" />
+    <SolidColorBrush x:Key="Pinsel.Hoeren" Color="{StaticResource Farbe.Hoeren}" />
+    <SolidColorBrush x:Key="Pinsel.Tunnel" Color="{StaticResource Farbe.Tunnel}" />
+    <SolidColorBrush x:Key="Pinsel.WuerdeSenden" Color="{StaticResource Farbe.WuerdeSenden}" />
+    <SolidColorBrush x:Key="Pinsel.WuerdeSendenFlaeche" Color="{StaticResource Farbe.WuerdeSendenFlaeche}" />
+    <!-- Gelbes "!" der Auto Dauersend-Dämpfung (Klangstufe C2b): dasselbe Gelb wie der Tunnel, dunkles Zeichen darauf (11,6:1), auf #1E1E1E 10,9:1 -->
+    <SolidColorBrush x:Key="Pinsel.Ausrufe" Color="{StaticResource Farbe.Tunnel}" />
+    <!-- Statusgrafik in Wer ist da (0.11.5, Sarevoc 14.10.2026: "in gelb, dass der Funker nicht in Channels ist"): dasselbe Gelb, auf #2F2F2F 8,4:1, nie allein (Hilfetext) -->
+    <SolidColorBrush x:Key="Pinsel.OhneKanal" Color="{StaticResource Farbe.Tunnel}" />
+    <SolidColorBrush x:Key="Pinsel.AufFarbe" Color="{StaticResource Farbe.AufFarbe}" />
+    <SolidColorBrush x:Key="Pinsel.SendenFlaeche" Color="{StaticResource Farbe.SendenFlaeche}" />
+    <SolidColorBrush x:Key="Pinsel.KorridorFlaeche" Color="{StaticResource Farbe.KorridorFlaeche}" />
+    <SolidColorBrush x:Key="Pinsel.Grenzlinie" Color="{StaticResource Farbe.Grenzlinie}" />
+    <SolidColorBrush x:Key="Pinsel.GrenzlinieFlaeche" Color="{StaticResource Farbe.GrenzlinieFlaeche}" />
+
+</ResourceDictionary>

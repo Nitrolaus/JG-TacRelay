@@ -1,0 +1,10 @@
+* text=auto
+*.cs text eol=crlf
+*.md text eol=crlf
+# Startdateien im Paket: cmd braucht CRLF
+*.cmd text eol=crlf
+# Skripte für den Linux-Server: bash liest ein CR als Teil des Befehls ($'\r': command not found)
+*.sh text eol=lf
+# Feste Kopien (extern\Glasdesign): Byte für Byte wie bei der Übernahme, damit die SHA-256 in HERKUNFT.md auch nach jedem
+# Auschecken stimmen; keine Umwandlung der Zeilenenden.
+extern/** -text

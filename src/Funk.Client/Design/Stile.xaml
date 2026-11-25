@@ -1,0 +1,1166 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Stile des dunklen Designs. Nur Systemschriften (Segoe UI, Segoe Fluent Icons mit Rückfall Segoe MDL2 Assets).
+  Knöpfe sind seit 0.11.2 flach; Glasdesign (Glas.Stile.xaml, Farbstellung Anthrazit) liefert Farbstellung, Hilfe und Tooltips.
+  Jedes Bedienelement zeigt den Tastaturfokus mit einem Rahmen im Akzent (Petrol, 3,75:1 auf Anthrazit).
+  Akzente nur über die Rollen Pinsel.Akzent (Rahmen, Linien, Fokus, Reglerspur), Pinsel.AkzentFlaeche (gefüllt) und
+  Pinsel.SchliessenFlaeche (Schließen unter der Maus), nie über feste Farbwerte: So wirkt eine Farbstellung aus
+  Design\Farbvorschlaege.cs überall.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:se="clr-namespace:Funk.Client.Steuerelemente"
+                    xmlns:m="clr-namespace:Funk.Client.Modelle"
+                    xmlns:gd="clr-namespace:Glasdesign;assembly=Glasdesign">
+
+    <FontFamily x:Key="Schrift.Text">Segoe UI</FontFamily>
+    <FontFamily x:Key="Schrift.Symbole">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+    <sys:Double x:Key="Groesse.Klein">12</sys:Double>
+    <sys:Double x:Key="Groesse.Normal">14</sys:Double>
+    <sys:Double x:Key="Groesse.Abschnitt">16</sys:Double>
+    <sys:Double x:Key="Groesse.Ueberschrift">22</sys:Double>
+
+    <!-- Kennung zu Bild der Zeichen und Abzeichen (0.11.7); der Verwaltungsteil (Seite Abzeichen) holt es sich zur Laufzeit hier. -->
+    <se:AbzeichenBild x:Key="AbzeichenBild" />
+
+    <!-- Fokusrahmen für alle Elemente -->
+    <Style x:Key="Fokus.Rahmen">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-3" RadiusX="5" RadiusY="5" Stroke="{StaticResource Pinsel.Akzent}" StrokeThickness="2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Fokusrahmen auf der Leitfarbe (Titelleiste): Weiß 13,3:1; der Akzent hätte dort nur 3,3:1 -->
+    <Style x:Key="Fokus.RahmenHell">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="2" RadiusX="3" RadiusY="3" Stroke="{StaticResource Pinsel.Text}" StrokeThickness="2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Fokusrahmen innen, für Elemente, die bis an den Fensterrand reichen (Leiste, Trenner) -->
+    <Style x:Key="Fokus.Innen">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="2" RadiusX="3" RadiusY="3" Stroke="{StaticResource Pinsel.Akzent}" StrokeThickness="2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Fenster -->
+    <Style x:Key="Fenster.Basis" TargetType="Window">
+        <Setter Property="Background" Value="{StaticResource Pinsel.Anthrazit}" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="FontFamily" Value="{StaticResource Schrift.Text}" />
+        <Setter Property="FontSize" Value="{StaticResource Groesse.Normal}" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="WindowStyle" Value="None" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="ResizeMode" Value="CanResize" />
+    </Style>
+
+    <!-- Texte -->
+    <Style x:Key="Text.Ueberschrift" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Groesse.Ueberschrift}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+    <Style x:Key="Text.Abschnitt" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource Groesse.Abschnitt}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style x:Key="Text.Etikett" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+    <Style x:Key="Text.Zugang" TargetType="AccessText">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+    <Style x:Key="Text.Hinweis" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+        <Setter Property="FontSize" Value="{StaticResource Groesse.Klein}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="Text.Wert" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <!-- Rote Schrift erreicht auf der Kartenfläche #2F2F2F nur 4,17:1; auf Karten steht sie deshalb auf dieser Unterlage (5,2:1). -->
+    <Style x:Key="Warnung.Unterlage" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="10,6" />
+    </Style>
+    <Style x:Key="Text.Warnung" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.RotSchrift}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- Symbol als Strichzeichnung -->
+    <Style x:Key="Symbol" TargetType="Path">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="StrokeLineJoin" Value="Round" />
+        <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Control}}" />
+        <Setter Property="SnapsToDevicePixels" Value="False" />
+    </Style>
+
+    <!--
+      Gelbes "!" der Auto Dauersend-Dämpfung (Klangstufe C2b): gelber Kreis mit dunklem Ausrufezeichen, 14 x 14, selbst gezeichnet (Symbol.Ausrufe,
+      keine Schrift). Gelb nie allein: Der Tooltip sagt in Wörtern, was ist und was man tun kann. Flach, kein Glas (Glas nur für Knöpfe und Reiter).
+    -->
+    <Style x:Key="Ausrufe" TargetType="ContentControl">
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid Background="Transparent">
+                        <Ellipse Fill="{StaticResource Pinsel.Ausrufe}" />
+                        <Path Data="{StaticResource Symbol.Ausrufe}" Stroke="{StaticResource Pinsel.AufFarbe}" StrokeThickness="2.2"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Auswahl am gelben "!" (Q2): stumm, wieder normal, für diesen Funker nicht mehr dämpfen; nicht wählbare grau mit Grund im Tooltip -->
+    <Style x:Key="Klappliste.Ausrufe.Eintrag" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Padding" Value="6,3,6,3" />
+        <Setter Property="IsEnabled" Value="{Binding Waehlbar}" />
+        <Setter Property="ToolTip" Value="{Binding Hilfe}" />
+        <Setter Property="ToolTipService.ShowOnDisabled" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Innen}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Grund" Background="Transparent" CornerRadius="2" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Grund" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Grund" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <DataTemplate x:Key="DauersendWahlVorlage">
+        <TextBlock Text="{Binding Text}" FontSize="12" />
+    </DataTemplate>
+
+    <!--
+      Das gelbe "!" an einem anderen Funker (Klangstufe C2b, Q2): ein Klappfeld (se:Klappwahl) mit dem Zeichen; ein Klick klappt die Auswahl auf, ein
+      Klick oder Enter darin wählt. Datenkontext ist das Zeichen (DauersendZeichen): Tooltip, Einträge und Befehl kommen von dort. Funkfeld, Wer ist da.
+    -->
+    <Style x:Key="Klappwahl.Ausrufe" TargetType="se:Klappwahl">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="ListenBreite" Value="236" />
+        <Setter Property="EintragVorlage" Value="{StaticResource DauersendWahlVorlage}" />
+        <Setter Property="Eintraege" Value="{Binding Wahlen}" />
+        <Setter Property="Waehlen" Value="{Binding WaehlenCommand}" />
+        <Setter Property="gd:Hilfe.Text" Value="{Binding Hilfe}" />
+        <Setter Property="AutomationProperties.Name" Value="{Binding Name, StringFormat='Dauersender {0}: Auswahl stumm, wieder normal, nicht mehr dämpfen'}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="se:Klappwahl">
+                    <Grid>
+                        <Border x:Name="Rand" Background="Transparent" CornerRadius="9" />
+                        <ContentControl Style="{StaticResource Ausrufe}" HorizontalAlignment="Center" />
+                        <Popup x:Name="PART_Popup" IsOpen="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" StaysOpen="False"
+                               Placement="Bottom" AllowsTransparency="True" PopupAnimation="None" Focusable="False">
+                            <Border Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Grenze}" BorderThickness="1" CornerRadius="3"
+                                    Padding="2" MinWidth="{TemplateBinding ListenBreite}">
+                                <ListBox x:Name="PART_Liste" ItemsSource="{TemplateBinding Eintraege}" ItemTemplate="{TemplateBinding EintragVorlage}"
+                                         ItemContainerStyle="{StaticResource Klappliste.Ausrufe.Eintrag}" Background="Transparent" BorderThickness="0"
+                                         Foreground="{StaticResource Pinsel.Text}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Karte für Bereiche -->
+    <Style x:Key="Karte" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Pinsel.Flaeche}" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <!--
+      Flacher Knopf: seit 0.11.2 jeder Knopf (Sarevoc 13.10.2026: "mach überall die Glasbuttons raus, mach neutrale Darstellung"); von 0.6.0 bis
+      0.11.1 waren Knopf und Knopf.Haupt aus Glas (Glasdesign) und nur Zeilen in Listen, Karten des Bretts und die Titelleiste flach.
+      Überfahren und Drücken legen einen hellen oder dunklen Schleier über die Fläche, damit es auf jeder Farbe gleich wirkt (Leitfarbe der
+      Hauptaktion, Auswahl eines Umschalters).
+    -->
+    <Style x:Key="Knopf.Flach" TargetType="ButtonBase">
+        <Setter Property="Background" Value="{StaticResource Pinsel.Flaeche}" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.TextAus}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="14,6" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border x:Name="Rand" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <Grid>
+                            <Border x:Name="Schleier" CornerRadius="3" Background="White" Opacity="0" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Schleier" Property="Opacity" Value="0.07" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Schleier" Property="Background" Value="Black" />
+                            <Setter TargetName="Schleier" Property="Opacity" Value="0.18" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                            <Setter TargetName="Rand" Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Der gewöhnliche Knopf: flach und neutral (seit 0.11.2; bis 0.11.1 Glas.Knopf). -->
+    <Style x:Key="Knopf" TargetType="ButtonBase" BasedOn="{StaticResource Knopf.Flach}" />
+    <Style TargetType="Button" BasedOn="{StaticResource Knopf}" />
+
+    <!-- Die eine Hauptaktion je Karte (Verbinden): flach in der Leitfarbe mit Akzentrand (seit 0.11.2; bis 0.11.1 Glas). -->
+    <Style x:Key="Knopf.Haupt" TargetType="ButtonBase" BasedOn="{StaticResource Knopf.Flach}">
+        <Setter Property="Background" Value="{StaticResource Pinsel.Leitfarbe}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+    </Style>
+
+    <!--
+      Personenkachel (0.11.0, Q98 Variante A): eine Person als kleine flache Kachel, 97 x 30, bis 0.11.4 drei je Reihe in Wer ist da (340 breit),
+      zwei in den Listen links im Brett; der Inhalt steht seit 0.11.2 auch im Name-Knopf links auf der Raid-Seite und seit 0.11.5 in Wer ist da. Links das Abzeichen 18 (erstes Zeichen, A49), ohne Abzeichen der Anfangsbuchstabe im Kreis; unten rechts daran
+      der Statuspunkt 7 in einer Aussparung, grün = angemeldet, offline ein hohler Ring und der Name gedämpft. Der Name kürzt mit "...", ganz
+      steht er im Hilfetext. Gebunden wird nur über Name, Abzeichen, HatAbzeichen, Anfang und Online (WerIstDaZeile und BrettKarte). Der Name
+      heißt Personenkachel, weil Kachel im Funkfeld schon vergeben ist (KachelViewModel, Kachelraster, Kachelkopf).
+    -->
+    <Style x:Key="Personenkachel.Knopf" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+        <Setter Property="Width" Value="97" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="4,0,7,0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="{StaticResource Pinsel.Flaeche}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+    </Style>
+    <!--
+      Das Abzeichen der Personenkachel allein (seit der Gegenprüfung 0.11.5): 22 x 22 mit 5 Abstand, darunter der Statuspunkt. Personenkachel.Inhalt
+      (der Name kürzt mit "...") und WerIstDa.NameInhalt (der Name kürzt nie) zeigen damit dasselbe Abzeichen.
+    -->
+    <DataTemplate x:Key="Personenkachel.Abzeichen">
+        <Grid Width="22" Height="22" Margin="0,0,5,0" VerticalAlignment="Center">
+            <Image x:Name="Abzeichen" Source="{Binding Abzeichen}" Width="18" Height="18" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <Border x:Name="Anfang" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed"
+                    Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Linie}" BorderThickness="1">
+                <TextBlock Text="{Binding Anfang}" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource Pinsel.Text2}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <!-- Aussparung in der Farbe des Knopfrands: folgt dem Überfahren und Drücken (Knopf.Flach färbt den Rand, nicht den Knopf) -->
+            <Ellipse Width="11" Height="11" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                     Fill="{Binding Background, RelativeSource={RelativeSource AncestorType=Border}}" />
+            <Ellipse x:Name="Kreis" Width="7" Height="7" Margin="0,0,2,2" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                     Fill="{StaticResource Pinsel.Senden}" Stroke="{StaticResource Pinsel.Senden}" StrokeThickness="1.4" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding HatAbzeichen}" Value="False">
+                <Setter TargetName="Abzeichen" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Anfang" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Online}" Value="False">
+                <Setter TargetName="Kreis" Property="Fill" Value="Transparent" />
+                <Setter TargetName="Kreis" Property="Stroke" Value="{StaticResource Pinsel.Text2}" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <DataTemplate x:Key="Personenkachel.Inhalt">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource Personenkachel.Abzeichen}" VerticalAlignment="Center" />
+            <TextBlock x:Name="NameText" Grid.Column="1" Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Online}" Value="False">
+                <Setter TargetName="NameText" Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+                <Setter TargetName="NameText" Property="FontWeight" Value="Normal" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+    <!--
+      Der Name in Wer ist da (Gegenprüfung 0.11.5, Sarevoc 13.10.2026: "nicht abschneiden"): wie Personenkachel.Inhalt, aber der Name kürzt nie. Er steht
+      in 12,5 halbfett, solange er in den Platz passt (154 von 194; "Superschütze/Alexander" braucht 138); ist er breiter, etwa 22 Großbuchstaben
+      oder ein Discord-Name bis 32 Zeichen, wird nur seine Schrift so viel kleiner, dass er ganz steht (Viewbox, nur verkleinern).
+    -->
+    <DataTemplate x:Key="WerIstDa.NameInhalt">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource Personenkachel.Abzeichen}" VerticalAlignment="Center" />
+            <Viewbox x:Name="NameSchrumpf" Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBlock x:Name="NameText" Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" TextWrapping="NoWrap" />
+            </Viewbox>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Online}" Value="False">
+                <Setter TargetName="NameText" Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+                <Setter TargetName="NameText" Property="FontWeight" Value="Normal" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!--
+      Nur der Name in Wer ist da (seit 0.11.5, Sarevoc 14.10.2026: "erst Abzeichen, dann Name"): das Abzeichen steht davor als eigener Knopf. Der Name
+      kürzt nie wie in WerIstDa.NameInhalt; gedämpft, wenn offline.
+    -->
+    <DataTemplate x:Key="WerIstDa.NurName">
+        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBlock x:Name="NameText" Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" TextWrapping="NoWrap" />
+        </Viewbox>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Online}" Value="False">
+                <Setter TargetName="NameText" Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+                <Setter TargetName="NameText" Property="FontWeight" Value="Normal" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!--
+      Wer ist da seit 0.11.5 (Sarevoc 13. und 14.10.2026): eine Zeile je Person, 310 breit in der Spalte (340), von links nach rechts das Abzeichen
+      (28, mit dem Online-Punkt; ein Admin im Admin-Setup springt per Klick in die Verwaltung), der Name-Knopf (162, alle gleich breit; ein Name
+      mit 22 Zeichen wie "Superschütze/Alexander" steht in voller Schrift, ein breiterer in kleinerer, nie gekürzt: WerIstDa.NurName), das
+      Mikrofon und der Status (je 28) und die Wippe (48, zwei Hälften), dazwischen je 4. Alle flach wie Knopf.Flach, 30 hoch wie die
+      Personenkachel.
+    -->
+    <Style x:Key="WerIstDa.Name" TargetType="Button" BasedOn="{StaticResource Personenkachel.Knopf}">
+        <Setter Property="Width" Value="162" />
+        <Style.Triggers>
+            <!-- Nur Anzeige (ohne Einsatzleitung): der Name bleibt hell lesbar; gedämpft ist nur ein Name, der offline ist (Personenkachel.Inhalt). -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="WerIstDa.Klein" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="4,0,0,0" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+    </Style>
+    <!-- Die Wippe: ein Rahmen wie ein flacher Knopf, darin zwei Hälften (links leiser, rechts lauter) und ein Trennstrich. -->
+    <Style x:Key="WerIstDa.Wippe" TargetType="Border">
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Margin" Value="4,0,0,0" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+        <Setter Property="Background" Value="{StaticResource Pinsel.Flaeche}" />
+    </Style>
+    <Style x:Key="WerIstDa.WippenHaelfte" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <!-- Überfahren und Drücken wie Knopf.Flach (heller oder dunkler Schleier), je Hälfte; die Rundung 2 liegt innerhalb der des Rahmens. -->
+                    <Border x:Name="Schleier" Background="{TemplateBinding Background}" CornerRadius="2">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Schleier" Property="Background" Value="#12FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Schleier" Property="Background" Value="#2E000000" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Knöpfe der eigenen Titelleiste -->
+    <Style x:Key="Knopf.Titel" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontFamily" Value="{StaticResource Schrift.Symbole}" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.RahmenHell}" />
+        <Setter Property="IsTabStop" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Rand" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="#33FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="#55FFFFFF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Knopf.Schliessen" TargetType="Button" BasedOn="{StaticResource Knopf.Titel}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Rand" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Eigene Rolle: Schließen muss sich unter der Maus deutlich von der Titelleiste in der Leitfarbe abheben. -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.SchliessenFlaeche}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.LeitfarbeGedrueckt}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+      Umschalter und Reiter-Pillen (Q15: zählen als Knöpfe): seit 0.11.2 flach wie jeder Knopf (bis 0.11.1 Glas.Reiter), gewählt in der gedrückten
+      Leitfarbe mit Akzentrand.
+    -->
+    <Style x:Key="Umschalter" TargetType="ToggleButton" BasedOn="{StaticResource Knopf.Flach}">
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="MinHeight" Value="28" />
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{StaticResource Pinsel.LeitfarbeGedrueckt}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="Umschalter.Radio" TargetType="RadioButton" BasedOn="{StaticResource Knopf.Flach}">
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="{StaticResource Pinsel.LeitfarbeGedrueckt}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--
+      Ein Feld des Rasters für den Platz der Meldezeile (0.11.1, Einstellungen > Funkfeld und Darstellung > Erweitert): neun Felder in einem
+      kleinen Monitor (Meldezeile.Monitor), je ein Balken wie die Meldezeile selbst, im Akzent, wenn das Feld gewählt ist, sonst gedämpft; die
+      Fläche hellt beim Überfahren auf. Kein Text im Feld, der Name steht für Bildschirmleser und im Hovertext.
+    -->
+    <Style x:Key="Meldezeile.Monitor" TargetType="Border">
+        <Setter Property="Width" Value="204" />
+        <Setter Property="Height" Value="117" />
+        <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.TextAus}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+    <Style x:Key="Meldezeile.Feld" TargetType="RadioButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Innen}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="1" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Flaeche" Background="{TemplateBinding Background}" CornerRadius="2">
+                        <Border x:Name="Balken" Height="7" CornerRadius="2" Margin="10,0" VerticalAlignment="Center"
+                                Background="{StaticResource Pinsel.TextAus}" Opacity="0.35" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Flaeche" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                            <Setter TargetName="Balken" Property="Opacity" Value="0.7" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Balken" Property="Background" Value="{StaticResource Pinsel.Akzent}" />
+                            <Setter TargetName="Balken" Property="Opacity" Value="1" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+      Sprecheranzeige (0.11.9, Sarevoc 15.10.2026, Variante B): die Zeilen über dem Spiel (Fenster\SprecheranzeigeFenster.xaml) und die Vorschau "So sieht
+      sie aus" unter Einstellungen aus derselben Vorlage. Weiße Schrift (Segoe UI, Systemschrift), Name fett, dahinter normal; ein weicher schwarzer
+      Schatten (Unschärfe 3,5 bei Schrift 26, volle Deckkraft, Versatz 1,5 nach rechts unten), beides mit der Größe; keine Fläche, kein Rahmen,
+      keine Farben, keine Zeichen. Die Durchsichtigkeit nimmt die Deckkraft des Ganzen, das Ausblenden die einer Zeile; der Innenrand hält Platz
+      für den Schatten. Der Text steht immer linksbündig. Keine Animation: Werte ändern sich nur, wenn das Modell sie setzt. DataContext: Sprecherbild.
+    -->
+    <DataTemplate x:Key="Sprecheranzeige.Bild" DataType="{x:Type m:Sprecherbild}">
+        <!-- Der Schatten kommt fertig aus dem Modell (Sprecherbild.Schatten): Ein Effekt hat keinen DataContext für eigene Bindungen. -->
+        <ItemsControl x:Name="SprecherZeilen" ItemsSource="{Binding Zeilen}" Margin="{Binding Innenrand}" Opacity="{Binding Deckkraft}" Focusable="False"
+                      IsTabStop="False" FontFamily="{StaticResource Schrift.Text}" FontSize="{Binding Schrift}" Foreground="White" Effect="{Binding Schatten}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type m:Sprecherzeile}">
+                    <TextBlock x:Name="SprecherZeile" TextWrapping="NoWrap" Opacity="{Binding Deckkraft}"><Run
+                            Text="{Binding Name, Mode=OneWay}" FontWeight="Bold" /><Run Text="{Binding Rest, Mode=OneWay}" /></TextBlock>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DataTemplate>
+
+    <!--
+      Meldungen über dem Spiel (0.12.0, M3-M24): die Plätze nebeneinander, oben bündig (Fenster\MeldeanzeigeFenster.xaml und das Vorschaubild). Je
+      Platz das zugeschnittene Bild in seiner Größe, beim Countdown die Zeiten in den freien Feldern, darunter die Zeile der Leitung und ein Zusatz
+      ("gemeldet"); alle Schrift weiß (Segoe UI, Systemschrift) mit dem Schatten der Sprecheranzeige (Variante B), keine Fläche, kein Rahmen. Die
+      Zeiten passen sich ihrem Feld an (Viewbox nur verkleinernd). Unter der Reihe, linksbündig unter dem Befehlsplatz, die Textmeldung (M24): fett
+      in ihrer Farbe mit demselben Schatten, höchstens zwei Zeilen in der Breite, die das Modell gemessen hat (Textplatz). Der Rand hält Platz für die
+      Schatten. DataContext: Meldebild.
+    -->
+    <DataTemplate x:Key="Meldeanzeige.Bild" DataType="{x:Type m:Meldebild}">
+        <StackPanel Margin="6" Focusable="False">
+            <ItemsControl x:Name="MeldePlaetze" ItemsSource="{Binding Plaetze}" Focusable="False" IsTabStop="False" FontFamily="{StaticResource Schrift.Text}"
+                          Foreground="White" HorizontalAlignment="Left">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type m:Meldeplatz}">
+                        <StackPanel x:Name="MeldePlatz" Margin="{Binding Abstand}" VerticalAlignment="Top" AutomationProperties.Name="{Binding Text}">
+                            <Grid Width="{Binding Breite}" Height="{Binding Hoehe}" HorizontalAlignment="Center">
+                                <Image x:Name="MeldeGrafik" Source="{Binding Bild}" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality" />
+                                <ItemsControl ItemsSource="{Binding Felder}" Focusable="False" IsTabStop="False">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Grid />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type m:Meldefeld}">
+                                            <!-- Das Feld in seiner Größe; die Zeit mittig darin, zu breit wird sie kleiner -->
+                                            <Grid Margin="{Binding Rand}" Width="{Binding Breite}" Height="{Binding Hoehe}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock x:Name="MeldeZeit" Text="{Binding Text}" FontSize="{Binding Schrift}" FontWeight="Bold" Foreground="White"
+                                                               Effect="{Binding Schatten}" Margin="4,0" />
+                                                </Viewbox>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                            <TextBlock x:Name="MeldeZeile" Text="{Binding Zeile}" FontSize="{Binding Schrift}" Effect="{Binding Schatten}" TextWrapping="Wrap"
+                                       TextAlignment="Center" HorizontalAlignment="Center" MaxWidth="{Binding ZeileBreite}" Margin="0,4,0,0" />
+                            <TextBlock x:Name="MeldeZusatz" Text="{Binding Zusatz}" FontSize="{Binding Schrift}" FontWeight="Bold" Effect="{Binding Schatten}"
+                                       TextAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                        </StackPanel>
+                        <DataTemplate.Triggers>
+                            <!-- Ohne Zeile oder Zusatz kein leerer Platz darunter -->
+                            <DataTrigger Binding="{Binding Zeile}" Value="{x:Null}">
+                                <Setter TargetName="MeldeZeile" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Zusatz}" Value="{x:Null}">
+                                <Setter TargetName="MeldeZusatz" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!-- Textmeldung (M24): nur Buchstaben, keine Fläche; Breite, Schrift und Umbruch aus dem Modell, damit es bei höchstens zwei Zeilen bleibt -->
+            <TextBlock x:Name="MeldeText" DataContext="{Binding Textplatz}" Text="{Binding Text}" Foreground="{Binding Pinsel}" FontFamily="{StaticResource Schrift.Text}"
+                       FontSize="{Binding Schrift}" FontWeight="Bold" Effect="{Binding Schatten}" TextWrapping="Wrap" TextAlignment="Left" HorizontalAlignment="Left"
+                       Width="{Binding Breite}" Margin="{Binding Rand}" AutomationProperties.Name="{Binding Beschreibung}" />
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <!-- Ohne Textmeldung kein Platz darunter -->
+            <DataTrigger Binding="{Binding Textplatz.Da}" Value="False">
+                <Setter TargetName="MeldeText" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- Schalter (an/aus) für CheckBox: Spur als Akzentfläche mit Rand im Akzent, wenn an; grauer Rand (4,6:1), wenn aus -->
+    <Style x:Key="Schalter" TargetType="CheckBox">
+        <!-- Die Vorlage zeichnet keinen Hintergrund; ohne diese Zeile bliebe der weiße aus dem Windows-Thema stehen, und wer die
+             Fläche unter dem Text sucht (Kontrastprüfung, Vorleser), fände Weiß. -->
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Spur" Width="40" Height="20" CornerRadius="10" BorderThickness="1.5"
+                                BorderBrush="{StaticResource Pinsel.TextAus}" Background="{StaticResource Pinsel.FlaecheTief}" VerticalAlignment="Center">
+                            <Ellipse x:Name="Knauf" Width="12" Height="12" Fill="{StaticResource Pinsel.Text2}" HorizontalAlignment="Left" Margin="3,0,0,0" />
+                        </Border>
+                        <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Spur" Property="Background" Value="{StaticResource Pinsel.AkzentFlaeche}" />
+                            <Setter TargetName="Spur" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                            <Setter TargetName="Knauf" Property="Fill" Value="{StaticResource Pinsel.Text}" />
+                            <Setter TargetName="Knauf" Property="HorizontalAlignment" Value="Right" />
+                            <Setter TargetName="Knauf" Property="Margin" Value="0,0,3,0" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                            <Setter TargetName="Spur" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="CheckBox" BasedOn="{StaticResource Schalter}" />
+
+    <!-- Schieberegler -->
+    <Style x:Key="Regler.Daumen" TargetType="Thumb">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Ellipse x:Name="Knauf" Fill="{StaticResource Pinsel.Text}" Stroke="{StaticResource Pinsel.Anthrazit}" StrokeThickness="2" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Knauf" Property="Fill" Value="{StaticResource Pinsel.RotSchrift}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Regler.Leer" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="Slider">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="IsMoveToPointEnabled" Value="True" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Background="Transparent">
+                        <Border Height="4" CornerRadius="2" Background="{StaticResource Pinsel.TextAus}" VerticalAlignment="Center" />
+                        <Track x:Name="PART_Track" VerticalAlignment="Center">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource Regler.Leer}">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Height="4" CornerRadius="2" Background="{StaticResource Pinsel.Akzent}" />
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource Regler.Leer}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource Regler.Daumen}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+      Zweiseitiger Regler (Prüfung 0.9.3): für Werte um eine Mitte, etwa die Klangfarbe von -6 bis +6 dB, neutral in der Mitte. Ohne die Füllung
+      von links in der Akzentfarbe, die in der Mitte wie "halb aufgedreht" und ganz links wie "aus" aussähe; dafür eine feine Marke in der Mitte,
+      dort, wo der Knauf beim neutralen Stand steht (der Bereich muss dafür um null gleich groß sein).
+    -->
+    <Style x:Key="Regler.Zweiseitig" TargetType="Slider" BasedOn="{StaticResource {x:Type Slider}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Background="Transparent">
+                        <Border Height="4" CornerRadius="2" Background="{StaticResource Pinsel.TextAus}" VerticalAlignment="Center" />
+                        <Rectangle x:Name="Mitte" Width="2" Height="12" Fill="{StaticResource Pinsel.Text2}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Track x:Name="PART_Track" VerticalAlignment="Center">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource Regler.Leer}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource Regler.Leer}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource Regler.Daumen}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Textfeld -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="CaretBrush" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="SelectionBrush" Value="{StaticResource Pinsel.Akzent}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.TextAus}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="6,3" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Rand" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Rand" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                            <Setter TargetName="Rand" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bildlaufleiste, schmal -->
+    <Style x:Key="Laufleiste.Daumen" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="Griff" CornerRadius="3" Background="{StaticResource Pinsel.TextAus}" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Griff" Property="Background" Value="{StaticResource Pinsel.Text2}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="10" />
+        <Setter Property="MinWidth" Value="10" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True" Margin="2">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource Regler.Leer}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource Regler.Leer}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource Laufleiste.Daumen}" MinHeight="24" />
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="10" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="{TemplateBinding Background}">
+                                <Track x:Name="PART_Track" IsDirectionReversed="False" Margin="2">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageLeftCommand" Style="{StaticResource Regler.Leer}" />
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageRightCommand" Style="{StaticResource Regler.Leer}" />
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource Laufleiste.Daumen}" MinWidth="24" />
+                                    </Track.Thumb>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Auswahlliste (ComboBox), dunkel -->
+    <Style x:Key="Auswahl.Knopf" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Rand" Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.TextAus}"
+                            BorderThickness="1" CornerRadius="4">
+                        <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Schrift.Symbole}" FontSize="10" Foreground="{StaticResource Pinsel.Text2}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="Knopf" Style="{StaticResource Auswahl.Knopf}"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <ContentPresenter x:Name="Inhalt" Margin="10,0,32,0" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+                        <Border x:Name="FokusRand" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2" CornerRadius="4" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="None"
+                               IsOpen="{TemplateBinding IsDropDownOpen}">
+                            <Border Background="{StaticResource Pinsel.Flaeche}" BorderBrush="{StaticResource Pinsel.TextAus}" BorderThickness="1" CornerRadius="4"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Margin="0,2,0,0">
+                                <ScrollViewer>
+                                    <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="FokusRand" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.TextAus}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Rand" Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.Leitfarbe}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Hilfetext (gd:Hilfe aus Glasdesign): die Hilfekarte Glas.Tooltip, für jeden ToolTip, auch die ohne Hilfe.Text -->
+    <Style TargetType="ToolTip" BasedOn="{StaticResource Glas.Tooltip}" />
+
+    <!-- Navigation links -->
+    <Style x:Key="Navigation" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Cycle" />
+    </Style>
+    <Style x:Key="Navigation.Eintrag" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+        <Setter Property="Padding" Value="12,10" />
+        <Setter Property="Margin" Value="8,2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Rand" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.Leitfarbe}" />
+                            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+      Abschnitte der Einstellungen (seit 0.10.0, Mischung Q87, aus EinstellungenM.xaml): Name mit Zeichen, der Kasten "Läuft von selbst" (aus
+      Variante B: was von selbst läuft, kein Bedienelement, nur gesagt), eine Linie zwischen zwei Abschnitten und Zwischenüberschriften in den
+      aufgeklappten Bereichen Erweitert. Bis 0.9.3 standen hier die Leiste der Sprachaktivierung und ihr Trenner; beide entfallen mit der Statuszeile.
+    -->
+    <Style x:Key="Abschnitt.Name" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="Abschnitt.Kopf" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,16,0" />
+    </Style>
+    <!-- Zwischen zwei Abschnitten: eine Linie -->
+    <Style x:Key="Abschnitt.Trenner" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="Padding" Value="0,10,0,0" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+    </Style>
+    <!-- Der Kasten "Läuft von selbst": Text2 auf der tiefen Fläche, Haken im Grün der Farbstellung -->
+    <Style x:Key="Automatik" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="Automatik.Text" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="Automatik.Haken" TargetType="Path" BasedOn="{StaticResource Symbol}">
+        <Setter Property="Data" Value="{StaticResource Symbol.Haken}" />
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Margin" Value="0,1,8,0" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Stroke" Value="{StaticResource Pinsel.Senden}" />
+    </Style>
+    <!-- Zwischenüberschrift in einem aufgeklappten Bereich Erweitert (aus Variante B) -->
+    <Style x:Key="Gruppe" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Margin" Value="0,14,0,4" />
+    </Style>
+
+    <!-- Liste in Karten (Felder, Funker) -->
+    <Style x:Key="Liste" TargetType="ItemsControl">
+        <Setter Property="Focusable" Value="False" />
+    </Style>
+
+    <!--
+      Klappbereich "Erweitert:" in den Einstellungen (0.9.3, Sarevoc 11.10.2026; seit 0.11.1 mit dem fetten Wort "Erweitert:" vorn). Seit 0.11.4 (Sarevoc
+      14.10.2026: "moderner, sichtbarer ausklappbar", "noch nicht geordnet genug, halte dich an moderne UI-Bauweise") eine Karte wie die
+      ausklappbaren Einstellungen in Windows 11: umrandet über die ganze Breite, oben links "Erweitert:" als Titel und darunter in Grau, was
+      verstellt ist und was drin steht, rechts der Pfeil (zu nach unten, offen nach oben); aufgeklappt steht der Inhalt in derselben Karte unter
+      einer Trennlinie. Bis 0.11.3 eine kleine graue Zeile mit Pfeil und eine dünne Linie links. Ab Werk zu. Header ist der Behälter
+      (m:Feinheiten): Titel aus Feinheiten.Wort, Beschreibung aus Feinheiten.Kopfrest, Bildschirmleser bekommen die ganze Kopfzeile
+      (Feinheiten.Kopfzeile).
+    -->
+    <Style x:Key="Klappbereich" TargetType="Expander">
+        <Setter Property="IsExpanded" Value="False" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Border x:Name="Karte" CornerRadius="6" BorderThickness="1" BorderBrush="{StaticResource Pinsel.Linie}" Background="Transparent">
+                        <StackPanel>
+                            <!-- Der Hilfetext der Kopfzeile kommt aus Tag des Klappbereichs, damit er nur an ihr steht und nicht über dem Inhalt. -->
+                            <ToggleButton x:Name="Kopf" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Cursor="Hand"
+                                          FocusVisualStyle="{StaticResource Fokus.Rahmen}" Background="Transparent" HorizontalAlignment="Stretch"
+                                          AutomationProperties.Name="{Binding Header.Kopfzeile, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          gd:Hilfe.Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Rand" Background="Transparent" CornerRadius="5" Padding="10,5,12,5">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <!--
+                                                  Titel und Beschreibung; die Beschreibung bricht um, statt abgeschnitten zu werden (Prüfung 0.9.3: bei der Klangfarbe
+                                                  mit drei verstellten Reglern wird sie länger als die Spalte). DataContext ist der Behälter (Header des Klappbereichs),
+                                                  Text bindet ausdrücklich nur in eine Richtung.
+                                                -->
+                                                <StackPanel DataContext="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}" VerticalAlignment="Center">
+                                                    <TextBlock x:Name="KopfText" Text="{x:Static m:Feinheiten.Wort}" FontWeight="Bold" FontSize="13.5" Foreground="{TemplateBinding Foreground}" />
+                                                    <TextBlock x:Name="KopfRest" Text="{Binding Kopfrest, Mode=OneWay}" TextWrapping="Wrap" FontSize="{StaticResource Groesse.Klein}"
+                                                               Foreground="{StaticResource Pinsel.Text2}" />
+                                                </StackPanel>
+                                                <Path x:Name="Pfeil" Grid.Column="1" Data="M 0,0 L 5,5 L 10,0" Stroke="{StaticResource Pinsel.Text}" StrokeThickness="1.6" Width="11" Height="6"
+                                                      Margin="16,0,2,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <RotateTransform Angle="0" />
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Pfeil" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="180" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter TargetName="Rand" Property="CornerRadius" Value="5,5,0,0" />
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Border x:Name="Unter" BorderThickness="0,1,0,0" BorderBrush="{StaticResource Pinsel.Linie}" Padding="10,10,8,8">
+                                <ContentPresenter />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="False">
+                            <Setter TargetName="Unter" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="Karte" Property="BorderBrush" Value="{StaticResource Pinsel.Text2}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

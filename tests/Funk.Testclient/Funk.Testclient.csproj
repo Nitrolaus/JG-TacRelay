@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Funk.Protokoll\Funk.Protokoll.csproj" />
+    <ProjectReference Include="..\..\src\Funk.ClientKern\Funk.ClientKern.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Simulierte Funker gegen einen Server (Lasttest nach server-sicherheit.md B20), auf Basis von Funk.ClientKern. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>funk-testclient</AssemblyName>
+    <RootNamespace>Funk.Testclient</RootNamespace>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+Zustandsverzeichnis im Format von JG TacRelay 0.1.0 (Stand 5053590, Serverpaket 20260930_1957), erzeugt am 01.10.2026
+von den Programmen dieses Stands selbst: funk-testserver 0.1.0 mit der server.json-Vorlage von 0.1.0 (ohne totpSchluessel),
+funk-admin 0.1.0 und funk-echo 0.1.0 im Testzugang auf Loopback, ohne TLS und ohne Fenster.
+
+Nachgestellt ist der Weg aus HEIMSERVER-PROXMOX.md, Abschnitte 10 und 11, in der Fassung für 0.1.0:
+- Konto 1 "Test": verknuepfen --discord 111111111111111111 --benutzername test --name Test --stufe ADMIN, Gerät freigegeben,
+  ohne SC-Namen, ohne Discord-Namen, ohne Eigentümer und ohne Admin-Nachweis (die gab es in 0.1.0 noch nicht)
+- Netz 90 "Echo", offen HOEREN_SENDEN, VA
+- Konto 2 "Echo" (echo-funker, 100000000000000001) mit freigegebenem Gerät
+- Konto 3 "Probe" (echo-probe, 100000000000000002), Gerät nach der Echo-Probe entfernt
+
+Alles darin sind Testwerte: Fingerabdrücke flüchtiger Schlüssel, erfundene Discord-Zahlen. Die Vorrangspur trägt nur
+HMAC-Werte des damaligen Test-Geheimnisses. Gebraucht von Uebergang010Tests.cs.
+
+Nachtrag 19.10.2026 (Umbau JG TacRelay, Schritt 4): Namen am 19.10.2026 neutralisiert. Konto 1 heißt "Test" mit dem
+Benutzernamen "test" (vorher ein anderer Name), in konten.json (auch im Namensindex an seiner Stelle der Sortierung) und
+lage.json. Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.

@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "verbindung": {
+    "adresse": null,
+    "testzugang": null,
+    "geraetename": "Testrechner",
+    "beimStartVerbinden": false,
+    "alsFunkerBeimVerbinden": false
+  },
+  "anmeldung": {
+    "scName": "Mustermann",
+    "discordName": "Mustermann/Max",
+    "bestaetigt": true,
+    "vollstaendig": true
+  },
+  "anzeige": {
+    "zeichenNebenNamen": true,
+    "zeichenImFunkfeld": false
+  },
+  "audio": {
+    "eingangId": null,
+    "ausgangId": null,
+    "hoerweise": "Lautsprecher",
+    "rauschunterdrueckung": true,
+    "echounterdrueckung": true,
+    "beimStartOeffnen": true
+  },
+  "gate": {
+    "modus": "Automatisch",
+    "lernen": false,
+    "schwelleDb": -45,
+    "abstandDb": 9,
+    "korridorVonDb": -55,
+    "korridorBisDb": -30,
+    "anstiegSekunden": 2,
+    "rueckkehrSekunden": 5,
+    "sprachsicherheit": 0.5
+  },
+  "funkfeld": {
+    "ansicht": 10,
+    "darstellung": "Raster",
+    "durchsichtigkeit": 0,
+    "schriftDeckend": false,
+    "beimStartZeigen": true,
+    "ablageHinweisGezeigt": false,
+    "fenster": null,
+    "fensterorte": {}
+  },
+  "netze": {},
+  "hauptfensterOrt": {
+    "links": 300,
+    "oben": 200,
+    "breite": 1280,
+    "hoehe": 860,
+    "maximiert": false
+  },
+  "schwellenbereich": {
+    "offen": false,
+    "hoehe": 360
+  },
+  "tasten": {
+    "eintraege": [
+      {
+        "funktion": "NetzVor",
+        "art": "Tastatur",
+        "code": 78,
+        "geraet": null
+      },
+      {
+        "funktion": "NetzZurueck",
+        "art": "Tastatur",
+        "code": 74,
+        "geraet": null
+      }
+    ],
+    "weitere": [],
+    "meldenetz": null,
+    "voreingestellt": true
+  },
+  "klick": {
+    "eigeneAn": true,
+    "eigeneDb": -10,
+    "andereAn": true,
+    "andereDb": -15,
+    "klang": "Piep",
+    "beiSprachaktivierung": true
+  },
+  "bereich": "netze",
+  "farbstellung": "Weinrot"
+}

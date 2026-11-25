@@ -1,0 +1,60 @@
+# JG TacRelay - Maintainer: Sarevoc
+# Beispiel-Unit für den Echo-Funker im selben LXC wie der Server. Nach /etc/systemd/system/funk-echo.service kopieren.
+# Der Echo-Funker ist ein gewöhnlicher Teilnehmer: TLS mit Pin aus dem Serverprofil, eigener Geräteschlüssel. Der Schlüssel
+# liegt in /var/lib/funk-echo (StateDirectory, nur für den Dienstbenutzer). Die erste Registrierung einmal von Hand, der
+# Code steht dann auf dem Bildschirm und nicht im Journal (HEIMSERVER-PROXMOX.md, im Paket unter linux/, Abschnitt 11).
+# --adresse ist die Adresse, an die der Server bindet (wie "binden" in server.json); geprüft wird trotzdem der Pin. Sie steht in
+# /etc/funk/echo.env als FUNK_ECHO_ADRESSE=..., angelegt von funk-einrichten.sh; so muss niemand diese Datei ändern. Ohne
+# echo.env gilt die Zeile Environment= unten (dann dort die eigene Adresse eintragen, HEIMSERVER-PROXMOX.md, Abschnitt 11).
+
+[Unit]
+Description=JG TacRelay Echo-Funker
+After=network-online.target funk-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=funk-echo
+Group=funk-echo
+Environment=FUNK_ECHO_ADRESSE=192.168.1.50
+EnvironmentFile=-/etc/funk/echo.env
+ExecStart=/usr/bin/dotnet /opt/funk/funk-echo.dll --profil /etc/funk/profil.json --identitaet /var/lib/funk-echo/geraet.pem --adresse ${FUNK_ECHO_ADRESSE}
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+StateDirectory=funk-echo
+StateDirectoryMode=0700
+
+# Keine Speicherabbilder mit Sitzungs- oder Geräteschlüsseln (7.5).
+LimitCORE=0
+Environment=DOTNET_DbgEnableMiniDump=0
+Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+# Härtung wie funk-server.service; MemoryDenyWriteExecute bleibt aus (JIT).
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+# AF_NETLINK anders als beim Server: Der Echo-Funker ist ein Client, und .NET hört auf Adressänderungen
+# (NetworkChange) über einen Netlink-Socket. Ohne ihn wirft .NET beim Start des Sprachwegs eine Ausnahme.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Meldungen der Leitung über dem Spiel (0.12.0, Sarevoc 11.10. und 16.10.2026, M3-M23): ein kleines Fenster nach dem Muster der Sprecheranzeige, nur so
+  groß wie die Plätze samt Zeilen und Schatten (SizeToContent), ohne Fläche und ohne Rahmen; immer oben, nie aktiviert, durchklickbar, nicht in Alt+Tab
+  und Taskleiste, ohne Owner. Die Plätze und ihr Aussehen kommen aus der gemeinsamen Vorlage Meldeanzeige.Bild (Design\Stile.xaml). Verborgen,
+  solange nichts zu zeigen ist.
+-->
+<Window x:Class="Funk.Client.Fenster.MeldeanzeigeFenster"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="JG TacRelay Meldungen" WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowActivated="False" ShowInTaskbar="False" Topmost="True" SizeToContent="WidthAndHeight" Focusable="False" IsHitTestVisible="False">
+    <ContentControl x:Name="Inhalt" Content="{Binding Bild}" ContentTemplate="{StaticResource Meldeanzeige.Bild}" Focusable="False" IsTabStop="False" />
+</Window>

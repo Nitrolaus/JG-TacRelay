@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 32 32">
+  <!-- JG TacRelay - Maintainer: Sarevoc. Selbst gezeichnet, Vorlage siehe grafik\abzeichen\LIESMICH.md -->
+<path d="M5 8 L16 1 L27 8 L27 12 L16 5 L5 12Z" fill="#d9b452" stroke="#7a5a12" stroke-width=".8" stroke-linejoin="round"/><path d="M5 14 L16 7 L27 14 L27 18 L16 11 L5 18Z" fill="#d9b452" stroke="#7a5a12" stroke-width=".8" stroke-linejoin="round"/><path d="M5 20 L16 13 L27 20 L27 24 L16 17 L5 24Z" fill="#d9b452" stroke="#7a5a12" stroke-width=".8" stroke-linejoin="round"/><path d="M5 20 Q16 26 27 20 L27 23 Q16 29 5 23Z" fill="#d9b452" stroke="#7a5a12" stroke-width=".8"/><path d="M5 24 Q16 30 27 24 L27 27 Q16 33 5 27Z" fill="#d9b452" stroke="#7a5a12" stroke-width=".8"/>
+</svg>

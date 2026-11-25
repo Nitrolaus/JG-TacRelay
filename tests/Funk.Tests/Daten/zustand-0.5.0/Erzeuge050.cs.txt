@@ -1,0 +1,65 @@
+// JG TacRelay - Maintainer: Sarevoc
+using Funk.Server.Betrieb;
+using Funk.Server.Kern;
+using L = Funk.Server.Lage;
+
+namespace Funk.Tests;
+
+/// <summary>
+/// Erzeugt ein Zustandsverzeichnis im Format von JG TacRelay 0.5.0 mit den Programmteilen von Server und Protokoll im Stand
+/// 0.5.0 (Worktree modul/s3 auf 2fde4e3 vor jeder Änderung; src/Funk.Server und src/Funk.Protokoll sind dort gleich 95aa78b, der
+/// Fassung 0.5.0), für tests\Funk.Tests\Daten\zustand-0.5.0 in 0.6.0. Läuft nur mit FUNK_ERZEUGE_ZIEL. Grundlage ist der Abend
+/// aus zustand-0.4.0 (Herkunft dort); darauf legt der Zustandsschreiber von 0.5.0 Phasen an, schaltet Phase 2, schaltet Test in den
+/// Funker-Modus und legt bei Otto das offene Netz Echo selbst in ein Feld. Alles sind Testwerte.
+/// </summary>
+internal static class Erzeuge050
+{
+    [Test]
+    public static void Erzeuge050_Zustand()
+    {
+        var ziel = Environment.GetEnvironmentVariable("FUNK_ERZEUGE_ZIEL");
+        if (string.IsNullOrEmpty(ziel)) return;
+        Directory.CreateDirectory(ziel);
+        var d = new DirectoryInfo(AppContext.BaseDirectory);
+        while (d is not null && !File.Exists(Path.Combine(d.FullName, "TacRelay.slnx"))) d = d.Parent;
+        var quelle = Path.Combine(d!.FullName, "tests", "Funk.Tests", "Daten", "zustand-0.4.0");
+        foreach (var datei in Directory.GetFiles(quelle, "*.json")) File.Copy(datei, Path.Combine(ziel, Path.GetFileName(datei)), overwrite: true);
+
+        const uint test = 1, otto = 2;
+        var ablage = new Zustandsablage(ziel);
+        // Konten, Admins und Mitglieder einmal durch 0.5.0 lesen und schreiben, damit alle Dateien in der Form von 0.5.0 vorliegen.
+        ablage.KontenSpeichern(ablage.KontenLaden());
+        ablage.AdminsSpeichern(ablage.AdminsLaden());
+        ablage.MitgliederSpeichern(ablage.MitgliederLaden());
+        var (lage, neben) = ablage.LageLaden();
+        var jetzt = lage.Konten.Values.Where(k => k.Platz is not null).Max(k => k.Platz!.Value.Gesetzt) + 60_000;
+        var schreiber = new L.Zustandsschreiber(lage, neben, ablage);
+        var komfort = new Komfortablage();
+        komfort.Laden(File.ReadAllBytes(Path.Combine(ziel, "komfort.json")));
+        foreach (var (konto, a) in komfort.Auswahlen) schreiber.SendeauswahlSetzen(konto, a.Felder, a.Global, jetzt);
+
+        L.RollenFeld Rf(byte feld, ushort netz, bool hoeren, bool senden, bool standard = false) => new(feld, netz, null, hoeren, senden, standard, false);
+        L.RollenFeld Kennung(byte feld, string k, bool hoeren, bool senden, bool standard = false) => new(feld, 0, k, hoeren, senden, standard, false);
+        var entern = new L.Einsatzphase(2, "Entern", "ENTERN")
+        {
+            Varianten =
+            [
+                new L.PhasenVariante(13) { Felder = [Kennung(0, "CREW", true, false), Rf(1, 2, true, false), Rf(2, 50, true, true, standard: true)] },
+                new L.PhasenVariante(10) { Felder = [Rf(0, 2, true, true, standard: true), Kennung(1, "CREW", true, true), Kennung(2, "BRUECKE", true, true), Rf(3, 50, true, false)] },
+            ],
+        };
+        void Tun(L.Auftrag a, string was)
+        {
+            var r = schreiber.Ausfuehren(a, jetzt);
+            Pruefe.Wahr(r.Erfolg, was + ": " + r);
+        }
+        Tun(L.Auftrag.SitzungAktivieren(test, 4711, 10), "Test online");
+        Tun(L.Auftrag.PhaseSetzen(test, new L.Einsatzphase(1, "Anflug", "ANFLUG"), schreiber.Aktuell.NetzListeVersion), "Grundstellung Anflug");
+        Tun(L.Auftrag.PhaseSetzen(test, entern, schreiber.Aktuell.NetzListeVersion), "Phase 2 Entern");
+        Tun(L.Auftrag.FunkermodusSetzen(test, true, jetzt + 6 * 3600_000L), "Test heute als Funker");
+        Tun(L.Auftrag.PhaseSchalten(otto, 2, 1), "Otto schaltet Entern");
+        Tun(L.Auftrag.FeldSetzen(otto, 1, 90), "Otto legt Echo selbst in Feld 1");
+        Tun(L.Auftrag.SitzungBeenden(4711), "Test geht");
+        File.WriteAllBytes(Path.Combine(ziel, "komfort.json"), komfort.AlsJson());
+    }
+}

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Funk.Protokoll\Funk.Protokoll.csproj" />
+    <ProjectReference Include="..\Funk.ClientKern\Funk.ClientKern.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Echo-Funker als eigener Prozess gegen einen laufenden Server (TLS mit Pin) oder einen Testserver (Testzugang). -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>funk-echo</AssemblyName>
+    <RootNamespace>Funk.Echo</RootNamespace>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
+</Project>

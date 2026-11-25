@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/extern/">
+    <Project Path="extern/Glasdesign/Glasdesign.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Funk.Admin/Funk.Admin.csproj" />
+    <Project Path="src/Funk.Client/Funk.Client.csproj" />
+    <Project Path="src/Funk.ClientKern/Funk.ClientKern.csproj" />
+    <Project Path="src/Funk.Echo/Funk.Echo.csproj" />
+    <Project Path="src/Funk.Klang/Funk.Klang.csproj" />
+    <Project Path="src/Funk.Protokoll/Funk.Protokoll.csproj" />
+    <Project Path="src/Funk.Server/Funk.Server.csproj" />
+    <Project Path="src/Funk.Verwaltung/Funk.Verwaltung.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Funk.Testclient/Funk.Testclient.csproj" />
+    <Project Path="tests/Funk.Tests/Funk.Tests.csproj" />
+    <Project Path="tests/Funk.Testserver/Funk.Testserver.csproj" />
+  </Folder>
+</Solution>

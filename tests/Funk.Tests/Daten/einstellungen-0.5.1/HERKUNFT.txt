@@ -1,0 +1,11 @@
+Einstellungsdatei des Clients im Format von JG TacRelay 0.5.1 (main 9b02bd8, Setup 20261002_0936, entpackt), erzeugt am
+02.10.2026 von diesem Client selbst: EinstellungsSpeicher.Laden und Speichern von 0.5.1 über Reflection in einem eigenen
+AssemblyLoadContext, ohne Fenster und ohne Gerät (Skript tmp\tr-ui2b\datei051-erzeugen.ps1 der Stufe 2b von 0.6.0).
+
+Nachgestellt ist ein Funker nach einem Abend mit 0.5.1: Namen eingetragen und bestätigt (Beispielname Max Mustermann),
+Hauptfenster auf 1280 x 860 gezogen, linke obere Ecke bei 300 / 200 Bildpunkten, zuletzt im Bereich Netze, Funk-Klick mit dem
+Klang Piep und eigener Taste -10 dB, Lautsprecher, Sprachaktivierung zugeklappt mit 360 hoch. Der Gerätename ist von Hand auf "Testrechner" gesetzt, sonst stünde der Name des Rechners darin,
+auf dem die Datei entstand.
+
+Gebraucht von OberflaecheStufe2bTests (Umstieg: Startseite klein an der alten Lage, alte Größe für die Seiten, klang wird
+übergangen).

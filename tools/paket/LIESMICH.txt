@@ -1,0 +1,267 @@
+JG TacRelay - Probefunk
+Paket {{PAKET}}
+
+Was ist das?
+Mit diesem Paket probierst du den ganzen Funkweg auf deinem eigenen PC aus, ohne eigenen Server. Ein Testserver läuft nur
+auf deinem PC (127.0.0.1, von außen nicht erreichbar), dazu ein Echo-Funker: Er hört im Kanal Echo mit und schickt dir
+jeden Satz eine halbe Sekunde später zurück. So hörst du dich selbst, wie dich die anderen hören würden, über Server,
+Jitterpuffer und Mischer.
+{{HINWEIS_CLIENT}}
+Voraussetzung
+- Windows 10 oder 11, 64 Bit.
+- .NET Desktop Runtime 10 (x64) von Microsoft. Fehlt sie bei dir, meldet sich das Programm beim Start und nennt die
+  Seite von Microsoft, auf der es sie gibt. Die Desktop Runtime bringt die normale .NET-Laufzeit mit, mehr brauchst du
+  nicht. Auf dem PC, auf dem das Paket gebaut wurde, ist installiert: {{LAUFZEIT}}.
+- Ein Mikrofon und Kopfhörer oder Lautsprecher.
+
+Probefunk starten
+1. Den Ordner an einen Ort entpacken, an dem du schreiben darfst, zum Beispiel unter Dokumente. Nicht nach "Programme".
+2. Doppelklick auf "Probefunk starten.cmd". Es geht ein schwarzes Fenster auf, das ist der Testserver mit dem
+   Echo-Funker. Kurz danach startet JG TacRelay und verbindet sich über den Testzugang.
+3. Du bist ohne weiteres Zutun im Kanal Echo (dort sendest du) und in Kommando. Auf Start wählst du Mikrofon und Ausgabe,
+   links unter "Sprechen" und rechts unter "Hören"; ohne Wahl gilt der Windows-Standard. Beim ersten Start sind dort
+   "Ich höre mit" (Headset oder Lautsprecher) und die Sprechtaste umrandet; wähle, was du trägst, und drück deine
+   Sprechtaste oder klick "Später".
+4. Zum Beenden schließt du JG TacRelay. Das schwarze Fenster geht dann von selbst zu.
+
+Im Kanal Echo sprechen und dich selbst hören
+- Sprich einen Satz in den Kanal Echo, mit Sprachaktivierung oder mit der Sprechtaste. Eine halbe Sekunde nachdem du
+  aufgehört hast, kommt er zurück.
+- Ein Satz darf bis zu 30 Sekunden lang sein, was darüber hinausgeht, fällt weg. Der Echo-Funker nimmt immer nur einen
+  Satz zur Zeit auf, und nach seiner Wiedergabe wartet er eine Sekunde, bevor er dir wieder zuhört.
+- Im schwarzen Fenster steht mit, was er tut: "Aufnahme beginnt", "Aufnahme ... beendet", "Wiedergabe fertig".
+- Rolle und Schiff kannst du ausprobieren: Pilot, Crew oder Kommandant auf Schiff 1 bis 3, oder Flottenführung. Der
+  Kanal Echo bleibt dabei in jeder Rolle.
+- Als Admin findest du unter Einstellungen in der Karte Ich auch "Heute als Funker" (neu in 0.5.0): Dann ruhen bis
+  04:00 deine Rechte der Einsatzleitung (Führung und Einteilen), dazu Global, Durchsagen und das Brett; "Wieder Admin" holt
+  dich zurück, ohne Code.
+  Phasen für die Flotte legt ein Admin im Verwaltungsteil an; der Probefunk bringt keine mit.
+- Im Probefunk bist du Admin. Links steht deshalb auch Raid (Strg+5), das Brett der Einsatzleitung (neu in 0.3.0): Karten
+  auf einen Platz ziehen, auf eine Person (Tausch), auf einen Spaltenkopf (bester freier Platz) oder nach links (zurück
+  auf Standard). Hier kannst du das Ziehen gefahrlos ausprobieren, auch die Kacheln unter den Netzen rechts (Neu in 0.11.1).
+
+Neu in 0.13.1 (erste öffentliche Fassung)
+- Der Quelltext ist öffentlich, unter der Apache-Lizenz 2.0 (LICENSE und NOTICE im Repository).
+- Das Stoppschild mit der dreifingrigen Alien-Hand heißt jetzt Xeno. Bild und Wahl unter Einstellungen, Meldungen
+  bleiben, wie sie waren.
+- Am Funken ändert sich nichts.
+
+Neu in 0.13.0 (erste Fassung als JG TacRelay)
+- Das Programm heißt jetzt JG TacRelay; bis 0.12.0 hieß es anders. Neu sind die Programmdatei TacRelay.exe, der
+  Datenordner %LOCALAPPDATA%\JG-TacRelay und das Symbol, ein Kopfhörer im Sechseck in Petrol auf Anthrazit.
+- Farben: Anthrazit und Grau, ruhig, mit dem Akzent Petrol statt Weinrot. Grün für Senden, Gelb und Rot für Warnungen
+  bleiben. Eine Farbwahl unter Einstellungen gibt es nicht mehr.
+- Die Kanalvorlage heißt Star Citizen und ersetzt die früheren Vorlagen: zehn Kanäle mit Ch. (Kommando, Flotte, Brücke,
+  Crew, Jäger, Bodentrupp, Logistik, Bergung und Bergbau, Sanität, Allgemein) und 14 Rollen. Der Probefunk bringt sie
+  nicht mit; am Server kommt sie mit funk-admin flotte-vorlage oder im Verwaltungsteil unter Werkzeuge.
+- Spielprofil: Unter Einstellungen, Sprecheranzeige, Erweitert, "Spiel" wählst du Star Citizen (ab Werk) oder ein
+  anderes Spiel über seine Programmdatei. Sprecheranzeige, Meldungen und Meldezeile suchen dann dessen Monitor.
+- Alle Kennungen sind neu, einen Übergang von 0.12.0 gibt es nicht: Server und Client gemeinsam neu aufsetzen, Geräte
+  neu freigeben, Admin-Nachweis und Zweitfaktor (TOTP) neu einrichten, das Serverprofil neu signieren. Der alte
+  Server-Stand wird nicht übernommen.
+
+Neu in 0.12.0 (Meldungen der Leitung)
+- Die Leitung schickt Grafiken an alle, die online sind: Befehle (Sammeln, Sammelpunkt, Stopp, Rückzug, Start frei,
+  Med. Hilfe, Los, Stopfen; 8 s groß, mit kurzem Ton), Zustände (Einsatz oder Event noch nicht gestartet, Position halten,
+  Funkdisziplin, Pause; klein, bis aufgehoben), eine Ampel (rot, gelb, grün, nur von Hand), einen Countdown ("Start um"
+  oder "Restzeit", Ton in den letzten 10 s) und die Bereit-Abfrage; normal, doppelt oder dreifach, mit einer Zeile darunter.
+- Dazu Text ohne Grafik, bis 120 Zeichen: in Weiß, Gelb, Orange, Rot, Grün oder Blau, normal, doppelt oder dreifach, 8 s oder
+  bis die Leitung ihn aufhebt. Er steht unter dem Befehlsplatz in höchstens zwei Zeilen, mit Schatten und ohne Fläche, und
+  klingt wie ein Befehl. Die Leitung schreibt ihn im Feld "Meldungen" unter "Text".
+- Die Xeno-Hände im Stopp-Schild und in der Ampel haben jetzt drei Finger (Korrektur v4).
+- Über dem Spiel stehen sie ab Werk oben in der Mitte, auf dem Monitor von Star Citizen (randlos). Einstellen unter
+  Einstellungen, Meldungen: unter "Wo im Bild" die Regler Waagerecht und Senkrecht (beim Schieben eine Probe), unter Erweitert
+  Grundgröße (ab Werk 180), Ausführung Schlicht, Metall oder Nur Schrift, das Bild beim Stopp (Handschuh oder Xeno) und
+  den Ton.
+- Fragt die Leitung, wer bereit ist, meldest du dich mit der neuen Taste "Bereit" (Einstellungen, Tasten, Erweitert, ab Werk
+  unbelegt) oder dem grünen Knopf "Bereit melden" oben im Hauptfenster; danach steht dort "gemeldet".
+- Senden dürfen Führung, Admins und die Einsatzleitung mit Auftrag, wenn ein Admin auf ihrer Mitgliederkarte "darf Meldungen
+  senden" angehakt hat: dann steht auf der Funkfeld-Zuteilung (Strg+5) das Feld "Meldungen".
+- Client und Server gemeinsam aktualisieren: Meldungen gibt es erst mit einem Server ab 0.12.0.
+
+Neu in 0.11.9 (Sprecheranzeige)
+- Über dem Spiel steht, wen du gerade hörst: der Name fett, dahinter der Kanal mit Ch. ("Brücke (Schiff 1)"), eine
+  Durchsage als "Durchsage an alle" oder "Durchsage: Kanal", Global als "Global". Weiße Schrift mit leichtem Schatten, ohne
+  Fläche und ohne Zeichen. Gezeigt wird nur, wen du wirklich hörst; abgeschaltete Kanäle und stumm geschaltete Funker nicht.
+- Ab Werk an, ganz oben links, eine Zeile, 1,0 s Nachhalten, 0,5 s Ausblenden, eigene Sendung aus. Einstellen unter
+  Einstellungen, Sprecheranzeige: Schalter und unter "Wo im Bild" die Regler Waagerecht und Senkrecht, je 0 bis 100 % des
+  Monitors (beim Schieben steht eine Probezeile genau dort über dem Spiel, noch 3 s danach), unter Erweitert Größe,
+  Durchsichtigkeit, Zeilen 1 bis 4, Nachhalten, Ausblenden, eigene Sendung und Monitor.
+- Star Citizen muss im Modus "Randloses Fenster" laufen; im exklusiven Vollbild sagt es der Abschnitt unter Einstellungen.
+  Am Server ändert 0.11.9 nichts.
+
+Neu in 0.11.8 (Untergilden entfallen)
+- Untergilden gibt es nicht mehr: kein Kürzel in Wer ist da und auf der Funkfeld-Zuteilung, die Suche findet Name, SC-Name und
+  Discord-Name. "Meine Angaben in Wer ist da zeigen" (Einstellungen, Ich) nennt nur noch Zeichen und Abzeichen.
+- Im Verwaltungsteil keine Seite Untergilden und keine Auswahl auf der Karte eines Mitglieds. Bei "Liste einfügen" bleibt die
+  dritte Spalte leer (SC;Discord;;Rollen); steht dort etwas, wird es übergangen, und ein Hinweis sagt es.
+
+Neu in 0.11.1 (Senden wieder offen, Brett)
+- Brett: Eine Karte, die du auf eine Rolle ziehst, landet jetzt auf dieser Rolle. Bis 0.11.0 nahm die Spalte der Einheit
+  die Ablage an sich und setzte ihren "besten Platz", bei Rollen ohne Einheit immer die erste, auch beim Ziehen auf sich selbst.
+  Der Spaltenkopf setzt weiter auf den besten Platz, aber nur, wenn du außerhalb der Blöcke loslässt.
+- Brett, Netze rechts: Unter jedem Netz stehen die Personen darin als kleine Kacheln (mit Ch., ", hört", wenn sie nur
+  hören). Die Kachel eines Zusatznetzes ziehst du auf "hört" oder "hört + sendet" (stellt das Feld um; bei einem Kanal mit
+  Ch. fragt das Raster und bietet auch den jetzigen Ch. an), auf ein anderes Netz (das Feld zieht um, kein zweites
+  entsteht) oder nach links in die Liste (das Zusatznetz ist weg); das Kreuz an der Kachel tut dasselbe. Ein Netz aus der
+  Rolle hat kein Kreuz und lässt sich nicht ziehen (den Kanal bestimmt der Platz; der Hilfetext sagt es). Eine Person ohne
+  Platz geht mit ihren Zusatznetzen nach links auf Standard; ein offenes Raster schließt mit der nächsten Ablage.
+- Brett, Ziehen mit Vorschau: Während du eine Person ziehst, steht sie gedämpft im ersten freien Platz des Blocks unter
+  der Maus (beim Spaltenkopf im besten Platz), nur wenn die Ablage passt; der Satz grün, gelb oder rot bleibt. In einem
+  Block ohne Platzgrenze (Rollen ohne Einheit) gibt es keine freien Plätze; dort erscheint für die Vorschau eine Zeile
+  an der Stelle, an der die Person nach dem Namen stünde. Lässt du los, gleitet die Karte in etwa 150 ms an ihren Platz,
+  statt zu springen; verlässt du die Zeile, verschwindet die Vorschau weich.
+- Meldezeile an einem festen Platz: Sie steht nicht mehr am Funkfeld, sondern ab Werk oben in der Mitte des Monitors, auf
+  dem Star Citizen läuft (sonst des Hauptmonitors), fest 640 Einheiten breit bei 0 %. Unter Einstellungen, Funkfeld und
+  Darstellung, Erweitert, Gruppe "Meldezeile" wählst du die Stelle in einem Raster aus neun Feldern (jeder Klick zeigt sie
+  dort 3 Sekunden als Probe, auch auf das schon gewählte Feld) und den Monitor (Automatisch, Hauptmonitor, Monitor 1, 2,
+  ...); "Probe zeigen" zeigt sie jederzeit. Kein Dauerfeuer: Ein Hinweis, der von selbst entsteht (etwa "Ruhe: es wird
+  nichts gesendet", das Urteil des Wächters), erscheint höchstens einmal in 5 Minuten. Jedes Mal erscheint, was eine Taste
+  beantwortet (Mikro stumm, Phase, Kanal vor und zurück), was der Server meldet (Einteilung, Phase, Kanäle, Entzug des
+  Senderechts, auch wenn derselbe Stand binnen 5 Minuten zurückkehrt) und jeder Fehler. Eigene Aktionen melden nichts
+  (auch eine selbst geschaltete Phase nicht mehr), und beim Zeigen des Funkfelds erscheint nichts, was nicht neu ist.
+- Unter Einstellungen, Senden stehen die Schiebeschalter wieder offen, ohne Aufklappen, wie bis 0.9.3 auf der Seite Audio,
+  je mit ihrem kurzen Satz: links Echounterdrückung (Automatisch, An, Aus), Echoschutz und Rauschunterdrückung mit
+  Standard und Stark, rechts automatische Lautstärke, Sprachaktivierung und Mindest-Funklautstärke. Darunter über die ganze
+  Breite die Funkschwelle: der Pegelbalken mit seinen Griffen für Mindest-Funklautstärke und Obergrenze, daneben
+  "Einmessen", darunter "Genau einstellen ..." für die Seite Sprachaktivierung.
+- Die zugeklappten Bereiche unter jedem Abschnitt heißen jetzt "Erweitert:" (das Wort fett), dahinter der Stand und der
+  Inhalt, etwa "Erweitert: (1 selbst gestellt) Feste Verstärkung, Mithören, Klangfarbe". Unter Senden stehen dort nur noch
+  die feste Verstärkung (nur ohne automatische Lautstärke nötig), Mithören und die Klangfarbe; "Zurück auf
+  Werkseinstellung" stellt nur das zurück, die offenen Schalter darüber bleiben, wie sie stehen. Was du auf- oder
+  zugeklappt hattest, bleibt so.
+- Verwaltungsteil (nur mit dem Admin-Setup): Bei 175 % lag der Knopf "Mitglied vormerken" über der Überschrift, und der
+  Suchtext war abgeschnitten. Jetzt stehen Liste und Karte in schmalen Fenstern untereinander statt nebeneinander, ein
+  Knopf neben einer Überschrift rutscht darunter, wenn der Platz fehlt, Beschriftungen und Listenzeilen brechen um statt
+  mit "..." zu enden, und die Felder einer Phasenvariante stehen so viele je Reihe, wie Platz ist.
+
+Neu in 0.11.0 (Zuordnung)
+- Personen als Kacheln: In "Wer ist da" und in den Listen links im Brett (Neu im Funk, Ohne Platz, Alle Mitglieder) steht
+  jede Person als kleine Kachel, drei je Reihe in "Wer ist da", mit Abzeichen und einem grünen Punkt, wenn sie angemeldet
+  ist; ohne Abzeichen steht ihr Anfangsbuchstabe im Kreis, offline ein hohler Ring. Lange Namen enden auf "...", den ganzen
+  Namen nennt der Hilfetext. Ein Klick öffnet wie bisher die Mitgliedskarte, gezogen wird im Brett wie bisher. Die
+  Einsatzleitung kann in "Wer ist da" mit "auch offline" alle Mitglieder sehen; die Gruppen zählen dann die Angemeldeten
+  und nennen dahinter, wie viele offline sind.
+- Ch. je Person: Im Brett steht im Detail der gewählten Person an jedem Feld mit Ch. ein Knopf "Ch.". Er öffnet dasselbe
+  Raster wie beim Ziehen auf einen Kanal; der gewählte Ch. ist ein Vorschlag, die Person kann ihn selbst wieder ändern.
+  Steht das Feld auf Ruhe und sendet die Person noch nirgends hin, wird es ihr Sendeziel (Server 0.11.0).
+- Ansage beim Login: Hat dich jemand vorab eingeteilt, während du offline warst, sagt die Meldezeile beim Verbinden 12
+  Sekunden lang "Eingeteilt von ...: Schiff 1, Gunner", in einer Zeile mit Platz und Rolle; deine Kanäle und wohin du
+  sendest, zeigen die Kacheln darunter. Nach einer kurzen Trennung kommt sie nicht noch einmal, auch nicht nach einer
+  Phase oder einem eigenen Ch. Oben links im Funkfeld steht dann die Rolle deines Platzes statt "Rolle wählen"; Mausrad
+  und Liste gehen von ihr aus.
+- Meldezeile einzeilig: Jede Meldung über dem Funkfeld ist genau eine Zeile und höchstens so breit wie das Funkfeld; was
+  nicht hineinpasst, endet mit "...". Die Sätze sind dafür kürzer, etwa "Kanäle geändert von ...: hörst Kommando" oder
+  "Nicht gesendet: kein Senderecht mehr in Crew 1 (Name)". Das Funkfeld bleibt so klein wie bisher.
+- Deine Rolle bleibt gemerkt: Teilt dich jemand anders ein, vergisst JG TacRelay deine selbst gewählte Rolle nicht mehr.
+  Ohne Einteilung bist du beim nächsten Login wieder auf ihr.
+- Untergilden behalten Stammeinheit und Ansprechpartner, wenn jemand sie im Verwaltungsteil speichert (bis 0.10.0 gingen
+  beide dabei verloren).
+- Im Probefunk bist du Admin und kannst die Kacheln am Brett ausprobieren. "Ch." steht nur an Kanälen mit Ch., die der
+  Probefunk nicht mitbringt, und die Ansage beim Login braucht einen zweiten Funker, der dich einteilt, während du offline
+  bist; beides zeigt sich erst am Heimserver.
+
+Neu in 0.10.0 (Einstellungen einfach)
+- Links stehen nur noch Start (Strg+1) und Einstellungen (Strg+2), dazu Raid und Verwaltung, wenn es sie für dich gibt.
+  Die Bereiche Audio und Meine Kanäle gibt es nicht mehr.
+- Start: Verbinden oder Trennen, je ein Stecker für Server und Sprache, darunter "Sprechen" (Mikrofon, Sprechtaste mit
+  "Ändern", Senden mit Stimme) und "Hören" (Ausgabe, die neue Funk-Lautstärke für den ganzen Funk, Headset oder
+  Lautsprecher, die Hörprobe, die jetzt auch verbunden geht). Mit Einheiten in der Flotte steht dort auch Einsteigen.
+- Unten auf jeder Seite die Statuszeile "Mikrofon": Pegel, SENDET, Ruhe oder Getrennt, und wenn du sprichst und nichts
+  hinausgeht, ein Satz, warum.
+- Einstellungen in Abschnitten (Ich, Tasten, Empfangen, Senden, Funkfeld und Darstellung, Fehlersuche), je mit einem
+  zugeklappten Bereich (seit 0.11.1 "Erweitert:"); Tasten, Empfangen, Senden sowie Funkfeld und Darstellung sagen im Kasten
+  "Läuft von selbst", was ohne dich läuft, Fehlersuche sagt es in einem Satz, Ich hat keinen Kasten. "Zurück auf
+  Werkseinstellung" stellt den zugeklappten Bereich eines Abschnitts zurück. Lautstärke und Hören
+  je Kanal und je Person stehen unter Empfangen, Klangfarbe und Mithören unter Senden, der Funk-Klick unter Tasten. Unter
+  Ich wählst du deine Rollenwünsche als Schalter; der Stern daneben markiert die erste Wahl.
+- Das Fenster ist auf Start mindestens 900 x 900 groß; auf einem Bildschirm, der dafür zu niedrig ist (etwa ein Laptop mit
+  150 % Skalierung oder Full HD mit 125 %), nimmt es die Höhe, die da ist, und Start rollt. Die Geräteliste folgt dem Ein-
+  und Ausstecken, und im Menü des Symbols im Infobereich steht "Mikro stumm".
+- "Wer ist da" geht auch im kleinen Fenster auf: Das Fenster wird um die Spalte breiter; ist der Bildschirm dafür zu
+  schmal, liegt die Spalte als Schublade über der Seite.
+- Ist dein Gerät freigegeben, geht "Beim Start verbinden" einmal von selbst an (ausschalten unter Einstellungen,
+  Funkfeld und Darstellung, Erweitert). Im Probefunk verbindet JG TacRelay ohnehin von selbst.
+
+Seit 0.6.0 außerdem (das Wichtigste)
+- Kanäle mit Ch.: Ein Kanal kann Ch. haben (etwa Ruhe, Schiff 1 bis Schiff 20). Oben links im Funkfeld wählst du
+  eine Rolle; sie bestimmt den Kanal jedes Felds, du wählst je Feld nur den Ch. Nach der Rollenwahl steht jeder Ch. auf
+  Ruhe, und das erste Feld, das du von der Ruhe auf einen Ch. stellst, wird dein Sendeziel (0.8.1, 0.9.1). Der Probefunk
+  bringt keine Kanäle mit Ch. mit; sie kommen mit der Kanalvorlage (funk-admin flotte-vorlage).
+- Sperren: Die Einsatzleitung sperrt am Brett einen Kanal für eine Person oder für alle bis 04:00 und gibt ihn wieder frei
+  (0.6.0). Im Probefunk bist du Admin und kannst es am Brett ausprobieren.
+- Halteregel gegen Pumpen: Die automatische Lautstärke gleicht die Grundlautstärke deiner Stimme nur in Sprechpausen und in
+  kleinen Schritten an; mitten im Satz wird nichts lauter oder leiser (0.6.0; unter Einstellungen, Senden). Aus: eine
+  feste Verstärkung, die du unter Senden, Erweitert einmisst.
+- Der Funk-Klick beim Drücken und Loslassen ist ein kurzes Rauschen wie im Funkgerät, einstellbar unter Einstellungen,
+  Tasten, Erweitert (0.6.0).
+- Die Klangmodule (Echounterdrückung, Echoschutz, Rauschunterdrückung, automatische Lautstärke, Sprachaktivierung,
+  Mindest-Funklautstärke, Dämpfung von Dauersendern, Pegelausgleich) lassen sich einzeln schalten (0.9.0): die zum Senden
+  seit 0.11.1 offen unter Einstellungen, Senden, die zum Empfangen unter Empfangen, Erweitert; die Sprachaktivierung auch
+  auf Start mit "Senden mit Stimme".
+- Ch.-Listen ohne Scrollen (0.9.1).
+- Die Sprechtaste und die Melde-Taste senden nach dem Loslassen noch kurz weiter, ab Werk 100 ms, damit die letzte Silbe
+  ganz ankommt (0.9.3; einstellbar unter Einstellungen, Tasten, Erweitert).
+- Die Klangfarbe deiner Stimme (Wärme, Klarheit, Schärfe) stellst du selbst ein, ab Werk neutral (0.9.3; unter
+  Einstellungen, Senden, Erweitert). Sie ändert nur den Klang, nicht die Lautstärke.
+
+Sprechtaste, Joystick und Schwelle
+- Ab Werk ist keine Sprechtaste belegt. Beim ersten Start wartet Start darauf: Drück die gewünschte Taste, eine Taste der
+  Tastatur, Maustaste 4 oder 5, oder einen Knopf oder Hut an deinem Stick. Womit du dabei das Fenster bedienst, zählt
+  nicht: Tab, Pfeile, Eingabe und Leertaste, und Strg, Alt, Umschalt und Windows nur allein (beim Loslassen), nie in einem
+  Kürzel wie Alt+Tab. Esc bricht ab, "Später" lässt sie weg. Danach belegst du sie auf Start mit "Ändern" oder "Belegen",
+  mehrere unter Einstellungen, Tasten, Erweitert. Die Taste wirkt auch, wenn Star Citizen vorne ist.
+- Die Sticks liest JG TacRelay nur mit, wie ein Spiel: nicht exklusiv, nichts wird verstellt, HidHide bleibt unberührt.
+  Ist ein Stick beim Start nicht da, findet JG TacRelay ihn nach dem Anstecken wieder.
+- Numpad + und Numpad - schalten den Sendekanal weiter, auch aus dem Spiel heraus.
+- Im Probefunk stehen Echo, Reserve und die Schiffskanäle (Schiff 1 bis 3, Crew und Brücke) auf Sprachaktivierung, Kommando
+  und Global auf der Sprechtaste, Durchsagen geht nur mit der Sprechtaste. Neue Kanäle stehen ab 0.5.0 auf
+  Sprachaktivierung, Global auf der Sprechtaste.
+  Ob du sendest, zeigt unten die Statuszeile "Mikrofon". Wie empfindlich die Sprachaktivierung ist, siehst und stellst du
+  auf der Seite Sprachaktivierung unter Einstellungen (Strg+T öffnet sie, solange "Senden mit Stimme" auf Start an ist,
+  auch vor dem Verbinden): Pegel, Linie, und die Schalter Automatik und Lernen. Aufklappen unten im Fenster gibt es seit
+  0.10.0 nicht mehr.
+
+Headset oder Lautsprecher?
+- Beim ersten Start ist auf Start "Ich höre mit" umrandet; wähle Headset oder Lautsprecher. Headset schaltet die
+  Echounterdrückung aus, Lautsprecher schaltet sie ein. Ändern kannst du das jederzeit auf Start.
+- Mit Headset hörst du am ehrlichsten, wie du bei den anderen ankommst. Für den ersten Versuch am besten so.
+- Mit Lautsprechern kommt das Echo aus den Boxen. Die Echounterdrückung soll verhindern, dass dein Mikrofon es wieder
+  aufnimmt. Klappt das nicht ganz, schaukelt sich trotzdem nichts auf: Der Echo-Funker hört dir erst eine Sekunde nach
+  seiner Wiedergabe wieder zu.
+
+Ohne Fenster und ohne Mikrofon prüfen
+"Probefunk pruefen.cmd" startet den Testserver und spricht eine künstliche Sekunde ins Netz Echo. Am Ende steht
+"BESTANDEN" oder "NICHT BESTANDEN".
+
+Was im Ordner liegt
+- client: JG TacRelay.
+- server: der Testserver (funk-testserver) und das Prüfprogramm (funk-testclient), nur für diesen PC.
+- linux: funk-server, funk-admin, funk-echo und das Prüfprogramm für deinen Heimserver, dazu die Anleitungen
+  HEIMSERVER-PROXMOX.md, BETRIEB.md, HEIMSERVER-HAERTUNG.md, EINRICHTEN.md und UMZUG.md, das Einrichtungsskript
+  funk-einrichten.sh und "Profil erneuern.cmd" für deinen Stick.
+- lizenzen und THIRD-PARTY-NOTICES.txt: alle fremden Bestandteile mit ihren Lizenzen.
+- MANIFEST.txt: SHA-256 jeder Datei.
+- probe-zustand und probe-einstellungen.json legt der Probefunk selbst an. Den Zustand löscht er beim Beenden, die
+  Einstellungen des Probefunks bleiben getrennt von deinen normalen.
+
+Was noch fehlt
+- Der Heimserver auf deinem Proxmox: Anleitung in linux\HEIMSERVER-PROXMOX.md, Updates ab 0.6.0 nach Abschnitt 13, erst
+  der Server, dann die Setups für alle (von 0.5.0 erst Abschnitt 18, von 0.4.0 erst Abschnitt 17, von 0.2.0 oder 0.3.0
+  erst Abschnitt 16). In der Projektdoku eingetragen ist der Heimserver zuletzt mit 0.9.0 (06.10.2026); 0.10.0 ändert am
+  Server nichts außer der Fassung und der Frage von funk-admin erster-admin nach der Kennung ("von der Startseite deines
+  Clients"). 0.11.0 ändert am Server, wie ein eingeteilter Funker beim Anmelden zurückkommt, dass "zurück auf Standard"
+  keinen Platz mehr hält, dass ein nie angemeldetes Konto keinen vergebenen Platz ein zweites Mal belegt, dass der Ch. der
+  Einsatzleitung auf einem Feld auf Ruhe dein Sendeziel wird und dass Untergilden Stammeinheit und Ansprechpartner behalten
+  (linux\BETRIEB.md, "Update auf 0.11.0"). Die Freundesrunde mit mehreren Leuten
+  an einem Abend ist dort noch offen.
+- Das Einrichtungsskript funk-einrichten.sh ist auf Linux noch nicht gelaufen; vor dem ersten echten Einsatz kommt der
+  Probelauf im Wegwerf-Container (linux\EINRICHTEN.md, letzter Abschnitt).
+- Die Oberfläche von 0.10.0 (Start, erster Start, Statuszeile, Einstellungen), von 0.11.0 (Kacheln, "Ch." im Brett,
+  Ansage beim Login) und von 0.11.1 (Senden offen, Erweitert) ist nur im Bildlauf der Tests geprüft, ohne Bildschirm gezeichnet; am echten PC noch
+  nicht, ebenso die Funk-Lautstärke am Ohr und das Ziehbild einer Kachel über zwei Bildschirme mit verschiedener Skalierung.
+- Die Sprecheranzeige über dem Spiel kommt als eigener Schritt.
+- Einzelne Personen auf eigene Ausgabegeräte und die Durchsage-Bedienung kommen später, ebenso eine Planung für das
+  Brett der Einsatzleitung.
+- Das Paket ist nicht signiert. Windows kann beim ersten Start warnen (SmartScreen).
+- Die Lizenzfrage der KI-Gewichte in RNNoise und Opus ist offen, siehe THIRD-PARTY-NOTICES.txt.

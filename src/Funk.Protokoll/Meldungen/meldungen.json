@@ -1,0 +1,24 @@
+{
+  "fassung": 1,
+  "motive": [
+    { "kennung": "sammeln", "art": "Befehl", "name": "Sammeln", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "sammelpunkt_x", "art": "Befehl", "name": "Sammelpunkt X", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "stopp", "art": "Befehl", "name": "Stopp", "bilder": [ "stopp_handschuh", "stopp_xeno" ], "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "rueckzug", "art": "Befehl", "name": "Rückzug", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "start_freigegeben", "art": "Befehl", "name": "Start freigegeben", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "medizinische_hilfe", "art": "Befehl", "name": "Medizinische Hilfe", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "los", "art": "Befehl", "name": "Los", "ausfuehrungen": [ "schlicht", "schrift" ] },
+    { "kennung": "stopfen", "art": "Befehl", "name": "Stopfen", "ausfuehrungen": [ "schlicht", "schrift" ] },
+    { "kennung": "einsatz_noch_nicht_gestartet", "art": "Zustand", "name": "Einsatz noch nicht gestartet", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "event_noch_nicht_gestartet", "art": "Zustand", "name": "Event noch nicht gestartet", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "position_halten", "art": "Zustand", "name": "Position halten", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "funkdisziplin", "art": "Zustand", "name": "Funkdisziplin", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "pause", "art": "Zustand", "name": "Pause", "ausfuehrungen": [ "schlicht", "schrift" ] },
+    { "kennung": "ampel_rot_stopp", "art": "Ampel", "name": "Rot", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "ampel_gelb_bereithalten", "art": "Ampel", "name": "Gelb", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "ampel_gruen_los", "art": "Ampel", "name": "Grün", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "countdown_startzeit", "art": "Countdown", "name": "Start um", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "countdown_restzeit", "art": "Countdown", "name": "Restzeit", "ausfuehrungen": [ "schlicht", "metall" ] },
+    { "kennung": "bereit_melden", "art": "Bereit", "name": "Bereit melden", "ausfuehrungen": [ "schlicht", "metall" ] }
+  ]
+}

@@ -1,0 +1,23 @@
+stimme;huelle;zielDb;pauseMs;text
+Stefan;normal;-26;600;Staffel Eins an Leitstand, wir haben die Station erreicht und warten auf Freigabe.
+Stefan;leise;-38;350;Verstanden, ich halte Position am zweiten Wegpunkt.
+Stefan;laut;-22;900;Achtung, Kontakt auf drei Uhr, zwei Jäger im Anflug!
+Stefan;abfallend;-24;450;Schilde vorne verstärken, Raketen bereithalten und auf mein Zeichen warten.
+Stefan;normal;-28;1500;Bestätigt.
+Stefan;anschwellend;-30;300;Ich wiederhole, alle Einheiten sammeln sich sofort am Treffpunkt Bravo.
+Stefan;wort;-30;700;Wir landen auf Plattform vier, *Vorsicht, der Boden ist uneben.
+Stefan;leise;-42;3000;Sensoren aus, wir bleiben leise.
+Katja;normal;-25;550;Leitstand an Staffel Eins, Freigabe erteilt, Andockbucht sieben ist frei.
+Katja;laut;-22;250;Abbrechen, sofort abbrechen, die Bucht ist belegt!
+Katja;leise;-37;650;Entschuldigung, mein Fehler, Bucht neun ist frei.
+Katja;abfallend;-25;400;Fracht ist gesichert, wir übergeben die Ladung an die Logistik und melden uns ab.
+Katja;normal;-26;1200;Treibstoff bei sechzig Prozent, die Reichweite reicht für den Rückflug.
+Katja;anschwellend;-30;500;Mehrere Signaturen nähern sich, der Abstand sinkt, ich brauche Unterstützung.
+Katja;wort;-30;3000;Medizinisches Team zum Hangar, wir haben *Verletzte an Bord.
+Hedda;normal;-26;450;Hier Bergungsteam Zwei, wir beginnen mit dem Zerlegen des Wracks.
+Hedda;leise;-39;800;Kurze Pause, das Werkzeug wird gewechselt.
+Hedda;laut;-22;150;Feuer im Maschinenraum, alle raus!
+Hedda;normal;-27;600;Lage unter Kontrolle, der Schaden ist gering, wir setzen die Arbeit fort.
+Hedda;abfallend;-25;2000;Das war es für heute, gute Arbeit, alle zurück zur Basis.
+Hedda;leise;-42;350;Ende.
+Hedda;anschwellend;-30;1000;Zum Schluss noch einmal, alle Kanäle prüfen, und dann Funkstille bis morgen früh.

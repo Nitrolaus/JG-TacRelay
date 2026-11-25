@@ -1,0 +1,247 @@
+{
+  "fassung": 1,
+  "laufbahnen": [
+    {
+      "kennung": "MARINE",
+      "name": "Marine",
+      "raenge": [
+        {
+          "kennung": "MARINE_01",
+          "name": "Rekrut"
+        },
+        {
+          "kennung": "MARINE_02",
+          "name": "Gefreiter"
+        },
+        {
+          "kennung": "MARINE_03",
+          "name": "Corporal"
+        },
+        {
+          "kennung": "MARINE_04",
+          "name": "Sergeant"
+        },
+        {
+          "kennung": "MARINE_05",
+          "name": "Feldwebel"
+        },
+        {
+          "kennung": "MARINE_06",
+          "name": "Gunnery Sergeant"
+        },
+        {
+          "kennung": "MARINE_07",
+          "name": "Leutnant"
+        },
+        {
+          "kennung": "MARINE_08",
+          "name": "Hauptmann"
+        },
+        {
+          "kennung": "MARINE_09",
+          "name": "Major"
+        },
+        {
+          "kennung": "MARINE_10",
+          "name": "Oberst"
+        }
+      ]
+    },
+    {
+      "kennung": "NAVY",
+      "name": "Navy",
+      "raenge": [
+        {
+          "kennung": "NAVY_01",
+          "name": "Matrose"
+        },
+        {
+          "kennung": "NAVY_02",
+          "name": "Maat"
+        },
+        {
+          "kennung": "NAVY_03",
+          "name": "Petty Officer"
+        },
+        {
+          "kennung": "NAVY_04",
+          "name": "Bootsmann"
+        },
+        {
+          "kennung": "NAVY_05",
+          "name": "Chief"
+        },
+        {
+          "kennung": "NAVY_06",
+          "name": "Fähnrich"
+        },
+        {
+          "kennung": "NAVY_07",
+          "name": "Leutnant zur See"
+        },
+        {
+          "kennung": "NAVY_08",
+          "name": "Kapitänleutnant"
+        },
+        {
+          "kennung": "NAVY_09",
+          "name": "Fregattenkapitän"
+        },
+        {
+          "kennung": "NAVY_10",
+          "name": "Kapitän"
+        }
+      ]
+    },
+    {
+      "kennung": "ORGA",
+      "name": "Orga",
+      "raenge": [
+        {
+          "kennung": "ORGA_01",
+          "name": "Anwärter"
+        },
+        {
+          "kennung": "ORGA_02",
+          "name": "Mitglied"
+        },
+        {
+          "kennung": "ORGA_03",
+          "name": "Veteran"
+        },
+        {
+          "kennung": "ORGA_04",
+          "name": "Truppführer"
+        },
+        {
+          "kennung": "ORGA_05",
+          "name": "Zugführer"
+        },
+        {
+          "kennung": "ORGA_06",
+          "name": "Offizier"
+        },
+        {
+          "kennung": "ORGA_07",
+          "name": "Stabsoffizier"
+        },
+        {
+          "kennung": "ORGA_08",
+          "name": "Kommandant"
+        }
+      ]
+    }
+  ],
+  "taetigkeiten": [
+    {
+      "kennung": "T_JAEGER",
+      "name": "Jägerpilot",
+      "gruppe": "Piloten"
+    },
+    {
+      "kennung": "T_BOMBER",
+      "name": "Bomberpilot",
+      "gruppe": "Piloten"
+    },
+    {
+      "kennung": "T_MEDIUM",
+      "name": "Medium-Pilot",
+      "gruppe": "Piloten"
+    },
+    {
+      "kennung": "T_CAPITAL",
+      "name": "Capital-Pilot",
+      "gruppe": "Piloten"
+    },
+    {
+      "kennung": "T_LANDUNG",
+      "name": "Landungsschiff",
+      "gruppe": "Piloten"
+    },
+    {
+      "kennung": "T_GUNNER_S",
+      "name": "Gunner S",
+      "gruppe": "Waffen"
+    },
+    {
+      "kennung": "T_GUNNER_M",
+      "name": "Gunner M",
+      "gruppe": "Waffen"
+    },
+    {
+      "kennung": "T_GUNNER_L",
+      "name": "Gunner L",
+      "gruppe": "Waffen"
+    },
+    {
+      "kennung": "T_SCHARF",
+      "name": "Scharfschütze",
+      "gruppe": "Waffen"
+    },
+    {
+      "kennung": "T_BODEN",
+      "name": "Bodentrupp",
+      "gruppe": "Waffen"
+    },
+    {
+      "kennung": "T_ING",
+      "name": "Ingenieur",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_SANI",
+      "name": "Sanitäter",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_EVA",
+      "name": "EVA-Spezialist",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_TANK",
+      "name": "Betankung",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_LOGISTIK",
+      "name": "Logistik",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_FUNKER",
+      "name": "Funker",
+      "gruppe": "Technik und Versorgung"
+    },
+    {
+      "kennung": "T_SCOUT",
+      "name": "Scout",
+      "gruppe": "Erkundung und Gewerbe"
+    },
+    {
+      "kennung": "T_BERGUNG",
+      "name": "Bergung",
+      "gruppe": "Erkundung und Gewerbe"
+    },
+    {
+      "kennung": "T_BERGBAU",
+      "name": "Bergbau",
+      "gruppe": "Erkundung und Gewerbe"
+    },
+    {
+      "kennung": "T_HANDEL",
+      "name": "Handel",
+      "gruppe": "Erkundung und Gewerbe"
+    },
+    {
+      "kennung": "T_KOPFGELD",
+      "name": "Kopfgeldjäger",
+      "gruppe": "Erkundung und Gewerbe"
+    },
+    {
+      "kennung": "T_AUSBILDER",
+      "name": "Ausbilder",
+      "gruppe": "Erkundung und Gewerbe"
+    }
+  ]
+}

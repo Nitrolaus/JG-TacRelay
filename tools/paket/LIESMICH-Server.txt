@@ -1,0 +1,415 @@
+JG TacRelay - Serverpaket {{FASSUNG}} für den Heimserver
+Paket {{PAKET}}
+
+Was ist das?
+Die Programme für deinen Heimserver im Proxmox-Container (Debian, linux-x64), Fassung {{FASSUNG}}:
+- funk-server: der Funkserver.
+- funk-admin: das Admin-Werkzeug an der Konsole (Server-Identität, Serverprofil, Freigaben, Eigentümer und Admins,
+  Kanäle, Aufträge, Kanalsperren, Sperrliste, Sicherung, Einrichten und Umzug).
+- funk-echo: der Echo-Funker für den Test im Kanal Echo.
+- funk-testclient: das Prüfprogramm (echo-probe).
+Alle vier sind framework-abhängig und brauchen im Container wie bisher die .NET-Laufzeit 10 (Paket dotnet-runtime-10.0).
+
+Dein Server läuft mit einer Fassung bis 0.12.0?
+0.13.0 ist die erste Fassung als JG TacRelay, ohne Übergang: Server und Client gemeinsam neu aufsetzen, der alte
+Server-Stand wird nicht übernommen (Neu in 0.13.0, unten). Die Update-Wege in den Abschnitten danach führen nicht zu
+0.13.0; sie bleiben als Geschichte stehen.
+
+Dein Server läuft schon mit 0.7.x, 0.8.x, 0.9.x, 0.10.x oder 0.11.0?
+Dann wie bei jedem Update ohne neuen Schlüssel: linux\HEIMSERVER-PROXMOX.md, Abschnitt 13 "Updates" (erst die Sicherung,
+dann das Paket tauschen), danach die Setups {{FASSUNG}} für alle, auf Admin-PCs das Admin-Setup {{FASSUNG}}. Kein neues Feld in
+server.json, die Units bleiben, und der Rückweg auf die vorige Fassung geht mit deren Serverpaket. Was sich je Fassung ändert,
+steht in linux\BETRIEB.md unter "Update auf ..." und unten unter "Neu in ...". Hast du die frühere Kanalvorlage schon
+eingespielt, stell einmal im Verwaltungsteil ihren Kommandokanal um (Neu in 0.9.1). 0.10.0 ändert am Server nichts außer der Fassung
+und einer Frage von funk-admin erster-admin; neu ist vor allem der Client (Neu in 0.10.0). 0.11.0 ändert am Server, wie ein
+eingeteilter Funker beim Anmelden zurückkommt, dass "zurück auf Standard" keinen Platz mehr hält, dass ein nie angemeldetes
+Konto keinen vergebenen Platz ein zweites Mal belegt, dass ein Ch. der Einsatzleitung auf einem Feld auf Ruhe Sendeziel wird,
+und Untergilden verlieren Stammeinheit und Ansprechpartner nicht mehr (Neu in 0.11.0); lage.json bekommt keinen neuen Wert.
+0.11.1 ändert am Server nichts außer der Fassung; neu ist nur der Client (Neu in 0.11.1). 0.11.2 zeigt offline
+Vorab-Eingeteilte ohne Platz in Praesenz (Neu in 0.11.2); lage.json bekommt keinen neuen Wert. 0.11.7 bringt Abzeichen:
+eine neue Anfrage und neue Werte in mitglieder.json; Server und Clients gemeinsam aktualisieren (Neu in 0.11.7). 0.11.8
+nimmt die Untergilden heraus, löscht aber keine gespeicherten (Neu in 0.11.8); der Rückweg auf 0.11.7 geht. 0.11.9
+ändert am Server nichts außer der Fassung; neu ist nur die Sprecheranzeige im Client (Neu in 0.11.9). 0.12.0 bringt das
+Meldesystem: zwei neue Anfragen und ein neuer Wert in mitglieder.json; Server und Clients gemeinsam aktualisieren (Neu in 0.12.0).
+
+Dein Server läuft noch mit 0.6.x?
+Dann genauso, danach die Setups {{FASSUNG}} für alle. Beim ersten Start verwirft der Server einmal die alten Gerätesperren aus
+Ablehnen und Löschen und die abgelehnten Geräte; Sperren entzogener Geräte, die noch an ihrem Konto stehen, bleiben. Das
+Logbuch sagt dann "Umstellung auf 0.7.0: ...", und welche Gerätekennungen frei wurden, steht im Journal. Mehr in
+linux\BETRIEB.md, "Update auf 0.7.0" und die folgenden.
+
+Dein Server läuft schon mit 0.5.0?
+Dann gilt für dich Abschnitt 18 "Auf 0.6.0 (Kanäle mit Ch.)" in linux\HEIMSERVER-PROXMOX.md, Schritt für Schritt mit
+"Das siehst du". Wiederhole nicht Abschnitt 5: Sein "cp ... server.beispiel.json /etc/funk/server.json" würde deine
+angepasste server.json überschreiben. Das Wichtigste vorweg:
+- Die Reihenfolge ist wichtig: erst der Server (Schritte 1 bis 7), dann die Setups 0.6.0 für alle (Schritt 8), erst danach
+  die Kanalvorlage (Schritt 9). Mit dem ersten Kanal mit Ch. lässt der Server nur noch Clients ab 0.6.0 hinein; wer
+  dann noch 0.5.x hat, liest "Diese Version von JG TacRelay ist zu alt für den Server" und kommt erst mit dem Setup 0.6.0
+  wieder in den Funk.
+- Bis zur Vorlage funken Clients 0.5.0 und 0.5.1 mit dem Server 0.6.0 weiter (auf dem Entwicklungsrechner geprüft, ohne
+  TLS; am Heimserver noch nicht). Wer ein Vorab-Setup 0.6.0 vom 02.10.2026 hat, installiert das neue darüber
+  ("Aktualisieren"): Die Vorab-Stände kennen noch keine Kanäle mit Ch.
+- Vorher sichern (Schritt 2): Programme und server.json bleiben für den Rückweg liegen. Zwei Rückwege stehen am Ende von
+  Abschnitt 18: vor der Vorlage einfach die alten Programme zurück, nach der Vorlage erst die Kanäle mit Ch. löschen und
+  Global ohne Ch. setzen, sonst startet ein Server 0.5.0 nicht.
+- Kein neuer Schlüssel und kein neues Feld in server.json. Beide Units sind dieselben wie in 0.5.0, ein daemon-reload ist
+  nicht nötig.
+- Auf deinem PC das Admin-Setup 0.6.0 mit "Aktualisieren", die Mitglieder das normale Setup 0.6.0.
+- Ein paar Minuten ist der Funk aus (Schritte 3 bis 7).
+
+Dein Server läuft mit 0.4.0?
+Dann erst Abschnitt 17 "Auf 0.5.0 (Einsatzphasen und Heute als Funker)" in linux\HEIMSERVER-PROXMOX.md, mit dem
+Serverpaket 0.5.0 statt diesem. Danach Abschnitt 18.
+
+Dein Server läuft mit 0.2.0 oder 0.3.0?
+Dann erst Abschnitt 16 "Auf 0.4.0 (Einrichten und Umzug)" in linux\HEIMSERVER-PROXMOX.md, mit dem Serverpaket 0.4.0 statt
+diesem; er nimmt aus Abschnitt 15 mit, was du brauchst, wenn du 0.3.0 auslässt. Danach Abschnitt 17 und 18.
+
+Dein Server läuft noch mit 0.1.0?
+Dann erst Abschnitt 14 "Von 0.1.0 auf 0.2.0 (Stufe 1)" in linux\HEIMSERVER-PROXMOX.md, danach Abschnitt 16, 17 und 18. Neu sind in
+Abschnitt 14 ein dritter Schlüssel (funk-totp-schluessel, nur einmal erzeugen), eine Pflichtzeile in server.json
+("totpSchluessel") und eine Zeile in der Unit (LoadCredential=funk-totp-schluessel:...). mindestClientVersion bleibt
+0.1.0, bis alle Mitglieder mindestens das Setup 0.2.0 haben.
+
+Neu einrichten?
+Mit einem Befehl: den Ordner linux auf den Server bringen und dort "sudo bash funk-einrichten.sh" aufrufen, Schritt für
+Schritt in linux\EINRICHTEN.md. Es fragt beim ersten Lauf sechs Dinge (acht, wenn ein Router davor steht), ändert sonst nur, was fehlt, und endet mit der
+Anfragezeile für dein Profil. Auf Linux ist es noch nicht gelaufen; vorher kommt der Probelauf im Wegwerf-Container
+(EINRICHTEN.md, letzter Abschnitt). Für einen neuen Server ist Debian 13 die Empfehlung, Debian 12 und Ubuntu 24.04 gehen
+auch. Von Hand geht es mit den Abschnitten 1 bis 13 in linux\HEIMSERVER-PROXMOX.md. Abschnitt 5 "Dateien kopieren"
+beginnt in diesem entpackten Ordner; dort liegt der Unterordner linux, aus dem das tgz für den Container entsteht.
+
+Umziehen?
+Auf einen anderen Server, ohne neue Setups: linux\UMZUG.md (Vorlauf mit Übergangsprofil, Umzugsabend, Nachlauf,
+Rückweg). Dein Teil ist der Doppelklick auf "Profil erneuern.cmd" in funk-offline auf deinem Stick. Vorher kommt der
+ganze Inhalt von linux aus diesem Paket nach funk-offline (HEIMSERVER-PROXMOX.md, Abschnitt 16, Schritt 11); ein älteres
+funk-admin.dll kennt profil-erneuern nicht.
+
+Anleitungen
+- linux\HEIMSERVER-PROXMOX.md: Schritt für Schritt vom Container bis zum ersten Funkspruch, mit FRITZ!Box, DynDNS und
+  Portfreigaben, dazu Updates (Abschnitt 13), der Schritt von 0.1.0 auf 0.2.0 (Abschnitt 14), der von 0.2.0 auf 0.3.0
+  (Abschnitt 15), der auf 0.4.0 (Abschnitt 16), der auf 0.5.0 (Abschnitt 17) und der auf 0.6.0 (Abschnitt 18).
+- linux\BETRIEB.md: Nachschlagewerk zu Konfiguration, allen Befehlen von funk-admin und laufendem Betrieb.
+- linux\HEIMSERVER-HAERTUNG.md: Checkliste für den Rest des Hosts (FRITZ!Box, Proxmox, SSH, Updates, nginx vor Foundry,
+  fail2ban). Nur zum Lesen und Abhaken; der Funk schützt sich selbst mit seiner Sperrliste.
+- linux\EINRICHTEN.md: der Server mit einem Befehl, kurz, auch für Einsteiger; am Ende der Probelauf im Wegwerf-Container.
+- linux\UMZUG.md: der Umzug auf einen anderen Server.
+
+Neu in 0.2.0 (Stufe 1)
+- Neue Mitglieder melden sich mit SC-Name und Discord-Name an (Antrag). Du vergleichst die Gerätekennung und gibst frei,
+  an der Konsole oder im Client unter Verwaltung.
+- Eigentümer und Admins ernennst du nur an der Konsole. Verwalten im Client geht nur mit einem Admin-Schlüssel im TPM und
+  einem Code aus der Authenticator-App, dazu gibt es zehn Notfallcodes.
+- Mitglieder, Rollenkatalog, Untergilden und "Wer ist da".
+- Discord-Namen sind eindeutig, und ändern darf sie nur ein Admin (an der Konsole: funk-admin discordname).
+- echo-probe druckt die Befehle zum Freigeben ganz aus, zum Kopieren.
+- funk-admin bricht bei einer unbekannten, doppelten oder vertippten Option ab und ändert dann nichts. Alle SC-Namen
+  oder Rechte eines Kontos wegnehmen geht nur ausdrücklich mit --leeren.
+
+Neu in 0.3.0 (Härtung)
+- Eingebaute Sperrliste gegen Scanner, Handshake-, Antrags- und Registrierungsfluten (BETRIEB.md, Sperrliste). Läuft ohne
+  Eintrag in server.json; Mitglieder und ihre Adressen sperrt sie nie. Ansehen und aufheben: funk-admin sperrliste und
+  funk-admin entsperren. Die Unit funk-server.service hat dafür zwei neue Zeilen (LogsDirectory=funk und
+  LogsDirectoryMode=0750): neu kopieren, dann systemctl daemon-reload.
+- funk-admin antraege nennt ein bestehendes Konto mit passendem Namen samt Befehl (--an-konto), und geraet-umhaengen
+  repariert einen Antrag, der ins falsche Konto ging (HEIMSERVER-PROXMOX.md, Ende von Abschnitt 14).
+- Der Server warnt beim Start, wenn die Uhr offensichtlich falsch geht; pruefen zeigt, ob der Host synchronisiert.
+- funk-echo endet nach einer Verdrängung nach 10 Minuten mit Code 3, und systemd startet ihn neu.
+
+Neu in 0.3.0 (Raidleitung)
+- Einteilen dürfen nur noch Admins und wer für einen Abend einen Auftrag hat: an der Konsole funk-admin auftrag,
+  auftraege und auftrag-entziehen, im Client unter Verwaltung, Einsatzleitung. Ohne Endzeit gilt ein Auftrag bis zum
+  nächsten 04:00 Uhr. Die Stufe RAIDLEITER heißt im Client "Führung" und teilt nicht mehr ein.
+- Einheiten (Schiff, Trupp, Orga) mit Mindestbesetzung. Die Flotte legst du im Client unter Verwaltung, Flotte an;
+  funk-admin flotte-vorlage legt die Kanalvorlage Star Citizen daneben.
+- Eine Sperre der Selbstwahl endet nach 12 Stunden von selbst. Eine aus 0.2.0 hat keine Frist; aufheben mit
+  funk-admin einstellung --selbstwahl an.
+- funk-admin sicherung nimmt Aufträge nicht mit; nach dem Zurückspielen vergibst du sie neu.
+- Im Client 0.3.0: das Brett der Einsatzleitung (Bereich Raid, Strg+5) und Einsteigen nach Einheiten mit "Wie letztes
+  Mal". Für den Verwaltungsteil brauchst du das Admin-Setup 0.3.0; der aus 0.2.0 lädt im Client 0.3.0 nicht.
+
+Neu in 0.4.0 (Einrichten und Umzug)
+- Ein neuer Server mit einem Befehl: funk-einrichten.sh und funk-admin einrichten (EINRICHTEN.md).
+- Umzug auf einen anderen Server ohne neue Setups (UMZUG.md): Der Client 0.4.0 übernimmt ein neueres, von dir
+  unterschriebenes Profil vom Server. Dein Teil ist funk-admin profil-erneuern, als Doppelklick "Profil erneuern.cmd".
+- Für den Umzug an der Konsole: funk-admin umzug-packen, funk-admin umzug-einspielen, funk-admin profil-anfrage und
+  funk-admin geraete --nicht-seit für die Nachzügler.
+- funk-admin pruefen --vollstaendig sieht nach Schlüsseldateien, Pin, Unterschrift und Ablauf des Profils, DNS, Uhr und
+  freien Ports, ohne etwas zu ändern.
+- Die Befehle, die Schlüssel erzeugen, ersetzen eine vorhandene Datei nur noch mit --ersetzen.
+- funk-admin profil-neu-laden nennt die Version und warnt wie der Start, wenn der Pin des Servers im Profil fehlt oder es
+  einen anderen TCP-Port nennt als server.json.
+- funk-admin profil-erneuern lehnt einen anderen TCP-Port ab, solange ein anderer Host im Profil bleibt (Umzug).
+- funk-echo.service liest die Adresse aus /etc/funk/echo.env; deine bisherige Unit läuft weiter.
+- Im Client 0.4.0: Die Fußzeile nennt Strg+5 und Strg+9, wenn es Raid und Verwaltung gibt, und in der Flotte bricht die
+  Auswahl je Feld lange Netznamen um.
+
+Neu in 0.5.0 (Einsatzphasen und Heute als Funker)
+- Einsatzphasen: Die Einsatzleitung schaltet die Netze der ganzen Flotte per Taste, Joystickknopf oder am Brett um, etwa
+  von der Grundstellung auf Phase 2. Ein Admin legt bis zu vier Phasen im Verwaltungsteil an (Flotte, Phasen). Zwölf Stunden
+  nach dem letzten Schalten fällt die Flotte auf die Grundstellung zurück.
+- Heute als Funker: Ein Admin spielt einen Abend bis 04:00 als gewöhnlicher Funker, damit die Einsatzleitung ihn einteilen
+  kann. So lange ruhen seine Rechte der Einsatzleitung (Führung und Einteilen), dazu Global, Durchsagen und das Brett; die
+  Verwaltung bleibt. Zurück geht es mit "Wieder Admin", ohne Code.
+- funk-admin netz-setzen legt ein Netz ohne Schalter auf Sprachaktivierung an; --taste setzt es ab Werk auf die
+  Sprechtaste, --nur-taste erlaubt dort nur die Taste. Global bleibt immer auf der Taste. Bestehende Netze bleiben, wie sie
+  sind.
+- Die Ausgaben von funk-admin sagen "der Eigentümer" statt eines Namens; die Hilfe von funk-admin einrichten nennt jetzt
+  sechs Fragen (mit Router acht).
+- Im Client 0.5.0: Das Funkfeld lässt sich per Taste, Joystickknopf oder Klick auf das Symbol in den Infobereich der
+  Taskleiste ablegen und zurückholen, die Melde-Taste spricht gehalten ins Meldenetz, der Klick beim Sprechen ist
+  einstellbar (Strg+T), und die Schieberegler sind durchgeprüft. Für den Verwaltungsteil brauchst du das Admin-Setup 0.5.0.
+- In jeder eigenen Quelldatei steht jetzt die Kopfzeile "JG TacRelay - Maintainer: Sarevoc".
+
+Neu in 0.6.0 (Kanäle mit Ch.)
+- Kanäle mit Ch.: Was bisher Netz hieß, heißt jetzt Kanal. Ein Kanal kann Ch. haben (etwa Ruhe, Schiff 1
+  bis Schiff 20). funk-admin flotte-vorlage --name starcitizen legt die Kanalvorlage Star Citizen (zehn Kanäle mit ihren
+  Ch., 14 Rollen) neben die vorhandene Flotte; im Client wählt jeder oben links im Funkfeld eine Rolle und je Feld den Ch.
+  Ab dem ersten Kanal mit Ch. kommen nur noch Clients ab 0.6.0 hinein (Versionstor).
+- Sperren: Die Einsatzleitung sperrt einen Kanal für eine Person oder für alle bis 04:00, am Brett oder an der Konsole mit
+  funk-admin kanalsperre-setzen, kanalsperre-aufheben und kanalsperren.
+- funk-admin netzliste nennt bei einem Kanal mit Ch. "Ch. 0 bis 20", status zählt Kanäle, funk-echo meldet "Bereit im
+  Kanal 'Echo'".
+- Im Client 0.6.0: die Startseite statt des Bereichs Verbindung, Glas an Knöpfen und Schaltern, der Bereich "Meine
+  Kanäle", unter Audio die automatische Lautstärke mit Halteregel (gleicht die Grundlautstärke nur in Sprechpausen an,
+  mitten im Satz wird nichts lauter oder leiser, also kein Pumpen) und der Funk-Klick als kurzes Rauschen wie am
+  Funkgerät. Für den Verwaltungsteil (Reiter Kanäle, Kanalvorlage) brauchst du das Admin-Setup 0.6.0.
+
+Neu in 0.8.0 (Sperre aufheben, Umbau der Verwaltung)
+- Eine Gerätesperre lässt sich aufheben: an der Konsole mit sperre-aufheben <Gerätekennung>, im Admin-Setup 0.8.0 auf der
+  Karte eines Mitglieds unter Geräte. Danach gilt das Gerät als entfernt; der PC kann neu beantragen und braucht wieder
+  eine Freigabe.
+- Der Verwaltungsteil (Admin-Setup 0.8.0) ist neu geordnet: links Heute, Leute, Funk, Einsatz und Werkzeuge, der Entwurf
+  als Leiste unten, Rollen mit dem Funkfeld-Editor. Kanäle und Rollen tragen ein Herkunftsschild (Feld herkunft in
+  lage.json, etwa "Star Citizen"); eine vorhandene Flotte bleibt, wie sie ist. Ein Server 0.7.x liest lage.json weiter und
+  übergeht das Feld.
+
+Neu in 0.7.0 (Löschen heißt vollständig entfernen)
+- Ablehnen löscht einen Antrag samt Konto, Löschen entfernt alles, was der Server über den PC weiß; beides sperrt nichts,
+  der PC darf neu beantragen und braucht wieder eine Freigabe. Gesperrt wird ein PC nur noch bewusst mit sperren an der
+  Konsole. Die Sperrliste gegen Scanner und Fluten bleibt, wie sie ist.
+- Ein PC ist ein Konto: Ein vergebener Discord-Name bremst die Freigabe nicht mehr, das neue Konto bekommt ihn nur nicht.
+  Der Verwaltungsteil hängt keine Geräte mehr an andere Konten; die Konsole kann es mit --an-konto weiter.
+- Im Admin-Setup 0.7.0: Rückfragen vor dem Ablehnen, die Code-Karte rollt ins Bild, keine bestimmte Authenticator-App mehr
+  genannt, in der Mitgliederliste "offline" statt "freigegeben".
+
+Neu in 0.8.1 (feste Feldbeschriftung)
+- Den Kanal eines Felds bestimmt die Rolle oben links; der Funker wählt je Feld nur den Ch., auch in einem festen Feld. Der
+  Server lehnt das Umlegen und Leeren eines Felds ab (ein offenes Netz wie Echo in ein freies Feld geht weiter). Nach der
+  Rollenwahl steht jeder Ch. auf Ruhe.
+
+Neu in 0.9.0 (Klangmodule)
+- Am Server nur die Fassung. Im Client die Karte Klangmodule unter Audio: Echounterdrückung, Echoschutz,
+  Rauschunterdrückung, Automatische Lautstärke, Sprachaktivierung, Mindest-Funklautstärke, Auto Dauersend-Dämpfung und
+  Pegelausgleich einzeln schaltbar.
+
+Neu in 0.9.1 (Sendeziel, Kommando, Admin-Sitzung)
+- Am Server: Geht nach der Rollenwahl ein Feld von der Ruhe auf einen Ch., wird es Sendeziel, wenn noch keins gewählt ist.
+  Die Admin-Sitzung endet nicht mehr nach 30 Minuten ohne Verwaltung, sondern nach 12 Stunden.
+- In der Kanalvorlage sendet der Kommandokanal wie alle anderen mit Sprachaktivierung. Ist die Vorlage schon eingespielt,
+  im Verwaltungsteil unter Funk, Kanäle, beim Kommandokanal die Schalter "Nur mit Sprechtaste" und "Voreinstellung Sprechtaste statt
+  Sprachaktivierung" aus und übernehmen.
+- Im Client: Ch.-Listen ohne Scrollen, der Verwaltungsteil als Baum, eine Rückfrage beim Beenden mit offener Admin-Sitzung.
+
+Neu in 0.9.2 (Stimmproben)
+- Am Server nichts. Im Client unter Audio die Karte Stimmproben für den Prüfstand der Stimmerkennung.
+
+Neu in 0.9.3 (Nachlauf der Sprechtaste, Klangfarbe)
+- Am Server nichts. Im Client sendet die Sprechtaste (auch die Melde-Taste) nach dem Loslassen noch kurz weiter, ab Werk
+  100 ms, damit die letzte Silbe ganz ankommt; einstellbar unter Einstellungen, Globale Tasten (aufklappen). Wer im
+  Nachlauf die andere Taste drückt (Melde- statt Sprechtaste oder umgekehrt), beendet den Spruch an seinem Netz und
+  beginnt einen neuen am anderen. Der Verwaltungsteil merkt sich zugeklappte Ordner über den Neustart.
+- Im Client unter Audio, Spalte Senden, die Klangfarbe der eigenen Stimme (Wärme, Klarheit, Schärfe), zugeklappt und ab
+  Werk neutral; sie ändert nur den Klang, nicht die Lautstärke. Der gesperrte Schalter Stimmerkennung ist
+  weg (eingestellt), die Karte Stimmproben dient jetzt Klangmessungen.
+
+Neu in 0.10.0 (Einstellungen einfach)
+- Am Server nichts; Clients 0.9.x funken mit dem Server weiter wie bisher. An der Konsole fragt funk-admin erster-admin nach
+  der "Kennung von der Startseite deines Clients" (bis 0.9.3 "Bereich Verbindung", den es seit 0.6.0 nicht mehr gibt).
+- Im Client hat das Hauptfenster links nur noch Start und Einstellungen (Strg+1, Strg+2), dazu Raid und Verwaltung, wenn es
+  sie gibt. Die Bereiche Audio und Meine Kanäle gibt es nicht mehr; Strg+3 und Strg+4 tun nichts mehr.
+- Start zeigt unter Verbinden "Sprechen" (Mikrofon, Sprechtaste mit "Ändern", Senden mit Stimme) und "Hören" (Ausgabe, die
+  neue Funk-Lautstärke für den ganzen Funk, Headset oder Lautsprecher, die eine Hörprobe, die jetzt auch verbunden geht).
+  Mit Einheiten in der Flotte steht dort auch Einsteigen.
+- Beim allerersten Start fragt Start nach Headset oder Lautsprecher und wartet auf die Sprechtaste, mit "Später"; ab Werk
+  ist keine Taste belegt. Tab, Pfeile, Eingabe und Leertaste zählen dabei nicht, Strg, Alt, Umschalt und Windows nur allein,
+  damit niemand beim Bedienen des Fensters (etwa mit Alt+Tab) eine Sprechtaste belegt. Wer keine belegt, sieht danach auf
+  Start eine Warnung.
+- Unten steht auf jeder Seite die Statuszeile "Mikrofon": Pegel, SENDET, Ruhe oder Getrennt, und ein Satz, warum nichts
+  hinausgeht, neu auch "Kanal braucht die Sprechtaste - keine belegt" und "Stimme unter der Mindest-Funklautstärke" (dieser
+  nur dort, nicht in der Meldezeile über dem Spiel). Die aufklappbare Leiste Sprachaktivierung ist weg; Strg+T öffnet die
+  Seite Sprachaktivierung, solange "Senden mit Stimme" an ist, auch vor dem Verbinden.
+- Einstellungen stehen in Abschnitten (Ich, Tasten, Empfangen, Senden, Funkfeld und Darstellung, Fehlersuche), je mit
+  einem zugeklappten Bereich (seit 0.11.1 "Erweitert:") mit "Zurück auf Werkseinstellung"; Tasten, Empfangen, Senden sowie Funkfeld und Darstellung sagen
+  im Kasten "Läuft von selbst", was ohne Zutun läuft, Fehlersuche in einem Satz, Ich hat keinen Kasten. Lautstärke und Hören
+  je Kanal und je Person stehen unter Empfangen, Klangfarbe und Mithören unter Senden, der Funk-Klick unter Tasten, der Klangtreiber unter
+  Fehlersuche. Die Echounterdrückung hat drei Stufen (Automatisch, An, Aus).
+- Das Hauptfenster ist auf Start mindestens 900 x 900 groß; auf einem Bildschirm, der dafür zu niedrig ist (etwa ein Laptop
+  mit 150 % Skalierung oder Full HD mit 125 %), nimmt es die Höhe, die da ist, und Start rollt.
+- Unter Einstellungen, Ich stehen die Rollenwünsche als Schalter mit Stern für die erste Wahl; Rollen, die ein Admin
+  eingetragen hat, stehen dort einmal mit Schloss. Das Ergänzen des Rollenkatalogs (Führung, Einsatzleitung) steht
+  zugeklappt unter Ich (seit 0.11.1 "Erweitert:").
+- "Beim Start verbinden" geht nach der Freigabe einmal von selbst an, auch bei Mitgliedern, die es vor dem Update aus hatten;
+  ausschalten unter Einstellungen, Funkfeld und Darstellung, Erweitert, danach bleibt es aus.
+- Die Geräteliste folgt dem Ein- und Ausstecken (kein "Geräte neu lesen" mehr), und im Menü des Symbols im Infobereich
+  steht "Mikro stumm".
+- "Wer ist da" geht auch im kleinen Fenster auf: Das Fenster wird um die Spalte breiter; ist der Bildschirm dafür zu schmal,
+  liegt die Spalte als Schublade über der Seite.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.10.0.
+
+Neu in 0.11.0 (Zuordnung)
+- Am Server: Wer offline von der Einsatzleitung eingeteilt wurde, kommt beim Anmelden als VERSCHIEBEN mit dem Namen der
+  Leitung zurück (bis 0.10.0 als WIEDERHERGESTELLT). So zeigen auch Clients 0.9.x und 0.10.0 ", eingeteilt von ...". Hat
+  der Funker danach selbst einen Ch. oder eine Rolle gewählt, bleibt nach einer Trennung "selbst gewählt" stehen. Stellt
+  die Einsatzleitung den Ch. eines Felds auf Ruhe ein und sendet die Person noch nirgends hin, wird dieses Feld ihr
+  Sendeziel, wie beim eigenen Ch. seit 0.9.1.
+  "Zurück auf Standard" (auch über "Abend beenden") ist keine Einteilung mehr und hält keinen Platz. Ein Konto, das sich
+  noch nie angemeldet hat, belegt nach Ablauf seiner Reservierung keinen inzwischen vergebenen Platz mehr (zwei auf einem
+  Platz, gefunden und behoben). Untergilden behalten beim Speichern Stammeinheit und Ansprechpartner, auch aus einem
+  Verwaltungsteil 0.10.0. Kein neuer Wert in lage.json, kein neues Feld in server.json; der Rückweg auf 0.10.0 geht.
+- Im Client stehen Personen in "Wer ist da" und links im Brett als Kacheln (Abzeichen, grüner Punkt für angemeldet, Name);
+  die Einsatzleitung sieht mit "auch offline" alle Mitglieder. Im Detail des Bretts wählt die Einsatzleitung je Feld den
+  Ch. einer Person ("Ch."); der Ch. ist ein Vorschlag, die Person kann ihn ändern.
+- Wer vorab eingeteilt wurde, liest beim Verbinden in der Meldezeile "Eingeteilt von ...: Platz", und oben links im
+  Funkfeld steht die Rolle seines Platzes. Die selbst gewählte Rolle bleibt gemerkt, auch wenn jemand anders einteilt.
+  Jede Meldung der Meldezeile ist eine Zeile, höchstens so breit wie das Funkfeld.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.0.
+
+Neu in 0.11.1 (Senden wieder offen, Brett)
+- Am Server nichts außer der Fassung; Clients 0.11.0, 0.10.0 und 0.9.x funken mit dem Server weiter wie bisher, und der
+  Rückweg auf 0.11.0 geht.
+- Im Brett des Clients landet eine Karte, die man auf eine Rolle zieht, jetzt auf dieser Rolle (bis 0.11.0 auf dem besten
+  Platz der Spalte, bei Rollen ohne Einheit der ersten); unter jedem Netz rechts stehen die Personen darin als kleine Kacheln; die
+  eines Zusatznetzes ziehbar zum Umziehen, mit Kreuz oder nach links zum Entfernen (eine aus der Rolle nicht). Der Server
+  nimmt dafür dieselben Anfragen wie seit 0.11.0 (felderPatch mit Feldnummer und leeren). Beim Ziehen zeigt das Brett eine
+  Vorschau am Landeplatz, auch in Rollen ohne Platzgrenze, und die Karte gleitet beim Loslassen dorthin; am
+  Draht ändert das nichts.
+- Die Meldezeile des Clients steht an einem festen Platz des Bildschirms (ab Werk oben Mitte auf dem Monitor von Star
+  Citizen, einstellbar mit Raster und Monitorwahl), nicht mehr am Funkfeld; ein Hinweis, der von selbst entsteht, erscheint
+  höchstens einmal in 5 Minuten, was der Server meldet (Einteilung, Phase, Kanäle, Entzug) jedes Mal, eigene Aktionen
+  melden nichts. Der Server schickt dieselben Pushes wie bisher; was davon gezeigt wird, entscheidet der Client.
+- Im Client stehen unter Einstellungen, Senden die Schiebeschalter wieder offen, ohne Aufklappen, wie bis 0.9.3 auf der
+  Seite Audio: Echounterdrückung (Automatisch, An, Aus), Echoschutz, Rauschunterdrückung mit Standard und Stark,
+  automatische Lautstärke, Sprachaktivierung und Mindest-Funklautstärke, je mit ihrem kurzen Satz, darunter die
+  Funkschwelle mit Pegelbalken, Griffen, "Einmessen" und "Genau einstellen ...".
+- Die zugeklappten Bereiche heißen jetzt "Erweitert:" (fett), etwa "Erweitert: (1 selbst gestellt) Feste Verstärkung,
+  Mithören, Klangfarbe". Unter Senden stehen dort nur noch feste Verstärkung, Mithören und Klangfarbe.
+- Im Verwaltungsteil des Admin-Setups stehen Liste und Karte in schmalen Fenstern untereinander, ein Knopf neben einer
+  Überschrift rutscht bei Platzmangel darunter (bis 0.11.0 lag "Mitglied vormerken" bei 175 % über "Mitglieder"), und
+  Beschriftungen und Listenzeilen brechen um statt abgeschnitten zu werden. Am Draht ändert das nichts.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.1.
+Neu in 0.11.2 (Raid-Seite als Stammbaum, Meldezeile, Start)
+- Am Server nur eins: Ein Konto, das offline ist und vorab nur in Kanäle eingeteilt wurde (ohne Platz), steht wie eine
+  Reservierung 12 Stunden in Praesenz. So zeigt die Raid-Seite die Vorplanung. Kein neues Feld, kein neuer Wert in lage.json;
+  Clients 0.11.1 und älter funken weiter wie bisher, der Rückweg auf 0.11.1 geht.
+- Die Raid-Seite des Clients: links alle Namen (live oben, offline darunter) mit der Zahl ihrer Kanäle, rechts ein Baum wie
+  ein Stammbaum (Kanal, Ruhe und besetzte Ch., die leeren hinter "weitere Ch.", die Namen). Einteilen heißt einen Namen auf
+  einen Ch. ziehen; der Server bekommt dieselben Anfragen wie seit 0.11.0 (felderPatch). Keine Plätze, Sperren oder Phasen
+  mehr auf dieser Seite.
+- Über dem Spiel erscheint nur noch, was die Leitung tut (Einteilung, Kanäle, Phase, Entzug), das eigene Melden und die
+  Probe; "es wird nichts gesendet" gibt es nicht mehr. Alle Knöpfe sind flach, ohne Glas.
+- Start zeigt nur Audio: unten "Senden" mit Pegelbalken und Griffen, den Schaltern der Klangmodule und "Erweitert:";
+  "Einsteigen" steht nicht mehr auf Start, "Audio starten" unter Einstellungen, Fehlersuche.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.2.
+Neu in 0.11.3 (Reiter der Raid-Seite, Namen höchstens 22 Zeichen)
+- Am Server nichts; er bleibt auf 0.11.2 lauffähig, Clients 0.11.2 und 0.11.3 funken an ihm gleich.
+- Die Raid-Seite des Clients hat oben eine Zeile Reiter: ganz links die Rollenwahl wie im Funkfeld ("1 Standard (Gast)",
+  "2 Flottenführung" ...), daneben die ersten fünf Kanäle der Rolle; darunter der Stammbaum des offenen Kanals.
+- SC-Name im Client und in der Verwaltung höchstens 22 Zeichen bei der Eingabe; der Server nimmt weiter bis 32.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.3.
+Neu in 0.11.4 (Erweitert als Karte)
+- Am Server nichts; Clients 0.11.4 funken an Servern ab 0.11.2 gleich.
+- Unter Einstellungen ist jeder Bereich "Erweitert:" eine Karte über die ganze Breite wie in Windows 11, mit dem Pfeil rechts.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.4.
+Neu in 0.11.5 (Wer ist da als Liste)
+- Am Server nichts; Clients 0.11.5 funken an Servern ab 0.11.2 gleich. Das Mikrofon in Wer ist da nutzt das Stummschalten,
+  das es seit Stufe 2 gibt (ZUWEISEN, höchstens 3600 s), die Wippe das PegelSetzen je Konto.
+- Wer ist da im Client: eine Zeile je Person, dahinter Mikrofon (Einsatzleitung schaltet stumm), Status (grün in Kanälen,
+  gelb in keinem) und Wippe (eigene Lautstärke je Person, je Klick 2 dB). "Abend beenden" hebt die eigenen
+  Stummschaltungen auf.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.5 (der Status springt dort zu einem Mitglied).
+Neu in 0.11.6 (Funkfeld-Zuteilung)
+- Am Server nichts. Im Client heißt die Seite der Einsatzleitung (Strg+5) jetzt "Funkfeld-Zuteilung" statt "Raid".
+Neu in 0.11.7 (Abzeichen)
+- Am Server die neue Anfrage "Abzeichen" (0x0025): Ein Admin vergibt in der Admin-Sitzung (KONTEN_VERWALTEN) Ränge (Marine,
+  Navy, Orga, je Laufbahn einer) und Tätigkeiten (höchstens 6). Der Server prüft jede Kennung gegen den Katalog, der mit dem
+  Programm kommt, und schreibt ABZEICHEN ins Journal. Die Einsatzleitung vergibt nichts; an der Konsole gibt es keinen Befehl.
+- Die Daten liegen in mitglieder.json, je Konto raenge, taetigkeiten und die eigene Wahl (abzeichenVorn, abzeichenAus). Eine
+  alte mitglieder.json lädt unverändert. Ein Server 0.11.6 lässt die neuen Werte beim nächsten Schreiben weg (Rückweg nur mit
+  Verlust der Abzeichen) - vorher sichern.
+- Präsenz und Mitgliedschaften tragen die Abzeichen, andere sehen nur, was der Inhaber zeigt. Ausblenden ändert nie Rechte.
+- Client und Server gemeinsam aktualisieren: Ein Client 0.11.7 an einem älteren Server zeigt keine Abzeichen und fragt das
+  Vergeben gar nicht erst; ein älterer Client an einem Server 0.11.7 funkt weiter, sieht aber keine Abzeichen.
+- Im Client: die Seite "Abzeichen" ganz unten im Hauptmenü (nur in der Admin-Sitzung), "Meine Abzeichen" unter Einstellungen,
+  Ich, Erweitert (je Abzeichen "vorn" und "zeigen"), Wer ist da zeigt das Abzeichen vorn. Die Winkel der Führung entfallen.
+- Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.7.
+Neu in 0.11.8 (Untergilden entfallen)
+- Untergilden entfallen ganz, überall. Am Server bleibt die Anfrage Untergilde (0x001D) nur als Hülle: LISTE gibt eine
+  leere Liste, SETZEN und LOESCHEN antworten UNGUELTIG ("Untergilden gibt es seit 0.11.8 nicht mehr"). Ältere Clients werden
+  nicht getrennt, sie zeigen nur keine Kürzel mehr.
+- untergilden in mitglieder.json bleibt unverändert stehen und wird weiter geschrieben, aber nie gezeigt oder geändert. Nicht
+  von Hand löschen: Ein Server 0.11.7 bricht beim Laden ab, wenn das Feld fehlt. So geht der Rückweg auf 0.11.7, und die alten
+  Untergilden sind dann wieder da.
+- Liste einfügen: Spalte 3 lässt du leer (SC;Discord;;Rollen); steht dort etwas, legt der Server trotzdem an und meldet einmal
+  je Liste "Spalte 3 (Untergilde) wird seit 0.11.8 übergangen".
+- Im Client: kein Kürzel in Wer ist da und auf der Funkfeld-Zuteilung, keine Seite Untergilden in der Verwaltung, keine Auswahl
+  auf der Karte eines Mitglieds. Für den Verwaltungsteil brauchst du das Admin-Setup 0.11.8.
+Neu in 0.11.9 (Sprecheranzeige)
+- Am Server nichts, kein neues Recht, keine neue Nachricht. Der Client zeigt über dem Spiel, wen er gerade hört, aus dem
+  Stempel, den der Server ohnehin an jedes Sprachpaket setzt (Absender, Art, Netze dieses Empfängers); die Sprechanzeige
+  0x0053 nutzt er dafür nicht. Star Citizen muss dafür im Modus "Randloses Fenster" laufen.
+Neu in 0.12.0 (Meldesystem)
+- Am Server zwei neue Anfragen und zwei neue Meldungen an die Clients: Führung, Admins und Einsatzleitung mit laufendem
+  Auftrag schicken Befehle (etwa Sammeln, Stopp, Rückzug), Zustände (etwa Position halten, Pause), eine Ampel, einen Countdown
+  und eine Bereit-Abfrage als Grafik an alle, die online sind, dazu Text ohne Grafik (bis 120 Zeichen, sechs Farben, 8 s oder
+  bis aufgehoben). Senden darf nur, wen ein Admin ernannt hat: Haken "darf
+  Meldungen senden" auf der Mitgliederkarte der Verwaltung (Admin-Sitzung), im Journal als MELDUNGEN. Bei einem Funker bleibt
+  der Haken stehen, wirkt aber nicht; "Heute als Funker" sendet nicht. Es gibt kein neues Recht und keinen Konsolenbefehl.
+- Je Sender höchstens eine Meldung in 2 Sekunden; eine Bereit-Abfrage endet spätestens nach 2 Minuten. Was gerade läuft, hält
+  der Server nur im Speicher: Wer später verbindet, bekommt Zustand, Ampel, Countdown, offene Abfrage und einen stehenden
+  Text, keine alten Befehle und keinen Text mit 8 s;
+  nach einem Neustart des Servers ist alles leer.
+- Der Haken liegt in mitglieder.json (meldungenSenden je Mitglied). Eine alte mitglieder.json lädt unverändert. Ein Server
+  0.11.9 lässt den Haken beim nächsten Schreiben weg (Rückweg nur mit Verlust der Haken) - vorher sichern.
+- Client und Server gemeinsam aktualisieren: Ein älterer Client bleibt verbunden, sieht aber keine Meldungen; ein Client 0.12.0
+  an einem älteren Server bietet das Senden nicht an. Für den Haken in der Verwaltung brauchst du das Admin-Setup 0.12.0.
+- Die Zeiten des Countdowns sind Serverzeit, die Clients gleichen ihre Uhr laufend ab. Die Zeitsynchronisierung im Container
+  bleibt Pflicht (linux\BETRIEB.md, "Update auf 0.12.0").
+Neu in 0.13.1 (erste öffentliche Fassung)
+- Am Server und im Protokoll ändert sich nichts; ein Server 0.13.0 funkt mit Clients 0.13.1 und umgekehrt. Ein Update ist
+  nicht nötig. Neu sind die Lizenz (Apache-2.0, Quelltext öffentlich) und neutrale Beispiele in den Anleitungen.
+Neu in 0.13.0 (erste Fassung als JG TacRelay)
+- Server und Client gemeinsam neu aufsetzen; der alte Server-Stand wird nicht übernommen. Bis 0.12.0 hieß das Programm
+  anders, und alle Kennungen sind neu: ALPN tacrelay/1 (auch im nginx davor), Signatur- und HKDF-Präfixe, das Umzugspaket
+  .tru, der fail2ban-Filter und das Jail tacrelay. Ein Server bis 0.12.0 lässt sich deshalb nicht auf 0.13.0 aktualisieren
+  und kein Client 0.13.0 mit ihm verbinden.
+- Neu einrichten wie unter "Neu einrichten?" oben. Danach das Serverprofil neu signieren, die Geräte aller Mitglieder neu
+  freigeben und Admin-Nachweis und Zweitfaktor (TOTP) neu einrichten; die Mitglieder installieren das Setup 0.13.0, Admins
+  das Admin-Setup 0.13.0.
+- Die Kanalvorlage heißt Star Citizen (funk-admin flotte-vorlage, ab Werk --name starcitizen): zehn Kanäle mit Ch. und 14
+  Rollen; die früheren Vorlagen gibt es nicht mehr. Dafür darf eine Rolle dasselbe Kanalnetz zweimal haben, wenn der Ch.
+  sich unterscheidet (etwa Jäger frei und auf Alle), und der Server überspringt bei der Wahl des Ch. die Ch., die ein
+  anderes Feld der Rolle fest belegt.
+- Im Client neu: Name, Farben Anthrazit mit Petrol, das Symbol und das Spielprofil (Star Citizen ab Werk oder ein anderes
+  Spiel für die Suche nach dem Monitor).
+
+Stand
+- Programme bytegleich aus dem geprüften Gesamtpaket {{GESAMTPAKET}} (gebaut aus dem Stand {{PROGRAMMSTAND}}), Anleitungen
+  und konfig aus dem Stand {{STAND}}. Dazu gehören das Setup und das Admin-Setup derselben Fassung {{FASSUNG}}.
+- Im Paket liegen keine Schlüssel, Zertifikate oder Geheimnisse. Serverschlüssel, Betriebsgeheimnis und TOTP-Schlüssel
+  erzeugst du im Container, Profilschlüssel und Reserveschlüssel am Offline-Rechner (Abschnitt 6). Profil- und
+  Reserveschlüssel bleiben auf dem Stick, nie auf dem Server und in keinem Chat.
+
+Was im Ordner liegt
+- linux: die vier Programme mit ihren Bibliotheken, konfig (server.beispiel.json, funk-server.service,
+  funk-echo.service, profilschluessel.txt mit dem öffentlichen Teil deines Profilschlüssels, fail2ban mit Filter und
+  Jail-Beispiel für den Proxmox-Host), die fünf Anleitungen, funk-einrichten.sh und "Profil erneuern.cmd". Die cmd-Datei
+  ist für deinen Stick: Kopierst du linux nach funk-offline (HEIMSERVER-PROXMOX.md, Abschnitt 6), liegt sie dort neben
+  funk-admin.dll. profil.key und reserve.key liegen dort unverschlüsselt; wie du den Stick schützt, entscheidest du
+  selbst.
+- lizenzen und THIRD-PARTY-NOTICES.txt gelten für den ganzen Produktstand, also auch für Client und Setup. Die vier
+  Serverprogramme selbst enthalten nur eigenen Code; die .NET-Laufzeit kommt von Microsoft (apt oder
+  Installationsskript, Abschnitt 3). Den Lizenztext von Inno Setup, auf den THIRD-PARTY-NOTICES verweist, bringt das
+  Setup mit; hier fehlt er, weil Inno Setup im Serverpaket nicht steckt.
+- MANIFEST.txt: SHA-256 jeder Datei. Prüfen unter Windows: Get-FileHash <datei> -Algorithm SHA256, im Container:
+  sha256sum <datei>.

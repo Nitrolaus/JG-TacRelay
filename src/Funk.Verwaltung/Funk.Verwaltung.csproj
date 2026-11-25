@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Verwaltungsteil (A45, ANMELDUNG-SICHERHEIT "Admin-Teile nur für Admins"): Oberfläche und Logik der Verwaltung mit
+      Admin-Schlüssel im TPM, Code aus einer Authenticator-App, Anträgen, Mitgliedern, Rollenkatalog und Abzeichen. Nur das
+      Admin-Setup bringt ihn mit, nach verwaltung\Funk.Verwaltung.dll. Der Client lädt ihn nur, wenn sein SHA-256 zu der
+      Liste passt, die beim Bau in TacRelay.dll geschrieben wird (src\Funk.Client\Funk.Client.csproj). Er kennt den
+      Client nicht (keine Referenz auf JG TacRelay), nur die Naht in Funk.ClientKern; Stile und Farben kommen zur Laufzeit
+      aus den Ressourcen der Anwendung.
+    -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Funk.Verwaltung</AssemblyName>
+    <RootNamespace>Funk.Verwaltung</RootNamespace>
+    <!-- Vorprüfung (VoraussetzungenWindows.cs): LibraryImport für ncrypt, propsys, shell32 und ole32, Aufruf über die Vtable von IPropertyStore. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Dieselbe Fassung wie im Client: Zur Laufzeit gilt die Datei aus dem Programmordner. -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Funk.Protokoll\Funk.Protokoll.csproj" />
+    <ProjectReference Include="..\Funk.ClientKern\Funk.ClientKern.csproj" />
+    <!-- Hilfetexte (gd:Hilfe.Text) auch hier (Befund N3 der Gegenprüfung Stufe 1). Zur Laufzeit gilt Glasdesign.dll aus dem
+         Programmordner, die der Client mitbringt; die Stile bleiben die der Anwendung. -->
+    <ProjectReference Include="..\..\extern\Glasdesign\Glasdesign.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Funk.Tests" />
+  </ItemGroup>
+
+</Project>

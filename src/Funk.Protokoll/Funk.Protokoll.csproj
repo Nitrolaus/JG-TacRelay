@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Abzeichenkatalog (0.11.7): fest im Programm, Server und Client lesen dieselbe Datei. -->
+    <EmbeddedResource Include="Abzeichen\abzeichen.json" LogicalName="Funk.Protokoll.Abzeichen.abzeichen.json" />
+    <!-- Meldungskatalog (0.12.0): Motive des Meldesystems, Server prüft dagegen, der Client zeigt daraus Kacheln und Bilder. -->
+    <EmbeddedResource Include="Meldungen\meldungen.json" LogicalName="Funk.Protokoll.Meldungen.meldungen.json" />
+  </ItemGroup>
+
+</Project>

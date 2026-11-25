@@ -1,0 +1,107 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- LibraryImport (user32) erzeugt Code mit Zeigern. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>TacRelay</AssemblyName>
+    <RootNamespace>Funk.Client</RootNamespace>
+    <!-- PerMonitorV2 und Windows-10/11-Kennung; siehe app.manifest. -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Eigenes Symbol (tools\symbol-zeichnen.ps1, Eigenbau): in TacRelay.exe, damit auch in Taskleiste und Fenstern,
+         die kein eigenes Icon setzen (WPF nimmt dann das Symbol der Programmdatei), und im Setup. -->
+    <ApplicationIcon>TacRelay.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Funk.Protokoll\Funk.Protokoll.csproj" />
+    <ProjectReference Include="..\Funk.Klang\Funk.Klang.csproj" />
+    <ProjectReference Include="..\Funk.ClientKern\Funk.ClientKern.csproj" />
+    <!-- Glasknöpfe, Reiter und Hilfe-System (0.6.0, Stufe 2): feste Kopie, Herkunft in extern\Glasdesign\HERKUNFT.md. -->
+    <ProjectReference Include="..\..\extern\Glasdesign\Glasdesign.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Funk.Tests" />
+  </ItemGroup>
+
+  <!-- Dasselbe Zeichen für das Symbol im Infobereich (Fenster\Ablagesymbol.cs, S2): eingebettet, damit es in jeder Größe aus der Datei kommt. -->
+  <ItemGroup>
+    <EmbeddedResource Include="TacRelay.ico" LogicalName="TacRelay.ico" />
+  </ItemGroup>
+
+  <!-- Platzhalter-Gildenlogo, Eigenbau (Vorlage grafik\gildenlogo\gildenlogo-platzhalter.svg, THIRD-PARTY-NOTICES); Zugriff nur über
+       Dienste\Gildenpaket.cs, damit Stufe 4 die Quelle gegen das unterschriebene Gildenpaket tauscht. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Design\Gildenlogo-Platzhalter.png" LogicalName="Gildenlogo-Platzhalter.png" />
+  </ItemGroup>
+
+  <!-- Abzeichen (0.11.7): selbst gezeichnet (grafik\abzeichen\*.svg, umgerechnet mit tools\abzeichen-rendern.ps1), 128 x 128, eine Datei je
+       Kennung des Katalogs (src\Funk.Protokoll\Abzeichen\abzeichen.json); Zugriff nur über Design\Zeichensatz.cs. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Abzeichen\*.png" LogicalName="Abzeichen.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Meldungsbilder (0.12.0): Sarevocs eigene Grafiken (mit ChatGPT erstellt, Originale nicht im Repository), verkleinert mit
+       ImageMagick auf höchstens 600 px; je Ausführung ein Ordner, eine Datei je Bild des Katalogs
+       (src\Funk.Protokoll\Meldungen\meldungen.json). Name der Ressource: Meldungen.<ausfuehrung>.<bild>.png
+       (Meldungskatalog.Ressource). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Meldungen\schlicht\*.png" LogicalName="Meldungen.schlicht.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Meldungen\metall\*.png" LogicalName="Meldungen.metall.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Meldungen\schrift\*.png" LogicalName="Meldungen.schrift.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!--
+    Serverprofil (3.1, ANMELDUNG-SICHERHEIT P1): Die öffentlichen Profilschlüssel kommen beim Bau in TacRelay.dll, entweder
+    über -p:FunkProfilschluessel=<SPKI> oder aus konfig\profilschluessel.txt (je Zeile ein SPKI in Base64, wie funk-admin
+    profilschluessel-erzeugen ihn ausgibt; nicht geheim). Eine Eingabe im Programm gibt es nicht (Dienste\Profilquelle.cs).
+  -->
+  <PropertyGroup>
+    <FunkProfilschluesselDatei Condition="'$(FunkProfilschluesselDatei)' == ''">$(MSBuildThisFileDirectory)..\..\konfig\profilschluessel.txt</FunkProfilschluesselDatei>
+  </PropertyGroup>
+  <Target Name="FunkProfilschluesselEintragen" BeforeTargets="GetAssemblyAttributes">
+    <PropertyGroup>
+      <_FunkProfilschluessel>$(FunkProfilschluessel)</_FunkProfilschluessel>
+      <_FunkProfilschluessel Condition="'$(_FunkProfilschluessel)' == '' And Exists('$(FunkProfilschluesselDatei)')">$([System.IO.File]::ReadAllText('$(FunkProfilschluesselDatei)'))</_FunkProfilschluessel>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(_FunkProfilschluessel)' != ''">
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>FunkProfilschluessel</_Parameter1>
+        <_Parameter2>$(_FunkProfilschluessel)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+  <!--
+    Verwaltungsteil (A45): In den Client kommt nur seine Prüfsumme, nie der Teil selbst; keine Referenz, keine Kopie in die
+    Ausgabe. Der Client lädt verwaltung\Funk.Verwaltung.dll nur, wenn ihr SHA-256 hier steht (Dienste\Verwaltungslader.cs).
+    Gebaut wird der Teil dafür vorher, ohne die Laufzeitkennung eines "publish -r win-x64", damit das Admin-Setup genau diese
+    Datei mitnimmt (tools\setup-bauen.ps1 prüft Prüfsumme gegen Datei).
+  -->
+  <Target Name="VerwaltungsteilPruefsumme" BeforeTargets="GetAssemblyAttributes" Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)..\Funk.Verwaltung\Funk.Verwaltung.csproj" Targets="Build"
+             RemoveProperties="RuntimeIdentifier;SelfContained;PublishDir;_IsPublishing;PublishReadyToRun;PublishSingleFile;FunkNativeOrdner">
+      <Output TaskParameter="TargetOutputs" ItemName="_FunkVerwaltungDll" />
+    </MSBuild>
+    <GetFileHash Files="@(_FunkVerwaltungDll)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="_FunkVerwaltungHash" />
+    </GetFileHash>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>VerwaltungSha256</_Parameter1>
+        <_Parameter2>@(_FunkVerwaltungHash->'%(FileHash)')</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+</Project>

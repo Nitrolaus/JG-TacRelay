@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Maintainer: Sarevoc. Selbst gezeichnet (Entwurf 3 vom 19.10.2026), keine fremde Vorlage, kein Gildenbezug. Quelle des Programmsymbols, gerechnet von tools\symbol-zeichnen.ps1. -->
+  <!-- Ab 32 Bildpunkten: Kopfhörer mit Mikrofon im Sechseck, Petrol auf Anthrazit. -->
+  <path d="M32 3 L57 17.5 L57 46.5 L32 61 L7 46.5 L7 17.5Z" fill="#1F2326" stroke="#2F8A8C" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M20 36 V31 A12 12 0 0 1 44 31 V36" fill="none" stroke="#E9EDF0" stroke-width="3.4" stroke-linecap="round"/>
+  <rect x="16.5" y="33" width="7" height="11" rx="2.5" fill="#4FB3B4"/>
+  <rect x="40.5" y="33" width="7" height="11" rx="2.5" fill="#4FB3B4"/>
+  <path d="M44 44 Q44 50 36 50 H33" fill="none" stroke="#E9EDF0" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="31" cy="50" r="2.4" fill="#E9EDF0"/>
+</svg>

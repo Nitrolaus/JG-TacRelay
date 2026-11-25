@@ -1,0 +1,42 @@
+Zustandsverzeichnis im Format von JG TacRelay 0.4.0 (Stand d45e33f auf main, Worktree modul/s2 vor jeder Änderung),
+erzeugt am 01.10.2026 um 19:00 Uhr (17:00 UTC) von den Programmteilen dieses Stands selbst: Funk.Server, Funk.ClientKern und
+das Admin-Werkzeug von 0.4.0, prozessintern im Testlauf von 0.4.0, ohne TLS, ohne Fenster, nur Loopback. Der Erzeuger steht
+als Erzeuge040.cs.txt daneben; er lief als tests\Funk.Tests\Erzeuge040.cs im unveränderten Stand mit FUNK_ERZEUGE_ZIEL
+(C:\Claude\tmp\tr-s2\v040-zustand) und FUNK_TESTVERZEICHNIS (C:\Claude\tmp\tr-s2\servertests).
+
+Nachgestellt ist ein Abend mit 0.4.0:
+- Flotte an der Konsole: Netz 2 "Kommando" (Standard), Schiff 3 (Art SCHIFF, Typ Hammerhead) mit Crew 3 (Netz 7) und
+  Brücke 3 (Netz 8), Einheit 20 "Trupp Alpha" (Art TRUPP, Typ Infanterie) mit Netz 50, Netz 90 "Echo" (offen);
+  Rollen 10 "Kapitän", 11 "Pilot", 12 "Gunner", 13 "Marine"; Plätze mit Mindestbesetzung (CO 1, Gunner 1, Trupp 2)
+- Konto 1 "test" (ADMIN, Eigentümer, SC-Name Sarevoc, Discord-Name Sarevoc/Otto) mit Admin-Nachweis und Admin-Sitzung, als
+  CO auf Schiff 3 selbst eingestiegen
+- Konto 2 "otto" (FUNKER, SC-Name Ferox) mit Auftrag an der Konsole ("Op Nachtfalke", bis 04:00): gibt Plätze frei, setzt
+  Gina als Marine mit Zusatznetz Echo (fest), schaltet Fritz in Crew 3 stumm, speichert die Aufstellung "Entern" und wendet
+  sie an (Anker und eine unverknüpfte Discord-ID auf Trupp Alpha), sperrt die Selbstwahl ganz (ohne Nachzügler)
+- Konto 3 "fritz" (FUNKER, Discord-Name Fritz/DC, SC-Namen Fritz und Fritz Zwei): Pilot auf Schiff 3, Rolle "Medium
+  Fighter Pilot" aus dem Katalog, Untergilde "Beispielstaffel" (BS)
+- Konto 4 "gina" (FUNKER): Marine auf Schiff 3 durch Otto, sendet selbst ins Echo (Komfortzustand), Wünsche, Pegel und
+  Ablage, Untergilde BS
+- Konto 5 "hans" (FUNKER): wählte Gunner, ging, Otto gab die Plätze frei (letzter Stand), danach gesperrt
+- Konto 6 "anker" (FUNKER): geplanter Auftrag "Op Morgenrot" in zwei Tagen ab 19:30, durch die Aufstellung auf Trupp Alpha
+- Konto 7: offener Antrag "Neuling" ohne Code (3.4 Weg B)
+- Vormerkung "Eule" (Eule/BS) in der Untergilde BS, Rollenkatalog mit zwei Einträgen
+
+Alles darin sind Testwerte: Fingerabdrücke flüchtiger Schlüssel, erfundene Discord-Zahlen (9500...), ein Admin-Geheimnis,
+das mit einem nur im Speicher gehaltenen und längst verworfenen Schlüssel verschlüsselt ist, und HMAC-Werte eines
+Test-Geheimnisses. Die profil.json des Laufs fehlt mit Absicht; der Testserver schreibt eine eigene. Der Auftrag von Otto
+und die Reservierungen sind beim Lesen in einem späteren Testlauf abgelaufen; die Tests prüfen sie deshalb an der Datei,
+nicht an ihrer Wirkung. Gebraucht von Uebergang040Tests.cs.
+
+Nachtrag 01.10.2026 (Fassung 0.5.0, A65): In allen Dateien dieses Ordners ist ein echter Vorname nachträglich durch Otto ersetzt
+(Konto 2 und hinter dem Schrägstrich im Discord-Namen von Konto 1), in allen Schreibweisen, gleich lang und im Namensindex von konten.json an
+derselben Stelle der Sortierung. Sonst ist nichts geändert; die Übergangstests laden und schreiben die Dateien weiter ohne Verlust.
+
+Nachtrag 15.10.2026: In allen Dateien dieses Ordners ist der Name einer echten Gruppe nachträglich ersetzt, der Name
+der Untergilde durch "Beispielstaffel" und ihr Kürzel durch "BS" (auch im Discord-Namen der Vormerkung und im Journal).
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.
+
+Nachtrag 19.10.2026 (Umbau JG TacRelay, Schritt 4): Namen am 19.10.2026 neutralisiert. Netz 2 heißt "Kommando", Rolle 10
+"Kapitän" (vorher Namen aus einer früheren Kanalvorlage), das Testkonto 1 "test" (vorher ein anderer Name; auch im Gerätenamen, im
+Namensindex von konten.json an seiner Stelle der Sortierung und im Journal), in allen Dateien dieses Ordners und im Erzeuger.
+Prüfsummen oder Längen sind hier nirgends festgehalten; sonst ist nichts geändert.

@@ -1,0 +1,92 @@
+{
+  // Probefunk: funk-testserver auf dem eigenen PC (funk-testserver --probe konfig\probefunk.json --testzugang 0 --echo).
+  // Nur Loopback-Testzugang, nie für den echten Server. Keine Geheimnisse: Serverschlüssel, Betriebsgeheimnis und
+  // Profilschlüssel entstehen bei jedem Start neu im Speicher. Netze, Schiffe und Rollen in der Form von
+  // funk-admin netz-setzen/schiff-setzen/rolle-setzen --json. Kommentare sind erlaubt, unbekannte Felder nicht.
+  "name": "Probefunk",
+
+  // Jedes Gerät, das sich über den Testzugang meldet, bekommt ohne Handarbeit ein eigenes Konto und ist sofort frei.
+  "freigabe": {
+    "automatisch": true,
+    "stufe": "ADMIN",
+    "name": "Probefunker"
+  },
+
+  // Echo-Funker (nur mit --echo): hört im Netz Echo mit und sendet jede Sprechphase nach der Pause zurück.
+  "echo": {
+    "netz": "Echo",
+    "pauseMs": 500,
+    "maxSekunden": 30
+  },
+
+  "einstellungen": {
+    "selbstwahl": true,
+    "durchsageNurTaste": true
+  },
+
+  // Standard-Netze (standard = true) bekommt jedes neue Konto ab Feld 0; gesendet wird zuerst ins erste Feld mit Senderecht.
+  "netze": [
+    { "id": 1, "name": "Global", "typ": "GLOBAL", "reihenfolge": 0, "nurTaste": true, "ausloeserStandard": "TASTE", "offen": "NEIN", "standard": false },
+    { "id": 2, "name": "Echo", "typ": "NORMAL", "reihenfolge": 1, "nurTaste": false, "ausloeserStandard": "VA", "offen": "HOEREN_SENDEN", "standard": true },
+    { "id": 3, "name": "Kommando", "typ": "NORMAL", "reihenfolge": 2, "nurTaste": false, "ausloeserStandard": "TASTE", "offen": "HOEREN_SENDEN", "standard": true },
+    { "id": 4, "name": "Durchsagen", "typ": "NORMAL", "reihenfolge": 3, "nurTaste": true, "ausloeserStandard": "TASTE", "offen": "HOEREN", "standard": false },
+    { "id": 5, "name": "Reserve", "typ": "NORMAL", "reihenfolge": 4, "nurTaste": false, "ausloeserStandard": "VA", "offen": "HOEREN_SENDEN", "standard": false },
+
+    { "id": 11, "name": "Schiff 1 Crew", "typ": "NORMAL", "reihenfolge": 11, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 1, "schiffsnetz": "CREW" },
+    { "id": 12, "name": "Schiff 1 Brücke", "typ": "NORMAL", "reihenfolge": 12, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 1, "schiffsnetz": "BRUECKE" },
+    { "id": 21, "name": "Schiff 2 Crew", "typ": "NORMAL", "reihenfolge": 21, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 2, "schiffsnetz": "CREW" },
+    { "id": 22, "name": "Schiff 2 Brücke", "typ": "NORMAL", "reihenfolge": 22, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 2, "schiffsnetz": "BRUECKE" },
+    { "id": 31, "name": "Schiff 3 Crew", "typ": "NORMAL", "reihenfolge": 31, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 3, "schiffsnetz": "CREW" },
+    { "id": 32, "name": "Schiff 3 Brücke", "typ": "NORMAL", "reihenfolge": 32, "nurTaste": false, "ausloeserStandard": "VA", "offen": "NEIN", "standard": false, "schiffId": 3, "schiffsnetz": "BRUECKE" }
+  ],
+
+  // Rolle und Schiff in einem Schritt (A15). Echo bleibt in jeder Rolle, damit man sich weiter selbst hören kann.
+  "rollen": [
+    {
+      "id": 1, "name": "Pilot", "reihenfolge": 1, "selbstWaehlbar": true, "brauchtSchiff": true,
+      "felder": [
+        { "feld": 0, "schiffsnetz": "BRUECKE", "hoeren": true, "senden": true, "sendenStandard": true, "fest": false },
+        { "feld": 1, "schiffsnetz": "CREW", "hoeren": true, "senden": true, "sendenStandard": false, "fest": false },
+        { "feld": 2, "netzId": 3, "hoeren": true, "senden": false, "sendenStandard": false, "fest": false },
+        { "feld": 3, "netzId": 2, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false }
+      ]
+    },
+    {
+      "id": 2, "name": "Crew", "reihenfolge": 2, "selbstWaehlbar": true, "brauchtSchiff": true,
+      "felder": [
+        { "feld": 0, "schiffsnetz": "CREW", "hoeren": true, "senden": true, "sendenStandard": true, "fest": false },
+        { "feld": 1, "schiffsnetz": "BRUECKE", "hoeren": true, "senden": false, "sendenStandard": false, "fest": false },
+        { "feld": 2, "netzId": 4, "hoeren": true, "senden": false, "sendenStandard": false, "fest": false },
+        { "feld": 3, "netzId": 2, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false }
+      ]
+    },
+    {
+      "id": 3, "name": "Kommandant", "reihenfolge": 3, "selbstWaehlbar": true, "brauchtSchiff": true,
+      "felder": [
+        { "feld": 0, "netzId": 3, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false },
+        { "feld": 1, "schiffsnetz": "BRUECKE", "hoeren": true, "senden": true, "sendenStandard": true, "fest": false },
+        { "feld": 2, "schiffsnetz": "CREW", "hoeren": true, "senden": true, "sendenStandard": false, "fest": false },
+        { "feld": 3, "netzId": 4, "hoeren": true, "senden": false, "sendenStandard": false, "fest": false },
+        { "feld": 4, "netzId": 2, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false }
+      ]
+    },
+    {
+      "id": 4, "name": "Flottenführung", "reihenfolge": 4, "selbstWaehlbar": true, "brauchtSchiff": false,
+      "felder": [
+        { "feld": 0, "netzId": 3, "hoeren": true, "senden": true, "sendenStandard": true, "fest": false },
+        { "feld": 1, "netzId": 4, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false },
+        { "feld": 2, "netzId": 5, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false },
+        { "feld": 3, "netzId": 2, "hoeren": true, "senden": true, "sendenStandard": false, "fest": false }
+      ]
+    }
+  ],
+
+  "schiffe": [
+    { "id": 1, "name": "Schiff 1", "reihenfolge": 1, "netze": { "CREW": 11, "BRUECKE": 12 },
+      "plaetze": [ { "rolleId": 1, "kapazitaet": 1 }, { "rolleId": 2, "kapazitaet": 6 }, { "rolleId": 3, "kapazitaet": 1 } ] },
+    { "id": 2, "name": "Schiff 2", "reihenfolge": 2, "netze": { "CREW": 21, "BRUECKE": 22 },
+      "plaetze": [ { "rolleId": 1, "kapazitaet": 1 }, { "rolleId": 2, "kapazitaet": 6 }, { "rolleId": 3, "kapazitaet": 1 } ] },
+    { "id": 3, "name": "Schiff 3", "reihenfolge": 3, "netze": { "CREW": 31, "BRUECKE": 32 },
+      "plaetze": [ { "rolleId": 1, "kapazitaet": 1 }, { "rolleId": 2, "kapazitaet": 6 }, { "rolleId": 3, "kapazitaet": 1 } ] }
+  ]
+}

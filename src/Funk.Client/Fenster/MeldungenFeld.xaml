@@ -1,0 +1,231 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Feld "Meldungen" auf der Funkfeld-Zuteilung (0.12.0, Meldesystem, Bild C vom 16.10.2026 ohne die Startfolge der Ampel, M22). DataContext:
+  MeldungenViewModel. Oben Name, an wen und die Größe (normal, doppelt, dreifach); darunter Befehle und Zustände (mit "aufheben"), dann Ampel (mit
+  "aus"), Countdown (Form, Eingabe, Start, abbrechen) und Bereit-Abfrage ("n von m bereit", wer fehlt, schließen), dann die Zeile (hart 60 Zeichen)
+  und daneben der Text (M24: Eingabe hart 120 Zeichen mit Zähler, sechs Farbknöpfe, 8 s oder bleibt stehen, Senden, aufheben), die Wartezeit und
+  Fehler, unten der Satz für die Funker. Eine Kachel ist ein flacher Knopf mit dem Bild und dem kurzen Namen; was gerade läuft,
+  hat einen Rand im Akzent. Gruppen brechen um, wenn die Breite nicht reicht. Keine Zugriffstasten (die Seite braucht ihre Buchstaben).
+-->
+<UserControl x:Class="Funk.Client.Fenster.MeldungenFeld"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:m="clr-namespace:Funk.Client.Modelle"
+             xmlns:gd="clr-namespace:Glasdesign;assembly=Glasdesign"
+             Focusable="False">
+    <UserControl.Resources>
+        <!-- Eine Kachel: Bild 48 x 48, darunter der kurze Name; der volle Name und was sie tut im Hovertext -->
+        <Style x:Key="Meldungen.Kachel" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+            <Setter Property="Width" Value="80" />
+            <Setter Property="Padding" Value="2,4" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+        <DataTemplate x:Key="Meldungen.KachelVorlage" DataType="{x:Type m:Meldekachel}">
+            <Button x:Name="Kachel" Style="{StaticResource Meldungen.Kachel}" Command="{Binding Feld.SendenCommand}" CommandParameter="{Binding}"
+                    AutomationProperties.Name="{Binding Name}" gd:Hilfe.Text="{Binding Hilfe}">
+                <StackPanel>
+                    <Image x:Name="KachelBild" Source="{Binding Bild}" Width="48" Height="48" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock x:Name="KachelName" Text="{Binding Kurzname}" FontSize="11.5" TextAlignment="Center" TextWrapping="Wrap" Margin="0,3,0,0"
+                               Foreground="{StaticResource Pinsel.Text}" />
+                </StackPanel>
+            </Button>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Laeuft}" Value="True">
+                    <Setter TargetName="Kachel" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                    <Setter TargetName="Kachel" Property="BorderThickness" Value="2" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Gewaehlt}" Value="True">
+                    <Setter TargetName="Kachel" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                    <Setter TargetName="Kachel" Property="BorderThickness" Value="2" />
+                    <Setter TargetName="Kachel" Property="Background" Value="{StaticResource Pinsel.LeitfarbeGedrueckt}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        <ItemsPanelTemplate x:Key="Meldungen.Reihe">
+            <WrapPanel />
+        </ItemsPanelTemplate>
+        <Style x:Key="Meldungen.Gruppe" TargetType="TextBlock" BasedOn="{StaticResource Gruppe}">
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Hoeren}" />
+            <Setter Property="Margin" Value="0,10,0,6" />
+        </Style>
+        <Style x:Key="Meldungen.Klein" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+            <Setter Property="Padding" Value="12,2" />
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <!-- Ein Farbknopf der Textmeldung: eine Fläche in der Farbe in einem Rahmen; gewählt mit Rand im Akzent. Kein Text (der Name steht im Hovertext). -->
+        <Style x:Key="Meldungen.Farbe" TargetType="RadioButton">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="FarbRand" Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Linie}" BorderThickness="1"
+                                CornerRadius="4" Padding="4">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="2" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="FarbRand" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                                <Setter TargetName="FarbRand" Property="BorderThickness" Value="2" />
+                                <Setter TargetName="FarbRand" Property="Padding" Value="3" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border x:Name="MeldungenKarte" Style="{StaticResource Karte}" Padding="14,10,14,10" Margin="0">
+        <StackPanel>
+            <!-- Kopf: Name, an wen, rechts die Größe -->
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Größe:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource Pinsel.Text}" />
+                    <RadioButton x:Name="GroesseNormal" Style="{StaticResource Umschalter.Radio}" GroupName="MeldungenGroesse" Content="normal" IsChecked="{Binding GroesseNormal}"
+                                 AutomationProperties.Name="Größe normal" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.GroesseHilfe}" />
+                    <RadioButton x:Name="GroesseDoppelt" Style="{StaticResource Umschalter.Radio}" GroupName="MeldungenGroesse" Content="doppelt" IsChecked="{Binding GroesseDoppelt}"
+                                 AutomationProperties.Name="Größe doppelt" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.GroesseHilfe}" />
+                    <RadioButton x:Name="GroesseDreifach" Style="{StaticResource Umschalter.Radio}" GroupName="MeldungenGroesse" Content="dreifach" IsChecked="{Binding GroesseDreifach}"
+                                 AutomationProperties.Name="Größe dreifach" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.GroesseHilfe}" Margin="0" />
+                </StackPanel>
+                <TextBlock TextWrapping="Wrap" VerticalAlignment="Center">
+                    <Run Text="Meldungen" FontSize="17" FontWeight="SemiBold" /><Run Text="   " /><Run Text="{Binding KopfText, Mode=OneWay}" FontSize="12.5"
+                        Foreground="{StaticResource Pinsel.Text2}" />
+                </TextBlock>
+            </DockPanel>
+
+            <!-- Befehle und Zustände -->
+            <WrapPanel x:Name="MeldungenOben">
+                <StackPanel x:Name="MeldungenBefehle" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Befehle (8 s)" />
+                    <ItemsControl ItemsSource="{Binding Befehle}" ItemTemplate="{StaticResource Meldungen.KachelVorlage}" ItemsPanel="{StaticResource Meldungen.Reihe}"
+                                  Focusable="False" />
+                </StackPanel>
+                <StackPanel x:Name="MeldungenZustaende">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Zustände (bis aufgehoben)" />
+                    <WrapPanel>
+                        <ItemsControl ItemsSource="{Binding Zustaende}" ItemTemplate="{StaticResource Meldungen.KachelVorlage}" ItemsPanel="{StaticResource Meldungen.Reihe}"
+                                      Focusable="False" />
+                        <Button x:Name="ZustandAufheben" Style="{StaticResource Meldungen.Klein}" Content="aufheben" Command="{Binding ZustandAufhebenCommand}"
+                                Margin="6,16,6,6" AutomationProperties.Name="Zustand aufheben" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.AufhebenHilfe}" />
+                    </WrapPanel>
+                </StackPanel>
+            </WrapPanel>
+
+            <!-- Ampel, Countdown, Bereit-Abfrage -->
+            <WrapPanel x:Name="MeldungenMitte">
+                <StackPanel x:Name="MeldungenAmpel" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Ampel" />
+                    <WrapPanel>
+                        <ItemsControl ItemsSource="{Binding Ampeln}" ItemTemplate="{StaticResource Meldungen.KachelVorlage}" ItemsPanel="{StaticResource Meldungen.Reihe}"
+                                      Focusable="False" />
+                        <Button x:Name="AmpelAus" Style="{StaticResource Meldungen.Klein}" Content="aus" Command="{Binding AmpelAusCommand}" Margin="6,16,6,6"
+                                AutomationProperties.Name="Ampel aus" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.AmpelAusHilfe}" />
+                    </WrapPanel>
+                </StackPanel>
+                <StackPanel x:Name="MeldungenCountdown" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Countdown" />
+                    <WrapPanel>
+                        <ItemsControl ItemsSource="{Binding Countdowns}" ItemTemplate="{StaticResource Meldungen.KachelVorlage}" ItemsPanel="{StaticResource Meldungen.Reihe}"
+                                      Focusable="False" />
+                        <StackPanel Margin="6,6,0,6" Width="220">
+                            <DockPanel>
+                                <Button x:Name="CountdownStart" DockPanel.Dock="Right" Style="{StaticResource Knopf.Haupt}" Content="Start" Command="{Binding CountdownStartenCommand}"
+                                        MinHeight="30" Padding="14,2" Margin="6,0,0,0" AutomationProperties.Name="Countdown starten"
+                                        gd:Hilfe.Text="{x:Static m:MeldungenViewModel.CountdownStartHilfe}" />
+                                <TextBox x:Name="CountdownEingabe" Text="{Binding CountdownEingabe, UpdateSourceTrigger=PropertyChanged}" MaxLength="24" VerticalContentAlignment="Center"
+                                         AutomationProperties.Name="Countdown: Uhrzeit oder Dauer" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.CountdownEingabeHilfe}" />
+                            </DockPanel>
+                            <TextBlock x:Name="CountdownSatz" Style="{StaticResource Text.Hinweis}" Text="{Binding CountdownSatz}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <Button x:Name="CountdownAbbrechen" Style="{StaticResource Meldungen.Klein}" Content="abbrechen" Command="{Binding CountdownAbbrechenCommand}"
+                                    HorizontalAlignment="Left" Margin="0,6,0,0" AutomationProperties.Name="Countdown abbrechen"
+                                    gd:Hilfe.Text="{x:Static m:MeldungenViewModel.CountdownAbbrechenHilfe}" />
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+                <StackPanel x:Name="MeldungenBereit">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Bereit-Abfrage" />
+                    <WrapPanel>
+                        <ContentControl Content="{Binding Bereit}" ContentTemplate="{StaticResource Meldungen.KachelVorlage}" Focusable="False" />
+                        <StackPanel Margin="6,2,0,6" MinWidth="200" MaxWidth="320">
+                            <TextBlock x:Name="BereitZahl" Text="{Binding BereitZahl}" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource Pinsel.Senden}"
+                                       Visibility="{Binding BereitZahl, Converter={StaticResource SichtbarWennWert}}" />
+                            <TextBlock x:Name="BereitFehlen" Text="{Binding BereitFehlen}" TextWrapping="Wrap" Margin="0,2,0,0" Foreground="{StaticResource Pinsel.Text}"
+                                       Visibility="{Binding BereitFehlen, Converter={StaticResource SichtbarWennWert}}" />
+                            <WrapPanel Margin="0,6,0,0">
+                                <Button x:Name="BereitSchliessen" Style="{StaticResource Meldungen.Klein}" Content="schließen" Command="{Binding BereitSchliessenCommand}"
+                                        AutomationProperties.Name="Bereit-Abfrage schließen" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.BereitSchliessenHilfe}" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" Text="{x:Static m:MeldungenViewModel.BereitEndeSatz}" VerticalAlignment="Center" Margin="0,0,0,6" />
+                            </WrapPanel>
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+            </WrapPanel>
+
+            <!-- Zeile unter der Grafik und daneben (oder darunter, wenn die Breite nicht reicht) die Textmeldung -->
+            <WrapPanel x:Name="MeldungenUnten">
+                <StackPanel x:Name="MeldungenZeileGruppe" Margin="0,0,24,0">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Zeile dazu (freiwillig, bis 60 Zeichen)" />
+                    <DockPanel MaxWidth="560" HorizontalAlignment="Left">
+                        <TextBlock x:Name="ZeileRest" DockPanel.Dock="Right" Style="{StaticResource Text.Hinweis}" Text="{Binding ZeileRest}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                        <TextBox x:Name="MeldungZeile" Text="{Binding Zeile, UpdateSourceTrigger=PropertyChanged}" MaxLength="{x:Static m:MeldungenViewModel.ZeileMax}" MinWidth="320"
+                                 AutomationProperties.Name="Zeile unter der Grafik, bis 60 Zeichen" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.ZeileHilfe}" />
+                    </DockPanel>
+                </StackPanel>
+
+                <!-- Text (M24): nur Text, Farbe, Dauer; die Größe kommt aus der Größenwahl oben -->
+                <StackPanel x:Name="MeldungenText">
+                    <TextBlock Style="{StaticResource Meldungen.Gruppe}" Text="Text" />
+                    <DockPanel MaxWidth="560" HorizontalAlignment="Left">
+                        <TextBlock x:Name="TextRest" DockPanel.Dock="Right" Style="{StaticResource Text.Hinweis}" Text="{Binding TextRest}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                        <TextBox x:Name="MeldungText" Text="{Binding TextEingabe, UpdateSourceTrigger=PropertyChanged}" MaxLength="{x:Static m:MeldungenViewModel.TextMax}" MinWidth="320"
+                                 AutomationProperties.Name="Text an alle, bis 120 Zeichen" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.TextHilfe}" />
+                    </DockPanel>
+                    <WrapPanel Margin="0,6,0,0">
+                        <ItemsControl x:Name="TextFarben" ItemsSource="{Binding Farbwahl}" Focusable="False" Margin="0,0,12,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:Textfarbwahl}">
+                                    <RadioButton x:Name="TextFarbe" Style="{StaticResource Meldungen.Farbe}" GroupName="MeldungenTextFarbe" Background="{Binding Pinsel}"
+                                                 IsChecked="{Binding Gewaehlt}" AutomationProperties.Name="{Binding Ansage}" gd:Hilfe.Text="{Binding Hilfe}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <RadioButton x:Name="TextDauerKurz" Style="{StaticResource Umschalter.Radio}" GroupName="MeldungenTextDauer" Content="8 s" IsChecked="{Binding TextDauerKurz}"
+                                     VerticalAlignment="Top" AutomationProperties.Name="Text 8 Sekunden" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.TextDauerHilfe}" />
+                        <RadioButton x:Name="TextDauerBleibt" Style="{StaticResource Umschalter.Radio}" GroupName="MeldungenTextDauer" Content="bleibt stehen"
+                                     IsChecked="{Binding TextDauerBleibt}" VerticalAlignment="Top" Margin="0,0,12,0" AutomationProperties.Name="Text bleibt stehen"
+                                     gd:Hilfe.Text="{x:Static m:MeldungenViewModel.TextDauerHilfe}" />
+                        <Button x:Name="TextSenden" Content="Senden" Command="{Binding TextSendenCommand}" MinHeight="30" Padding="14,2"
+                                Margin="0,0,6,6" VerticalAlignment="Top" AutomationProperties.Name="Text senden" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.TextSendenHilfe}" />
+                        <Button x:Name="TextAufheben" Style="{StaticResource Meldungen.Klein}" Content="aufheben" Command="{Binding TextAufhebenCommand}"
+                                AutomationProperties.Name="Text aufheben" gd:Hilfe.Text="{x:Static m:MeldungenViewModel.TextAufhebenHilfe}" />
+                    </WrapPanel>
+                </StackPanel>
+            </WrapPanel>
+
+            <!-- Wartezeit (2 s), Fehler, was zuletzt hinausging -->
+            <TextBlock x:Name="MeldungenWarten" Text="{Binding Wartetext}" Margin="0,8,0,0" FontWeight="SemiBold" Foreground="{StaticResource Pinsel.Hoeren}"
+                       Visibility="{Binding Wartetext, Converter={StaticResource SichtbarWennWert}}" AutomationProperties.LiveSetting="Polite" />
+            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                <TextBlock x:Name="MeldungenFehler" Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding Fehler}"
+                           AutomationProperties.LiveSetting="Assertive" />
+            </Border>
+            <TextBlock Style="{StaticResource Text.Hinweis}" TextWrapping="Wrap" Margin="0,10,0,0" Text="{x:Static m:MeldungenViewModel.FussSatz}" />
+        </StackPanel>
+    </Border>
+</UserControl>

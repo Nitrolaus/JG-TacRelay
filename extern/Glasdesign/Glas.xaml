@@ -1,0 +1,17 @@
+<!-- Glasdesign - Maintainer: Sarevoc -->
+<!--
+  Einstieg für Anwendungen: eine Zeile in App.xaml (LIESMICH.md). Bringt die Farbstellung Standard, alle Glas.*-Stile und
+  Vorgabestile für Button, CheckBox und ToolTip mit. Umschalten: Glasdesign.Thema.Setzen(Application.Current, "Weinrot").
+  Wer keine Vorgabestile will, nimmt Glas.Stile.xaml und setzt die Farbstellung selbst.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Glasdesign;component/Farbstellungen/Standard.xaml" />
+        <ResourceDictionary Source="/Glasdesign;component/Glas.Stile.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style TargetType="Button" BasedOn="{StaticResource Glas.Knopf}" />
+    <Style TargetType="CheckBox" BasedOn="{StaticResource Glas.Haken}" />
+    <Style TargetType="ToolTip" BasedOn="{StaticResource Glas.Tooltip}" />
+</ResourceDictionary>

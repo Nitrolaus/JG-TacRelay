@@ -1,0 +1,1809 @@
+<!-- JG TacRelay - Maintainer: Sarevoc -->
+<!--
+  Bereich Verwaltung (A43-A47, ANMELDUNG-SICHERHEIT). Kommt nur mit dem Admin-Setup. Stile und Farben kommen zur Laufzeit aus
+  den Ressourcen der Anwendung (Design\Stile.xaml des Clients), nur über StaticResource-Schlüssel, ohne Verweis auf den
+  Client. Keine Zugriffstasten: Die Sprachaktivierung unten belegt sie unter jedem Bereich.
+-->
+<UserControl x:Class="Funk.Verwaltung.Ansichten.VerwaltungAnsicht"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:m="clr-namespace:Funk.Verwaltung.Modelle"
+             xmlns:v="clr-namespace:Funk.Verwaltung"
+             xmlns:fl="clr-namespace:Funk.Verwaltung.Flotte"
+             xmlns:an="clr-namespace:Funk.Verwaltung.Ansichten"
+             xmlns:gd="clr-namespace:Glasdesign;assembly=Glasdesign"
+             Focusable="False" gd:Glas.Schatten="Einfach">
+    <UserControl.Resources>
+        <!-- Seit 0.11.1 (AP4, Sarevocs Bild vom 12.10.2026): Jede Beschriftung bricht um, statt am Rand abgeschnitten zu werden ("Suchen (SC-Name,
+             Discord-Name, ..." war bei 175 % abgeschnitten). Der Stil der Anwendung bleibt, nur der Umbruch kommt dazu. -->
+        <Style x:Key="Etikett" TargetType="TextBlock" BasedOn="{StaticResource Text.Etikett}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <!-- Überschrift einer Liste mit dem Knopf daneben: Fehlt der Platz, rutscht der Knopf unter die Überschrift, statt sie zu überdecken
+             (Sarevocs Bild: "Mitglied vormerken" über "Mitglie"). -->
+        <Style x:Key="Kopf.Abschnitt" TargetType="TextBlock" BasedOn="{StaticResource Text.Abschnitt}">
+            <Setter Property="Margin" Value="0,0,12,8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Kopf.Knopf" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Kopf.Knopf.Haupt" TargetType="Button" BasedOn="{StaticResource Knopf.Haupt}">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Nur lesen, aber markier- und kopierbar (Kennung, Geheimnis, Notfallcodes). -->
+        <Style x:Key="Feld.Lesen" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style x:Key="Feld.Code" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="MaxLength" Value="20" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <!-- Eine Zeile einer Liste als Knopf, links ausgerichtet. -->
+        <Style x:Key="Knopf.Zeile" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+        </Style>
+        <!-- Ein Feld im Felder-Editor 2x5, für die Rollen und für die Varianten einer Phase. -->
+        <DataTemplate x:Key="FeldVorlage" DataType="{x:Type m:FeldBearbeitung}">
+            <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="6" Margin="0,0,6,6" MinHeight="136">
+                <StackPanel>
+                    <TextBlock Text="{Binding Titel}" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding Quellen}" SelectedItem="{Binding Quelle}"
+                              AutomationProperties.Name="{Binding Titel}" ToolTip="{Binding Quelle.Text}">
+                        <!-- Umbrechen statt abschneiden: In fünf Spalten ist "Brücke der eigenen Einheit" bei 1280
+                             Bildpunkten breiter als die Auswahl (Befund der Prüfung 0.3.0). -->
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <!-- Stufe 3 (6.16): fester Ch. oder "wie zuletzt", nur an einem Kanal mit Ch. -->
+                    <ComboBox ItemsSource="{Binding ChWahl}" SelectedItem="{Binding Ch}" DisplayMemberPath="Text" Margin="0,4,0,0"
+                              Visibility="{Binding HatCh, Converter={StaticResource SichtbarWenn}}"
+                              AutomationProperties.Name="{Binding Titel, StringFormat='Ch. für {0}'}" ToolTip="{Binding Ch.Text}" />
+                    <StackPanel Visibility="{Binding Aktiv, Converter={StaticResource SichtbarWenn}}" Margin="0,4,0,0">
+                        <CheckBox Content="hört" IsChecked="{Binding Hoeren}" FontSize="12" Margin="0,1"
+                                  gd:Hilfe.Text="Wer diese Rolle spielt, hört in diesem Feld den Kanal." />
+                        <CheckBox Content="sendet" IsChecked="{Binding Senden}" FontSize="12" Margin="0,1"
+                                  gd:Hilfe.Text="Wer diese Rolle spielt, darf in diesem Feld in den Kanal senden." />
+                        <CheckBox Content="zuerst" IsChecked="{Binding Vorschlag}" FontSize="12" Margin="0,1"
+                                  gd:Hilfe.Text="Sendevorschlag: In diesen Kanal spricht man nach dem Einsteigen zuerst." />
+                        <CheckBox Content="fest" IsChecked="{Binding Fest}" FontSize="12" Margin="0,1" gd:Hilfe.Text="Wer diese Rolle spielt, kann dieses Feld nicht wegnehmen." />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <!-- Seit 0.8.0 (Umbau der Verwaltung, Variante B): die Navigation links, flach wie die Navigation des Hauptfensters, gewählt in der Leitfarbe. -->
+        <Style x:Key="Navi.Eintrag" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Rand" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter RecognizesAccessKey="False" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.Leitfarbe}" />
+                                <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!--
+          0.9.1 (Sarevoc 08.10.2026, Q55 Variante A): die Navigation links als Baum wie im Explorer. Jede Gruppe ist ein Ordner mit Pfeil zum Auf- und
+          Zuklappen, ihre Einträge stehen deutlich eingerückt an einer senkrechten Linie. Ordner und Pfeil sind selbst gezeichnet.
+        -->
+        <Geometry x:Key="Navi.OrdnerSymbol">M 1,3 L 1,13 L 15,13 L 15,5 L 7.5,5 L 6,3 Z</Geometry>
+        <Style x:Key="Navi.Ordner" TargetType="Expander">
+            <Setter Property="IsExpanded" Value="True" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+            <Setter Property="Margin" Value="0,8,0,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <StackPanel>
+                            <ToggleButton x:Name="Kopf" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Cursor="Hand"
+                                          FocusVisualStyle="{StaticResource Fokus.Rahmen}" AutomationProperties.Name="{TemplateBinding Header}" Background="Transparent"
+                                          Foreground="{TemplateBinding Foreground}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Rand" Background="Transparent" CornerRadius="4" Padding="4,5,8,5">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path x:Name="Pfeil" Data="M 1,0 L 5,4 L 1,8" Stroke="{StaticResource Pinsel.Text2}" StrokeThickness="1.6" Width="8" Height="8"
+                                                      Margin="2,0,7,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <RotateTransform Angle="90" />
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                                <Path Data="{StaticResource Navi.OrdnerSymbol}" Stroke="{StaticResource Pinsel.Akzent}" StrokeThickness="1.3" Width="16" Height="13"
+                                                      Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                                <ContentPresenter Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}" VerticalAlignment="Center"
+                                                                  TextElement.FontWeight="SemiBold" TextElement.FontSize="13.5" />
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="False">
+                                                <Setter TargetName="Pfeil" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="0" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Rand" Property="Background" Value="{StaticResource Pinsel.FlaecheHover}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <!-- Sarevoc: die Unterpunkte deutlich nach rechts, an einer Linie unter dem Ordner -->
+                            <Border x:Name="Unter" Margin="13,0,0,2" Padding="14,2,0,2" BorderBrush="{StaticResource Pinsel.Grenze}" BorderThickness="1,0,0,0">
+                                <ContentPresenter />
+                            </Border>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter TargetName="Unter" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Navi.Gruppe" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+            <Setter Property="Margin" Value="10,14,8,4" />
+        </Style>
+        <!-- Herkunftsschild an Rollen und Kanälen ("Star Citizen", "alte Flotte"), damit doppelte Namen unterscheidbar sind. -->
+        <Style x:Key="Herkunftsschild" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <!-- Innenrand 8, nicht 7: Bei 125, 150 und 175 % liegt 8 auf ganzen Bildpunkten (10, 12, 14), 7 nicht (12,25 bei 175 %). Mit 7 rundete das
+                 Layout dem Text "Baustein Trupp" einen halben Bildpunkt weg (71,4 Einheiten Platz für 72), und das "p" war angeschnitten (AP4). -->
+            <Setter Property="Padding" Value="8,1" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <!-- Eine Zeile der Listen Kanäle, Rollen, Einheiten: Name, darunter Herkunftsschild und Unterzeile. Seit 0.11.1 (AP4) brechen Name und
+             Unterzeile um, statt mit Auslassungszeichen zu kürzen: Ein gekürzter Text ohne Hilfetext verrät nicht, was fehlt. -->
+        <DataTemplate x:Key="ZeileMitHerkunft" DataType="{x:Type m:FlottenZeile}">
+            <StackPanel>
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Style="{StaticResource Herkunftsschild}" Margin="0,1,6,1" VerticalAlignment="Top"
+                            Visibility="{Binding HatHerkunft, Converter={StaticResource SichtbarWenn}}">
+                        <TextBlock Text="{Binding Herkunft}" FontSize="11" Foreground="{StaticResource Pinsel.Text2}" />
+                    </Border>
+                    <TextBlock Text="{Binding Text}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                </DockPanel>
+            </StackPanel>
+        </DataTemplate>
+        <!-- Eine Zeile der Übersicht "Heute": Klartext und, wenn es etwas zu zeigen gibt, ein Knopf dorthin. -->
+        <DataTemplate x:Key="HeuteZeileVorlage" DataType="{x:Type m:HeuteZeile}">
+            <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,6" Margin="0,0,0,6">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="{Binding Knopf}" Margin="12,0,0,0" VerticalAlignment="Center"
+                            Command="{Binding DataContext.SpringenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                            Visibility="{Binding HatSprung, Converter={StaticResource SichtbarWenn}}"
+                            gd:Hilfe.Text="Springt dorthin, wo du es ansehen und ändern kannst." />
+                    <TextBlock FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Text}" />
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+        <!-- Ein Werkzeug: Knopf, ein Satz Erklärung, darunter die Rückfrage; "Leer (nur Global)" mit rotem Rand und roter Erklärung. Die Spalte der
+             Knöpfe ist so breit wie der breiteste (SharedSizeGroup über WerkzeugeBereich); bis 0.11.1 fest 240, und ein langer Vorlagenname
+             war abgeschnitten (AP4). -->
+        <DataTemplate x:Key="WerkzeugVorlage" DataType="{x:Type m:WerkzeugZeile}">
+            <Border x:Name="Zeile" Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,8" Margin="0,0,0,6">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="WerkzeugKnopf" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Content="{Binding KnopfText}" Command="{Binding FragenCommand}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,12,0"
+                                gd:Hilfe.Text="{Binding Erklaerung}" gd:Hilfe.Gesperrt="{Binding Gesperrt}" />
+                        <TextBlock x:Name="Erklaerung" Grid.Column="1" FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{StaticResource Pinsel.Text2}"
+                                   Text="{Binding Erklaerung}" />
+                    </Grid>
+                    <Border Style="{StaticResource Warnung.Unterlage}" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2" Margin="0,8,0,0" Padding="12,8"
+                            Visibility="{Binding Fragt, Converter={StaticResource SichtbarWenn}}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <Button Style="{StaticResource Knopf.Haupt}" Content="{Binding JaText}" Command="{Binding JaCommand}" Margin="0,0,8,0"
+                                        gd:Hilfe.Text="Führt das Werkzeug jetzt im Entwurf aus; am Server ändert sich erst mit Übernehmen etwas." />
+                                <Button Content="Abbrechen" Command="{Binding AbbrechenCommand}" gd:Hilfe.Text="Schließt die Rückfrage; nichts ändert sich." />
+                            </StackPanel>
+                            <TextBlock FontSize="13" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Frage}" />
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Gefaehrlich}" Value="True">
+                    <Setter TargetName="Zeile" Property="BorderBrush" Value="{StaticResource Pinsel.RotSchrift}" />
+                    <Setter TargetName="Zeile" Property="BorderThickness" Value="4,0,0,0" />
+                    <Setter TargetName="Erklaerung" Property="Foreground" Value="{StaticResource Pinsel.RotSchrift}" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        <!-- Kachel im Funkfeld-Editor der Rollen: flach wie die Kacheln des Funkfelds; das gewählte Feld hat einen Rand im Akzent. -->
+        <Style x:Key="Kachel" TargetType="Button" BasedOn="{StaticResource Knopf.Flach}">
+            <Setter Property="Background" Value="{StaticResource Pinsel.FlaecheTief}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Margin" Value="0,0,6,6" />
+            <Setter Property="MinHeight" Value="96" />
+        </Style>
+        <!-- Der Kanal in einer Kachel führt per Klick zum Kanal: unterstrichen, ohne eigene Fläche. Die Fläche steht ausdrücklich auf
+             durchsichtig; sonst trüge der Knopf die helle Fläche des Windows-Grundstils, und die Schrift stünde für die Prüfung darauf. -->
+        <Style x:Key="Kachel.Kanal" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus.Rahmen}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter RecognizesAccessKey="False" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <!--
+      Seit 0.8.0 (Umbau der Verwaltung, docs/entwurf/VERWALTUNG-UMBAU.md, Variante B): links die Navigation in Gruppen (Heute, Leute,
+      Funk, Einsatz, Werkzeuge), daneben der Bereich mit eigenem Bildlauf, unten die Leiste des Entwurfs, die stehen bleibt. Ist der Platz
+      zu schmal (Wer ist da offen, kleines Fenster), steht die Navigation oben im Bereich (VerwaltungAnsicht.xaml.cs).
+    -->
+    <Grid x:Name="Wurzel" SizeChanged="WurzelGroesse">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Navigation links, nur in der offenen Verwaltung -->
+        <Border x:Name="NaviLinksRand" Grid.RowSpan="2" Visibility="{Binding IstOffen, Converter={StaticResource SichtbarWenn}}">
+            <Border x:Name="NaviLinks" Style="{StaticResource Karte}" Width="224" Margin="16,18,0,16" Padding="8,2,8,12">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <StackPanel x:Name="NaviBaum">
+                        <Expander Style="{StaticResource Navi.Ordner}" Header="Heute" IsExpanded="{Binding NaviHeuteOffen}">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstHeute}" Content="Übersicht"
+                                             gd:Hilfe.Text="Zeigt, was ansteht, und Hinweise, die das Programm in der Flotte findet, je mit Sprung dorthin." />
+                            </StackPanel>
+                        </Expander>
+                        <Expander Style="{StaticResource Navi.Ordner}" Header="Leute" IsExpanded="{Binding NaviLeuteOffen}">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstAntraege}" Content="{Binding AntraegeTitel}"
+                                             gd:Hilfe.Text="Zeigt die offenen Anträge neuer Geräte zum Freigeben oder Ablehnen." />
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstMitglieder}" Content="Mitglieder"
+                                             gd:Hilfe.Text="Zeigt die Mitglieder und Vormerkungen mit Rollen." />
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstKatalog}" Content="Rollenkatalog"
+                                             gd:Hilfe.Text="Zeigt den Rollenkatalog, aus dem du Mitgliedern Rollen einträgst." />
+                            </StackPanel>
+                        </Expander>
+                        <Expander Style="{StaticResource Navi.Ordner}" Header="Funk" IsExpanded="{Binding NaviFunkOffen}">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstKanaele}" Content="Kanäle"
+                                             gd:Hilfe.Text="Zeigt die Kanäle mit Herkunft, Einstellungen und Ch. und wo sie verwendet werden." />
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstRollen}" Content="Rollen"
+                                             gd:Hilfe.Text="Zeigt die Rollen mit ihrem Funkfeld, so wie ein Funker es sieht." />
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstEinheiten}" Content="Einheiten"
+                                             gd:Hilfe.Text="Zeigt die Einheiten (Schiffe, Infanterie, Orga) mit ihren Kanälen und Plätzen." />
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstPhasen}" Content="Phasen" Visibility="{Binding Flotte.PhasenSichtbar, Converter={StaticResource SichtbarWenn}}"
+                                             gd:Hilfe.Text="Zeigt die Phasen und die Varianten, die eine Rolle in ihnen bekommt." />
+                            </StackPanel>
+                        </Expander>
+                        <Expander Style="{StaticResource Navi.Ordner}" Header="Einsatz" IsExpanded="{Binding NaviEinsatzOffen}">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstEinsatzleitung}" Content="Einsatzleitung"
+                                             gd:Hilfe.Text="Zeigt die laufenden und geplanten Aufträge und vergibt die Einsatzleitung." />
+                            </StackPanel>
+                        </Expander>
+                        <Expander Style="{StaticResource Navi.Ordner}" Header="Werkzeuge" IsExpanded="{Binding NaviWerkzeugeOffen}">
+                            <StackPanel>
+                                <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviLinks" IsChecked="{Binding IstWerkzeuge}" Content="Vorlagen und Sicherung"
+                                             gd:Hilfe.Text="Zeigt Vorlagen, Bausteine und die Sicherung der Flotte, je mit Erklärung und Rückfrage." />
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Border>
+
+        <!-- Der Bereich: rollt selbst, damit die Leiste des Entwurfs unten stehen bleibt -->
+        <ScrollViewer x:Name="VerwaltungBildlauf" Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+            <StackPanel x:Name="Seite" Margin="16,18,24,16" MaxWidth="1240" HorizontalAlignment="Left">
+                <TextBlock Style="{StaticResource Text.Ueberschrift}" Text="Verwaltung" />
+
+                <!-- Navigation oben, wenn links kein Platz ist -->
+                <Border x:Name="NaviObenRand" Visibility="{Binding IstOffen, Converter={StaticResource SichtbarWenn}}">
+                    <Border x:Name="NaviOben" Style="{StaticResource Karte}" Padding="8,0,8,10" Visibility="Collapsed">
+                        <WrapPanel>
+                            <TextBlock Style="{StaticResource Navi.Gruppe}" Text="Heute" />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstHeute}" Content="Übersicht"
+                                         gd:Hilfe.Text="Zeigt, was ansteht, und Hinweise, die das Programm in der Flotte findet, je mit Sprung dorthin." />
+                            <TextBlock Style="{StaticResource Navi.Gruppe}" Text="Leute" />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstAntraege}" Content="{Binding AntraegeTitel}"
+                                         gd:Hilfe.Text="Zeigt die offenen Anträge neuer Geräte zum Freigeben oder Ablehnen." />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstMitglieder}" Content="Mitglieder"
+                                         gd:Hilfe.Text="Zeigt die Mitglieder und Vormerkungen mit Rollen." />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstKatalog}" Content="Rollenkatalog"
+                                         gd:Hilfe.Text="Zeigt den Rollenkatalog, aus dem du Mitgliedern Rollen einträgst." />
+                            <TextBlock Style="{StaticResource Navi.Gruppe}" Text="Funk" />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstKanaele}" Content="Kanäle"
+                                         gd:Hilfe.Text="Zeigt die Kanäle mit Herkunft, Einstellungen und Ch. und wo sie verwendet werden." />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstRollen}" Content="Rollen"
+                                         gd:Hilfe.Text="Zeigt die Rollen mit ihrem Funkfeld, so wie ein Funker es sieht." />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstEinheiten}" Content="Einheiten"
+                                         gd:Hilfe.Text="Zeigt die Einheiten (Schiffe, Infanterie, Orga) mit ihren Kanälen und Plätzen." />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstPhasen}" Content="Phasen" Visibility="{Binding Flotte.PhasenSichtbar, Converter={StaticResource SichtbarWenn}}"
+                                         gd:Hilfe.Text="Zeigt die Phasen und die Varianten, die eine Rolle in ihnen bekommt." />
+                            <TextBlock Style="{StaticResource Navi.Gruppe}" Text="Einsatz" />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstEinsatzleitung}" Content="Einsatzleitung"
+                                         gd:Hilfe.Text="Zeigt die laufenden und geplanten Aufträge und vergibt die Einsatzleitung." />
+                            <TextBlock Style="{StaticResource Navi.Gruppe}" Text="Werkzeuge" />
+                            <RadioButton Style="{StaticResource Navi.Eintrag}" GroupName="NaviOben" IsChecked="{Binding IstWerkzeuge}" Content="Vorlagen und Sicherung"
+                                         gd:Hilfe.Text="Zeigt Vorlagen, Bausteine und die Sicherung der Flotte, je mit Erklärung und Rückfrage." />
+                        </WrapPanel>
+                    </Border>
+                </Border>
+                <!-- Zustand, Fehler, Hinweis -->
+                <Border x:Name="ZustandKarte" Style="{StaticResource Karte}">
+                    <StackPanel>
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top"
+                                        Visibility="{Binding IstOffen, Converter={StaticResource SichtbarWenn}}">
+                                <Button Content="Neu laden" Command="{Binding NeuLadenCommand}" Margin="0,0,8,0"
+                                        gd:Hilfe.Text="Lädt alle Bereiche der Verwaltung neu vom Server." />
+                                <Button Content="Verwaltung schließen" Command="{Binding AbmeldenCommand}"
+                                        gd:Hilfe.Text="Beendet die Admin-Sitzung; der Funk läuft weiter." />
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="{Binding Beschreibung}" Margin="0,0,12,0" />
+                        </DockPanel>
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,6,0,0" Text="{Binding SitzungText}"
+                                   Visibility="{Binding SitzungText, Converter={StaticResource SichtbarWennWert}}" />
+                        <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                            <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                        </Border>
+                        <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,6" Margin="0,8,0,0"
+                                Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}">
+                            <TextBlock TextWrapping="Wrap" FontSize="13" Text="{Binding Hinweis}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Frische Bestätigung (3.9): Code für eine heikle Handlung. Seit 0.6.4 rollt die Karte beim Öffnen selbst ins Bild und der
+                     Cursor steht im Feld (VerwaltungAnsicht.xaml.cs); vorher öffnete sie sich oben außer Sicht, und die Handlung unten schien
+                     nichts zu tun (Sarevocs Test vom 04.10.2026). -->
+                <Border x:Name="AbfrageKarte" Style="{StaticResource Karte}" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2"
+                        DataContext="{Binding Abfrage}" Visibility="{Binding Offen, Converter={StaticResource SichtbarWenn}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Code eintippen: sechs Ziffern aus deiner Authenticator-App" TextWrapping="Wrap" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="{Binding Frage}" Margin="0,0,0,8" TextWrapping="Wrap" />
+                        <WrapPanel Margin="0,0,0,-6">
+                            <TextBox x:Name="AbfrageCode" Style="{StaticResource Feld.Code}" Text="{Binding Eingabe, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,6"
+                                     AutomationProperties.Name="Code für die Bestätigung">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Return" Command="{Binding OkCommand}" />
+                                    <KeyBinding Key="Escape" Command="{Binding AbbrechenCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Style="{StaticResource Knopf.Haupt}" Content="Bestätigen" Command="{Binding OkCommand}" Margin="0,0,8,6"
+                                    gd:Hilfe.Text="Bestätigt die Handlung mit dem eingetragenen Code." gd:Hilfe.Taste="Enter im Codefeld"
+                                    gd:Hilfe.Gesperrt="Geht erst, wenn ein vollständiger Code eingetragen ist: sechs Ziffern aus der App oder ein Notfallcode." />
+                            <Button Content="Abbrechen" Command="{Binding AbbrechenCommand}" Margin="0,0,0,6"
+                                    gd:Hilfe.Text="Bricht die Handlung ab, ohne etwas zu ändern." gd:Hilfe.Taste="Esc im Codefeld" />
+                        </WrapPanel>
+                        <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                            <TextBlock Style="{StaticResource Text.Warnung}" Text="{Binding Fehler}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Einrichten: Admin-Schlüssel anlegen und beantragen -->
+                <Border x:Name="EinrichtenKarte" Style="{StaticResource Karte}" Visibility="{Binding IstEinrichten, Converter={StaticResource SichtbarWenn}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Verwaltung einrichten" />
+                        <!-- Seit 0.4.1, Sarevocs Entscheidung vom 01.10.2026: technisch Pflicht nur TPM 2.0, Richtlinie Windows-Konto mit PIN
+                             oder Kennwort. Die Vorprüfung legt keinen Schlüssel an. -->
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="{x:Static v:Voraussetzungstexte.TechnischPflicht}" />
+                        <TextBlock Style="{StaticResource Etikett}" Text="Vorprüfung auf diesem PC" Margin="0,12,0,6" />
+
+                        <!-- TPM 2.0: technisch Pflicht -->
+                        <Border x:Name="TpmZeile" Background="{StaticResource Pinsel.FlaecheTief}" BorderThickness="4,0,0,0" CornerRadius="2" Padding="10,6" Margin="0,0,0,4">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Linie}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TpmGefunden}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.Senden}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding TpmSperrt}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource Pinsel.RotSchrift}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <DockPanel>
+                                <Path DockPanel.Dock="Left" Width="14" Height="14" Margin="0,2,8,0" VerticalAlignment="Top">
+                                    <Path.Style>
+                                        <Style TargetType="Path" BasedOn="{StaticResource Symbol}">
+                                            <Setter Property="Data" Value="{StaticResource Symbol.Hinweis}" />
+                                            <Setter Property="Stroke" Value="{StaticResource Pinsel.Text2}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding TpmGefunden}" Value="True">
+                                                    <Setter Property="Data" Value="{StaticResource Symbol.Haken}" />
+                                                    <Setter Property="Stroke" Value="{StaticResource Pinsel.Senden}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding TpmSperrt}" Value="True">
+                                                    <Setter Property="Stroke" Value="{StaticResource Pinsel.RotSchrift}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                                <StackPanel>
+                                    <TextBlock FontSize="13" FontWeight="SemiBold" Text="{x:Static v:Voraussetzungstexte.TitelTpm}" />
+                                    <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding TpmText}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TpmSperrt}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource Pinsel.RotSchrift}" />
+                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,2,0,0" Text="{Binding TpmPlattform}"
+                                               Visibility="{Binding TpmPlattform, Converter={StaticResource SichtbarWennWert}}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Windows-Konto mit PIN oder Kennwort: Richtlinie der Gilde, der Client prüft sie nicht -->
+                        <Border x:Name="RichtlinieZeile" Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Linie}" BorderThickness="4,0,0,0"
+                                CornerRadius="2" Padding="10,6">
+                            <DockPanel>
+                                <Path DockPanel.Dock="Left" Style="{StaticResource Symbol}" Data="{StaticResource Symbol.Schluessel}" Width="14" Height="14"
+                                      Margin="0,2,8,0" VerticalAlignment="Top" Stroke="{StaticResource Pinsel.Text2}" />
+                                <StackPanel>
+                                    <TextBlock FontSize="13" FontWeight="SemiBold" Text="{x:Static v:Voraussetzungstexte.TitelRichtlinie}" />
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,2,0,0" Text="{x:Static v:Voraussetzungstexte.RichtlinieErklaerung}" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <WrapPanel Margin="0,10,0,0">
+                            <Button Style="{StaticResource Knopf.Haupt}" Content="Admin-Schlüssel anlegen und beantragen" Command="{Binding EinrichtenCommand}" Margin="0,0,8,0"
+                                    gd:Hilfe.Text="Legt auf diesem PC einen Admin-Schlüssel im TPM an und zeigt dir eine Kennung, die du dem Eigentümer am Telefon vorliest."
+                                    gd:Hilfe.Gesperrt="Geht erst, wenn die Vorprüfung fertig ist, auf diesem PC ein TPM 2.0 nutzbar ist und keine andere Aktion läuft." />
+                            <Button Content="Erneut prüfen" Command="{Binding VoraussetzungenPruefenCommand}" Margin="0,0,8,0"
+                                    gd:Hilfe.Text="Sieht noch einmal nach dem TPM; legt keinen Schlüssel an."
+                                    gd:Hilfe.Gesperrt="Die Vorprüfung läuft gerade." />
+                        </WrapPanel>
+                        <StackPanel Margin="0,12,0,0" Visibility="{Binding Kennung, Converter={StaticResource SichtbarWennWert}}">
+                            <TextBlock Style="{StaticResource Etikett}" Text="Admin-Kennung zum Vorlesen am Telefon" Margin="0,0,0,4" />
+                            <TextBox Style="{StaticResource Feld.Lesen}" FontSize="24" Text="{Binding Kennung, Mode=OneWay}" AutomationProperties.Name="Admin-Kennung" />
+                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,6,0,0"
+                                       Text="Der Eigentümer trägt sie an der Konsole ein (funk-admin admin-ernennen). Passt die Kennung nicht, die er hört, passiert nichts." />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Zweitfaktor: Geheimnis abholen, QR-Code, erster Code -->
+                <Border x:Name="ZweitfaktorKarte" Style="{StaticResource Karte}" Visibility="{Binding IstZweitfaktor, Converter={StaticResource SichtbarWenn}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Zweitfaktor mit einer Authenticator-App" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" TextWrapping="Wrap" Text="{x:Static m:VerwaltungViewModel.AppHinweis}" />
+                        <Button Style="{StaticResource Knopf.Haupt}" Content="Geheimnis abholen (genau einmal)" Command="{Binding GeheimnisAbholenCommand}"
+                                HorizontalAlignment="Left" Margin="0,10,0,0"
+                                Visibility="{Binding GeheimnisAbgeholt, Converter={StaticResource SichtbarWennNicht}}"
+                                gd:Hilfe.Text="Holt das Geheimnis für deine Authenticator-App vom Server. Das geht nur einmal."
+                                gd:Hilfe.Gesperrt="Gerade läuft eine andere Aktion der Verwaltung." />
+                        <!-- Nach dem Verlassen des Bereichs ist das Geheimnis fort (Gegenprüfung Stufe 1); steht es schon in der App, geht der erste Code trotzdem. -->
+                        <StackPanel Margin="0,12,0,0" Visibility="{Binding NurErsterCode, Converter={StaticResource SichtbarWenn}}">
+                            <TextBlock Style="{StaticResource Etikett}" Text="Erster Code aus der App" Margin="0,0,0,4" />
+                            <WrapPanel Margin="0,0,0,-6">
+                                <TextBox Style="{StaticResource Feld.Code}" Text="{Binding EinrichtungCode, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,6"
+                                         AutomationProperties.Name="Erster Code, Geheimnis nicht mehr angezeigt">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Return" Command="{Binding EinrichtungBestaetigenCommand}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <Button Style="{StaticResource Knopf.Haupt}" Content="Einrichtung abschließen" Command="{Binding EinrichtungBestaetigenCommand}" Margin="0,0,0,6"
+                                        gd:Hilfe.Text="Schließt die Einrichtung mit dem ersten Code aus der App ab." gd:Hilfe.Taste="Enter im Codefeld"
+                                        gd:Hilfe.Gesperrt="Geht erst, wenn der erste Code vollständig eingetragen ist (sechs Ziffern) und keine andere Aktion läuft." />
+                            </WrapPanel>
+                        </StackPanel>
+                        <!-- QR-Code links, der Rest rechts; in schmalen Fenstern untereinander (seit 0.11.1 AP4, vorher ragte "Einrichtung abschließen" hinaus) -->
+                        <an:Zweispalter Margin="0,12,0,0" Ab="668" ErsteMin="232" ErsteMax="232" Luecke="16" Visibility="{Binding HatGeheimnis, Converter={StaticResource SichtbarWenn}}">
+                            <!-- Dunkel auf hell wie jede Kamera es erwartet, mit Ruhezone -->
+                            <Border x:Name="QrRand" Background="White" Width="232" Height="232" VerticalAlignment="Top" HorizontalAlignment="Left" CornerRadius="4" Margin="0,0,0,12">
+                                <Viewbox Stretch="Uniform" Margin="0">
+                                    <Canvas Width="{Binding QrSeite}" Height="{Binding QrSeite}">
+                                        <Path x:Name="QrPfad" Fill="Black" Data="{Binding QrBildGeometrie}" SnapsToDevicePixels="True" />
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Etikett}" Text="Oder von Hand eintippen (Schlüssel, zeitbasiert, 6 Ziffern, 30 Sekunden)" Margin="0,0,0,4" />
+                                <TextBox Style="{StaticResource Feld.Lesen}" FontSize="16" Text="{Binding Geheimnis, Mode=OneWay}" TextWrapping="Wrap" MaxWidth="440"
+                                         AutomationProperties.Name="Geheimnis zum Abtippen" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,8,0,0" Text="{Binding GeheimnisBis}"
+                                           Visibility="{Binding GeheimnisBis, Converter={StaticResource SichtbarWennWert}}" />
+                                <TextBlock Style="{StaticResource Etikett}" Text="Erster Code aus der App" Margin="0,12,0,4" />
+                                <WrapPanel>
+                                    <TextBox Style="{StaticResource Feld.Code}" Text="{Binding EinrichtungCode, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,6"
+                                             AutomationProperties.Name="Erster Code">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Return" Command="{Binding EinrichtungBestaetigenCommand}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                    <Button Style="{StaticResource Knopf.Haupt}" Content="Einrichtung abschließen" Command="{Binding EinrichtungBestaetigenCommand}" Margin="0,0,0,6"
+                                            gd:Hilfe.Text="Schließt die Einrichtung mit dem ersten Code aus der App ab." gd:Hilfe.Taste="Enter im Codefeld"
+                                            gd:Hilfe.Gesperrt="Geht erst, wenn der erste Code vollständig eingetragen ist (sechs Ziffern) und keine andere Aktion läuft." />
+                                </WrapPanel>
+                            </StackPanel>
+                        </an:Zweispalter>
+                    </StackPanel>
+                </Border>
+
+                <!-- Notfallcodes, genau einmal -->
+                <Border x:Name="NotfallKarte" Style="{StaticResource Karte}" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2"
+                        Visibility="{Binding HatNotfallcodes, Converter={StaticResource SichtbarWenn}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Deine zehn Notfallcodes" />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13"
+                                   Text="Sie erscheinen nur jetzt. Getrennt vom Telefon aufbewahren: als sichere Notiz in deinem Passwortmanager oder ausgedruckt an einem sicheren Ort. Jeder gilt einmal, wenn das Telefon fehlt; jeder benutzte ist eine Meldung an alle Admins." />
+                        <ItemsControl ItemsSource="{Binding Notfallcodes}" Margin="0,10,0,0" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel MaxWidth="620" HorizontalAlignment="Left" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBox Style="{StaticResource Feld.Lesen}" FontSize="15" Width="190" Margin="0,0,8,8" Text="{Binding Mode=OneWay}"
+                                             AutomationProperties.Name="Notfallcode" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Button Style="{StaticResource Knopf.Haupt}" Content="Aufgeschrieben" Command="{Binding NotfallcodesGesehenCommand}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                gd:Hilfe.Text="Blendet die Notfallcodes aus; sie erscheinen nie wieder." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Anmelden: Admin-Sitzung öffnen -->
+                <Border x:Name="AnmeldenKarte" Style="{StaticResource Karte}" Visibility="{Binding IstAnmelden, Converter={StaticResource SichtbarWenn}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Code eintippen: sechs Ziffern aus deiner Authenticator-App" TextWrapping="Wrap" />
+                        <WrapPanel Margin="0,0,0,-6">
+                            <TextBox x:Name="CodeFeld" Style="{StaticResource Feld.Code}" Text="{Binding Code, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,6"
+                                     AutomationProperties.Name="Code aus der Authenticator-App">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Return" Command="{Binding AnmeldenCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Style="{StaticResource Knopf.Haupt}" Content="Verwaltung öffnen" Command="{Binding AnmeldenCommand}" Margin="0,0,0,6"
+                                    gd:Hilfe.Text="Öffnet die Admin-Sitzung mit dem eingetragenen Code. Der Funk läuft dabei weiter." gd:Hilfe.Taste="Enter im Codefeld"
+                                    gd:Hilfe.Gesperrt="Geht erst, wenn der Code vollständig eingetragen ist (sechs Ziffern, bei einem Notfallcode zwölf Zeichen) und keine andere Aktion läuft." />
+                        </WrapPanel>
+                        <CheckBox Content="Notfallcode statt Code (wenn das Telefon fehlt)" IsChecked="{Binding MitNotfallcode}" Margin="0,10,0,0"
+                                  gd:Hilfe.Text="Schaltet um, ob du dich mit einem Notfallcode statt mit dem Code aus der App anmeldest." />
+                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,6,0,0"
+                                   Text="Nach dem Code unterschreibt der Admin-Schlüssel im TPM die Anmeldung. Einen Code nennt man niemandem; nach Codes fragt kein Admin." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Offen: die Bereiche, links gewählt -->
+                <StackPanel x:Name="Offen" Visibility="{Binding IstOffen, Converter={StaticResource SichtbarWenn}}">
+                    <!-- ============ Heute (seit 0.8.0): was ansteht und Hinweise, je mit Sprung dorthin ============ -->
+                    <StackPanel x:Name="HeuteBereich" Visibility="{Binding IstHeute, Converter={StaticResource SichtbarWenn}}">
+                        <Border x:Name="AnstehtKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Was ansteht" />
+                                <ItemsControl ItemsSource="{Binding Ansteht}" Focusable="False" ItemTemplate="{StaticResource HeuteZeileVorlage}" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="HinweiseKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Hinweise" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,0,0,8"
+                                           Text="Was das Programm selbst in der Flotte findet. Zeigen springt dorthin; geändert wird im Entwurf, am Server erst mit Übernehmen unten." />
+                                <TextBlock FontSize="13" Text="Keine Hinweise gefunden." Visibility="{Binding KeineHinweise, Converter={StaticResource SichtbarWenn}}" />
+                                <ItemsControl ItemsSource="{Binding Hinweise}" Focusable="False" ItemTemplate="{StaticResource HeuteZeileVorlage}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <!-- ============ Anträge ============ -->
+                    <StackPanel x:Name="AntraegeBereich" DataContext="{Binding Antraege}"
+                                Visibility="{Binding DataContext.IstAntraege, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <Border Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <!-- Überschrift und Knöpfe in einer Reihe, die umbricht, wenn der Platz fehlt (seit 0.11.1 AP4; vorher lagen die Knöpfe bei 760 über der Überschrift) -->
+                                <WrapPanel>
+                                    <TextBlock Style="{StaticResource Kopf.Abschnitt}" Text="Vor dem Freigeben" />
+                                    <Button Style="{StaticResource Kopf.Knopf}" Content="Aktualisieren" Command="{Binding NeuCommand}" Margin="0,0,8,8"
+                                            gd:Hilfe.Text="Holt die offenen Anträge neu vom Server." />
+                                    <Button Style="{StaticResource Kopf.Knopf}" Content="Alle ablehnen, die zu keiner Vormerkung passen ..." Command="{Binding UnpassendeAblehnenFragenCommand}"
+                                            gd:Hilfe.Text="Erst eine Rückfrage: Ablehnen löscht diese Anträge, gesperrt wird nichts. Gedacht gegen eine Flut fremder Anträge; du bestätigst mit einem frischen Code." />
+                                </WrapPanel>
+                                <!-- Seit 0.7.0: Rückfrage vor dem Sammel-Ablehnen, ein Klick trifft viele Anträge; gesperrt wird nichts -->
+                                <Border x:Name="UnpassendeFrageRand" Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0"
+                                        Visibility="{Binding UnpassendeFragen, Converter={StaticResource SichtbarWenn}}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{x:Static m:AntraegeViewModel.UnpassendeFrage}" />
+                                        <WrapPanel Margin="0,8,0,-6">
+                                            <Button Content="Ablehnen und löschen" Command="{Binding UnpassendeAblehnenCommand}" Margin="0,0,8,6"
+                                                    gd:Hilfe.Text="Lehnt alle Anträge ohne passende Vormerkung ab und löscht sie; du bestätigst mit einem frischen Code." />
+                                            <Button Content="Abbrechen" Command="{Binding UnpassendeAblehnenAbbrechenCommand}" Margin="0,0,0,6" gd:Hilfe.Text="Nichts ablehnen." />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                                <ItemsControl ItemsSource="{x:Static m:AntraegeViewModel.Regeln}" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <DockPanel Margin="0,2">
+                                                <Path DockPanel.Dock="Left" Style="{StaticResource Symbol}" Data="{StaticResource Symbol.Hinweis}" Width="14" Height="14"
+                                                      Margin="0,2,8,0" VerticalAlignment="Top" Stroke="{StaticResource Pinsel.Text2}" />
+                                                <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="{Binding}" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                                </Border>
+                                <TextBlock FontSize="13" Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding Hinweis}"
+                                           Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,8,0,0" Text="Keine offenen Anträge."
+                                           Visibility="{Binding Leer, Converter={StaticResource SichtbarWenn}}" />
+                            </StackPanel>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding Antraege}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type m:AntragZeile}">
+                                    <Border Style="{StaticResource Karte}">
+                                        <StackPanel>
+                                            <TextBlock FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap">
+                                                <Run Text="{Binding Anzeigename, Mode=OneWay}" /><Run Text="{Binding DiscordName, Mode=OneWay, StringFormat='  Discord: {0}', TargetNullValue=''}" />
+                                            </TextBlock>
+                                            <!-- Weiteres Gerät eines bestehenden Kontos (3.5): kein neuer Antrag; Markierung und EINSPRUCH -->
+                                            <Border x:Name="WeiteresGeraetRand" Style="{StaticResource Warnung.Unterlage}" Margin="0,6,0,0"
+                                                    Visibility="{Binding WeiteresGeraet, Converter={StaticResource SichtbarWennWert}}">
+                                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding WeiteresGeraet}" />
+                                            </Border>
+                                            <!-- Seit 0.6.3: vergleichen und "Verifiziert" klicken statt die angezeigte Kennung abzutippen (Sarevoc 04.10.2026) -->
+                                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding KennungHinweis}" />
+                                            <Grid Margin="0,4,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Style="{StaticResource Etikett}" Text="Gerätekennung" />
+                                                <TextBox Grid.Column="1" Style="{StaticResource Feld.Lesen}" FontSize="18" Text="{Binding Kennung, Mode=OneWay}" Margin="0,2"
+                                                         AutomationProperties.Name="Gerätekennung des Antrags" />
+                                                <TextBlock Grid.Row="1" Style="{StaticResource Etikett}" Text="Gerät" Margin="0,4,12,4" />
+                                                <!-- Umbruch statt Auslassungszeichen (Text.Wert kürzt; seit 0.11.1 AP4 nicht hier: "Gaming-PC, TPM (laut Client, ungeprüft), seit ..." war gekürzt) -->
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Text.Wert}" TextWrapping="Wrap" TextTrimming="None">
+                                                    <Run Text="{Binding Geraetename, Mode=OneWay}" /><Run Text=", " /><Run Text="{Binding Schluesselart, Mode=OneWay}" /><Run
+                                                        Text=", seit " /><Run Text="{Binding Zeit, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="2" Style="{StaticResource Etikett}" Text="Benutzername" Margin="0,4,12,4"
+                                                           Visibility="{Binding Benutzername, Converter={StaticResource SichtbarWennWert}}" />
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource Text.Wert}" Text="{Binding Benutzername}" TextWrapping="Wrap" TextTrimming="None"
+                                                           Visibility="{Binding Benutzername, Converter={StaticResource SichtbarWennWert}}" />
+                                                <Border Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource Warnung.Unterlage}" Margin="0,6,0,0"
+                                                        Visibility="{Binding Vergeben, Converter={StaticResource SichtbarWennWert}}">
+                                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Vergeben}" />
+                                                </Border>
+                                            </Grid>
+                                            <StackPanel Margin="0,10,0,0" Visibility="{Binding HatVorschlaege, Converter={StaticResource SichtbarWenn}}">
+                                                <TextBlock Style="{StaticResource Etikett}" Text="Vorschläge aus den Vormerkungen (nie von selbst übernommen)" Margin="0,0,0,4" />
+                                                <ItemsControl ItemsSource="{Binding Vorschlaege}" Focusable="False">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type m:VorschlagWahl}">
+                                                            <RadioButton Style="{StaticResource Umschalter.Radio}" HorizontalAlignment="Left" Margin="0,0,0,4"
+                                                                         IsChecked="{Binding Gewaehlt}" Content="{Binding Text}"
+                                                                         gd:Hilfe.Text="Wählt, ob und welche Vormerkung beim Freigeben übernommen wird." />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                            <!-- Passendes bestehendes Konto (Sarevocs Fall vom 01.10.2026): nur ein Hinweis; seit 0.7.0 bekommt jeder PC sein eigenes Konto -->
+                                            <Border x:Name="BestehendesKontoRand" Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0"
+                                                    Visibility="{Binding BestehendesKonto, Converter={StaticResource SichtbarWennWert}}">
+                                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding BestehendesKonto}" />
+                                            </Border>
+                                            <WrapPanel Margin="0,12,0,-6">
+                                                <!-- Das gelbe "!" ist das selbst gezeichnete aus Klangstufe C2b (Stil Ausrufe), keine Schrift; es steht, solange nicht verifiziert ist -->
+                                                <Button x:Name="VerifiziertKnopf" Command="{Binding VerifizierenCommand}" Margin="0,0,8,6"
+                                                        AutomationProperties.Name="{Binding VerifiziertText}"
+                                                        gd:Hilfe.Text="Nur klicken, wenn die Kennung mit der übereinstimmt, die dir die Person nennt. Ein zweiter Klick nimmt es zurück.">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <ContentControl Style="{StaticResource Ausrufe}" Margin="0,0,6,0"
+                                                                        Visibility="{Binding ZeigtAusrufe, Converter={StaticResource SichtbarWenn}}" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{Binding VerifiziertText}" />
+                                                    </StackPanel>
+                                                </Button>
+                                                <Button Style="{StaticResource Knopf.Haupt}" Content="Freigeben" Command="{Binding FreigebenCommand}" Margin="0,0,8,6"
+                                                        gd:Hilfe.Text="Gibt den PC frei; er bekommt sein eigenes Konto (ein PC, ein Konto). Du bestätigst mit einem frischen Code."
+                                                        gd:Hilfe.Gesperrt="Geht erst nach Verifiziert und ohne Einspruch; der Grund steht darunter." />
+                                                <Button Content="Ablehnen ..." Command="{Binding AblehnenFragenOeffnenCommand}" Margin="0,0,0,6"
+                                                        gd:Hilfe.Text="Erst eine Rückfrage: Ablehnen löscht den Antrag vollständig. Gesperrt wird nichts." />
+                                            </WrapPanel>
+                                            <!-- Seit 0.7.0: Rückfrage vor dem Ablehnen; Ablehnen löscht den Antrag, gesperrt wird nichts (Sarevoc 04.10.2026) -->
+                                            <Border x:Name="AblehnenFrageRand" Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0"
+                                                    Visibility="{Binding AblehnenFragen, Converter={StaticResource SichtbarWenn}}">
+                                                <StackPanel>
+                                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding AblehnenFrage}" />
+                                                    <WrapPanel Margin="0,8,0,-6">
+                                                        <Button Content="Ablehnen und löschen" Command="{Binding AblehnenCommand}" Margin="0,0,8,6"
+                                                                gd:Hilfe.Text="Lehnt den Antrag ab und löscht ihn; du bestätigst mit einem frischen Code." />
+                                                        <Button Content="Abbrechen" Command="{Binding AblehnenAbbrechenCommand}" Margin="0,0,0,6" gd:Hilfe.Text="Nichts ablehnen." />
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,6,0,0" TextWrapping="Wrap" Text="{Binding FreigabeGesperrt}"
+                                                       Visibility="{Binding FreigabeGesperrt, Converter={StaticResource SichtbarWennWert}}" />
+                                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- ============ Mitglieder ============ -->
+                    <!-- Liste links, Karte rechts; in schmalen Fenstern untereinander (seit 0.11.1 AP4, Sarevocs Bild vom 12.10.2026: Knopf über der
+                         Überschrift, Suchtext abgeschnitten, die Karte rechts außer Sicht). Die Breiten wie beim Grid bis dahin: 2 zu 3, links 260 bis 420. -->
+                    <an:Zweispalter x:Name="MitgliederBereich" DataContext="{Binding Mitglieder}" Ab="612" Anteil="0.4" ErsteMin="260" ErsteMax="420"
+                                    Visibility="{Binding DataContext.IstMitglieder, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                            <StackPanel>
+                                <WrapPanel>
+                                    <TextBlock Style="{StaticResource Kopf.Abschnitt}" Text="Mitglieder" />
+                                    <Button Style="{StaticResource Kopf.Knopf.Haupt}" Content="Mitglied vormerken" Command="{Binding VormerkenCommand}"
+                                            gd:Hilfe.Text="Öffnet eine leere Karte, um jemanden mit Rollen vorzumerken." />
+                                </WrapPanel>
+                                <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,8" Text="{Binding Zaehlung}" />
+                                <TextBlock Style="{StaticResource Etikett}" Text="Suchen (SC-Name, Discord-Name, Name)" Margin="0,0,0,2" />
+                                <TextBox Text="{Binding Suche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" AutomationProperties.Name="Mitglieder suchen"
+                                         ToolTip="Suche über SC-Namen, Discord-Namen und Namen, auch Teile" />
+                                <ItemsControl ItemsSource="{Binding Sichtbar}" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type m:MitgliedZeile}">
+                                            <Button Style="{StaticResource Knopf.Zeile}"
+                                                    Command="{Binding DataContext.OeffnenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                    AutomationProperties.Name="{Binding Name}"
+                                                    gd:Hilfe.Text="Öffnet die Karte dieses Mitglieds zum Bearbeiten.">
+                                                <DockPanel>
+                                                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Text.Hinweis}" Text="{Binding Zustand}" Margin="8,0,0,0" />
+                                                    <StackPanel>
+                                                        <!-- Umbruch statt Auslassungszeichen (seit 0.11.1 AP4): Name und Discord-Name bleiben ganz lesbar -->
+                                                        <TextBlock TextWrapping="Wrap">
+                                                            <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" /><Run
+                                                                Text="{Binding DiscordName, Mode=OneWay, StringFormat='  {0}', TargetNullValue=''}" Foreground="{StaticResource Pinsel.Text2}" />
+                                                        </TextBlock>
+                                                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Rollen}"
+                                                                   Visibility="{Binding Rollen, Converter={StaticResource SichtbarWennWert}}" />
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel>
+                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,0,0,12" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                            </Border>
+                            <Border Background="{StaticResource Pinsel.Flaeche}" CornerRadius="4" Padding="10,6" Margin="0,0,0,12"
+                                    Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock TextWrapping="Wrap" FontSize="13" Text="{Binding Hinweis}" />
+                            </Border>
+
+                            <!-- Karte eines Mitglieds -->
+                            <Border x:Name="MitgliedKarteRand" Style="{StaticResource Karte}" DataContext="{Binding Karte}"
+                                    Visibility="{Binding DataContext.HatKarte, RelativeSource={RelativeSource AncestorType=an:Zweispalter}, Converter={StaticResource SichtbarWenn}}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <Button DockPanel.Dock="Right" Content="Schließen"
+                                                Command="{Binding DataContext.SchliessenCommand, RelativeSource={RelativeSource AncestorType=an:Zweispalter}}"
+                                                gd:Hilfe.Text="Schließt die Karte, ohne zu speichern." />
+                                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="{Binding Titel}" TextWrapping="Wrap" />
+                                    </DockPanel>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Angaben}" Margin="0,0,0,8"
+                                               Visibility="{Binding Angaben, Converter={StaticResource SichtbarWennWert}}" />
+                                    <StackPanel Visibility="{Binding NamenAenderbar, Converter={StaticResource SichtbarWenn}}">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="SC-Name" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding ScName, UpdateSourceTrigger=PropertyChanged}" MaxLength="22" Margin="0,0,0,8" AutomationProperties.Name="SC-Name"
+                                 ToolTip="Höchstens 22 Zeichen, damit der Name in Wer ist da und auf der Raid-Seite ganz steht." />
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Discord-Name (optional)" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding DiscordName, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" Margin="0,0,0,8" AutomationProperties.Name="Discord-Name" />
+                                    </StackPanel>
+                                    <!-- Discord-Name eines Kontos (A53): eindeutig, nur Admins ändern ihn; "Wer ist da" zeigt ihn als Namen. -->
+                                    <StackPanel Visibility="{Binding DiscordAenderbar, Converter={StaticResource SichtbarWenn}}">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Discord-Name (eindeutig, nur Admins ändern ihn; leer heißt keiner)" Margin="0,0,0,2" TextWrapping="Wrap" />
+                                        <TextBox Text="{Binding DiscordName, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" Margin="0,0,0,8" AutomationProperties.Name="Discord-Name des Kontos" />
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource Etikett}" Text="Mitgliederrollen (vom Admin, höchstens 16)" Margin="0,4,0,2" />
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="Noch kein Rollenkatalog: erst unter Rollenkatalog anlegen."
+                                               Visibility="{Binding OhneKatalog, Converter={StaticResource SichtbarWenn}}" />
+                                    <ItemsControl ItemsSource="{Binding Rollen}" Focusable="False">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox Content="{Binding Text}" IsChecked="{Binding Gewaehlt}" Margin="0,4,16,4"
+                                                          gd:Hilfe.Text="Trägt diese Rolle beim Mitglied ein oder nimmt sie weg; gespeichert wird mit Speichern." />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Wuensche, StringFormat='Wünscht selbst: {0}'}" Margin="0,4,0,0"
+                                               Visibility="{Binding Wuensche, Converter={StaticResource SichtbarWennWert}}" />
+                                    <TextBlock Style="{StaticResource Etikett}" Text="Notiz nur für Admins (80 Zeichen)" Margin="0,10,0,2" />
+                                    <TextBox Text="{Binding Notiz, UpdateSourceTrigger=PropertyChanged}" MaxLength="80" AutomationProperties.Name="Notiz" />
+                                    <!-- Meldesystem (0.12.0, M15-M18): der Haken "darf Meldungen senden", gespeichert mit Speichern; wirkt nur bei Führung, Admin, Einsatzleitung -->
+                                    <StackPanel x:Name="MeldungenHaken" Margin="0,10,0,0" Visibility="{Binding ZeigtMeldungen, Converter={StaticResource SichtbarWenn}}">
+                                        <CheckBox x:Name="MeldungenSendenHaken" Content="darf Meldungen senden" IsChecked="{Binding MeldungenSenden}"
+                                                  AutomationProperties.Name="darf Meldungen senden" gd:Hilfe.Text="{x:Static m:MitgliedKarte.MeldungenHilfe}" />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="{x:Static m:MitgliedKarte.MeldungenSatz}" TextWrapping="Wrap" Margin="26,0,0,0" />
+                                    </StackPanel>
+                                    <WrapPanel Margin="0,12,0,-6">
+                                        <Button Style="{StaticResource Knopf.Haupt}" Content="Speichern" Command="{Binding SpeichernCommand}" Margin="0,0,8,6"
+                                                gd:Hilfe.Text="Speichert die Angaben dieses Mitglieds auf dem Server und schließt die Karte." />
+                                        <Button Content="Vormerkung löschen" Command="{Binding LoeschenCommand}" Margin="0,0,8,6"
+                                                Visibility="{Binding IstVormerkung, Converter={StaticResource SichtbarWenn}}"
+                                                gd:Hilfe.Text="Löscht diese Vormerkung auf dem Server." />
+                                        <!-- Konto ganz löschen (seit 0.6.3): erst die Rückfrage darunter, dann der frische Code -->
+                                        <Button x:Name="KontoLoeschenKnopf" Content="Konto löschen ..." Command="{Binding KontoLoeschenFragenCommand}" Margin="0,0,8,6"
+                                                Visibility="{Binding ZeigtLoeschenKnopf, Converter={StaticResource SichtbarWenn}}"
+                                                gd:Hilfe.Text="Löscht das Konto samt Geräten und Plätzen; erst kommt eine Rückfrage, dann der Code aus der App." />
+                                    </WrapPanel>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding LoeschenNurKonsole}"
+                                               Visibility="{Binding LoeschenNurKonsole, Converter={StaticResource SichtbarWennWert}}" />
+                                    <Border x:Name="KontoLoeschenFrage" Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0"
+                                            Visibility="{Binding LoeschenFragen, Converter={StaticResource SichtbarWenn}}">
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding LoeschenFrage}" />
+                                            <WrapPanel Margin="0,8,0,-6">
+                                                <Button Content="Endgültig löschen" Command="{Binding KontoLoeschenCommand}" Margin="0,0,8,6"
+                                                        gd:Hilfe.Text="Löscht das Konto auf dem Server; du bestätigst mit einem frischen Code." />
+                                                <Button Content="Abbrechen" Command="{Binding KontoLoeschenAbbrechenCommand}" Margin="0,0,0,6"
+                                                        gd:Hilfe.Text="Nichts löschen." />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    <!-- Geräte des Kontos (seit 0.8.0): Name, Kennung, Zustand; an einem gesperrten "Sperre aufheben" mit Rückfrage und Code -->
+                                    <StackPanel x:Name="GeraeteTeil" Margin="0,14,0,0" Visibility="{Binding ZeigtGeraete, Converter={StaticResource SichtbarWenn}}">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Geräte" Margin="0,0,0,4" />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" TextWrapping="Wrap" Text="{Binding GeraeteHinweis}"
+                                                   Visibility="{Binding GeraeteHinweis, Converter={StaticResource SichtbarWennWert}}" />
+                                        <ItemsControl ItemsSource="{Binding Geraete}" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type m:GeraetZeile}">
+                                                    <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,6" Margin="0,0,0,4">
+                                                        <StackPanel>
+                                                            <DockPanel>
+                                                                <TextBlock DockPanel.Dock="Right" FontSize="13" Margin="8,0,0,0" Text="{Binding Zustand}">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Foreground" Value="{StaticResource Pinsel.Text2}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding Gesperrt}" Value="True">
+                                                                                    <Setter Property="Foreground" Value="{StaticResource Pinsel.RotSchrift}" />
+                                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                                <TextBlock TextWrapping="Wrap" FontSize="13">
+                                                                    <Run Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold" /><Run Text="   " /><Run
+                                                                        Text="{Binding Kennung, Mode=OneWay}" FontFamily="Consolas" />
+                                                                </TextBlock>
+                                                            </DockPanel>
+                                                            <Button Content="Sperre aufheben ..." Command="{Binding SperreAufhebenFragenCommand}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                                                    Visibility="{Binding ZeigtAufhebenKnopf, Converter={StaticResource SichtbarWenn}}"
+                                                                    AutomationProperties.Name="{Binding Name, StringFormat='Sperre aufheben für {0}'}"
+                                                                    gd:Hilfe.Text="Erst eine Rückfrage: Die Sperre fällt weg, und der PC kann einen neuen Antrag stellen. Du bestätigst mit einem frischen Code." />
+                                                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,4,0,0" TextWrapping="Wrap" Text="{Binding NurKonsole}"
+                                                                       Visibility="{Binding NurKonsole, Converter={StaticResource SichtbarWennWert}}" />
+                                                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,6,0,0"
+                                                                    Visibility="{Binding AufhebenFragen, Converter={StaticResource SichtbarWenn}}">
+                                                                <StackPanel>
+                                                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" TextWrapping="Wrap" Text="{Binding AufhebenFrage}" />
+                                                                    <WrapPanel Margin="0,8,0,-6">
+                                                                        <Button Content="Sperre aufheben" Command="{Binding SperreAufhebenCommand}" Margin="0,0,8,6"
+                                                                                gd:Hilfe.Text="Hebt die Sperre auf dem Server auf; du bestätigst mit einem frischen Code." />
+                                                                        <Button Content="Abbrechen" Command="{Binding SperreAufhebenAbbrechenCommand}" Margin="0,0,0,6"
+                                                                                gd:Hilfe.Text="Die Sperre bleibt." />
+                                                                    </WrapPanel>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                        <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Liste einfügen -->
+                            <Border Style="{StaticResource Karte}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Liste einfügen" />
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="{Binding EinfuegenVorschau}" Margin="0,0,0,6" />
+                                    <TextBox Text="{Binding EinfuegenText, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="NoWrap" Height="110"
+                                             VerticalContentAlignment="Top"
+                                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="13"
+                                             AutomationProperties.Name="Liste zum Einfügen" ToolTip="Beispiel: Mustermann; Mustermann/Max; ; Medium Fighter Pilot, Ingenieur (die dritte Spalte bleibt leer)" />
+                                    <Button Content="Einfügen" Command="{Binding EinfuegenCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"
+                                            gd:Hilfe.Text="Legt jede Zeile als Vormerkung an; passt eine Zeile nicht, wird nichts angelegt." />
+                                    <ItemsControl ItemsSource="{Binding EinfuegenFehler}" Focusable="False" Margin="0,6,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,2">
+                                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding}" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </an:Zweispalter>
+
+                    <!-- ============ Rollenkatalog ============ -->
+                    <Border x:Name="KatalogBereich" Style="{StaticResource Karte}" DataContext="{Binding Katalog}" MaxWidth="760" HorizontalAlignment="Left"
+                            Visibility="{Binding DataContext.IstKatalog, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Rollenkatalog" />
+                            <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,0,0,10"
+                                       Text="Was jemand kann, etwa Medium Fighter Pilot. Daraus trägst du Mitgliederrollen ein, und jeder hakt seine Lieblingsrollen ab. Führung und Einsatzleitung können Rollen ergänzen, entfernen und umbenennen kann nur ein Admin." />
+                            <ItemsControl ItemsSource="{Binding Eintraege}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type m:KatalogZeile}">
+                                        <DockPanel Margin="0,0,0,6">
+                                            <Button DockPanel.Dock="Right" Content="Entfernen" Command="{Binding EntfernenCommand}" Margin="8,0,0,0"
+                                                    AutomationProperties.Name="{Binding Name, StringFormat='{}{0} entfernen'}"
+                                                    gd:Hilfe.Text="Nimmt diese Rolle aus dem Katalog; gespeichert wird mit Speichern." />
+                                            <TextBox DockPanel.Dock="Right" Width="160" Text="{Binding Gruppe, UpdateSourceTrigger=PropertyChanged}" MaxLength="20" Margin="8,0,0,0"
+                                                     AutomationProperties.Name="Gruppe" ToolTip="Gruppe zum Sortieren, etwa Flug, Geschütz, Technik, Boden, Orga" />
+                                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" AutomationProperties.Name="Rolle" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <DockPanel Margin="0,8,0,0">
+                                <Button DockPanel.Dock="Right" Content="Hinzufügen" Command="{Binding HinzufuegenCommand}" Margin="8,0,0,0"
+                                        gd:Hilfe.Text="Nimmt die neue Rolle mit ihrer Gruppe in den Katalog auf; gespeichert wird mit Speichern." gd:Hilfe.Taste="Enter im Namensfeld"
+                                        gd:Hilfe.Gesperrt="Geht erst, wenn ein Name für die neue Rolle eingetragen ist und der Katalog noch keine 64 Rollen hat." />
+                                <TextBox DockPanel.Dock="Right" Width="160" Text="{Binding NeuGruppe, UpdateSourceTrigger=PropertyChanged}" MaxLength="20" Margin="8,0,0,0"
+                                         AutomationProperties.Name="Gruppe der neuen Rolle" />
+                                <TextBox Text="{Binding NeuName, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" AutomationProperties.Name="Neue Rolle">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Return" Command="{Binding HinzufuegenCommand}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </DockPanel>
+                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Warnung, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Warnung}" />
+                            </Border>
+                            <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                            </Border>
+                            <TextBlock FontSize="13" Margin="0,8,0,0" Text="{Binding Hinweis}" Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}" />
+                            <WrapPanel Margin="0,12,0,-6">
+                                <Button Style="{StaticResource Knopf.Haupt}" Content="Speichern" Command="{Binding SpeichernCommand}" Margin="0,0,8,6"
+                                        gd:Hilfe.Text="Speichert den Rollenkatalog auf dem Server."
+                                        gd:Hilfe.Gesperrt="Es gibt noch keine Änderungen am Katalog." />
+                                <Button Content="Verwerfen" Command="{Binding VerwerfenCommand}" Margin="0,0,8,6"
+                                        gd:Hilfe.Text="Setzt den Katalog auf den gespeicherten Stand zurück." />
+                                <Button Content="Beispiele dazu" Command="{Binding BeispieleDazuCommand}" Margin="0,0,0,6"
+                                        gd:Hilfe.Text="Trägt die Beispielrollen ein, soweit sie fehlen: Medium Fighter Pilot, Ingenieur, Medium Gunner, Marine." />
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ============ Funk: Kanäle, Rollen, Einheiten, Phasen (im Code der Bereich Flotte, A40), je links gewählt ============ -->
+                    <StackPanel x:Name="FlotteBereich" DataContext="{Binding Flotte}"
+                                Visibility="{Binding DataContext.IstFlotte, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,0,0,12" Text="Noch keine Flotte vom Server. Sie kommt mit der Verbindung."
+                                   Visibility="{Binding HatFlotte, Converter={StaticResource SichtbarWennNicht}}" />
+                        <!-- Kanäle (seit 0.6.0 mit Gruppe und Ch.-Liste, 6.16; seit 0.8.0 mit Suche, Herkunft und "Verwendet in"); im Code heißen sie weiter Netze -->
+                        <an:Zweispalter x:Name="NetzeReiter" Ab="612" Anteil="0.334" ErsteMin="240" ErsteMax="340" Visibility="{Binding IstNetze, Converter={StaticResource SichtbarWenn}}">
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <WrapPanel>
+                                        <TextBlock Style="{StaticResource Kopf.Abschnitt}" Text="Kanäle" />
+                                        <Button Style="{StaticResource Kopf.Knopf}" Content="Neuer Kanal" Command="{Binding NetzNeuCommand}"
+                                                gd:Hilfe.Text="Legt im Entwurf einen neuen Kanal an, mit der Herkunft von Hand." />
+                                    </WrapPanel>
+                                    <TextBox Text="{Binding KanalSuche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" AutomationProperties.Name="Kanäle suchen"
+                                             ToolTip="Suche im Namen, auch Teile" />
+                                    <ComboBox ItemsSource="{Binding KanalHerkuenfte}" SelectedItem="{Binding KanalHerkunft}" AutomationProperties.Name="Kanäle nach Herkunft"
+                                              ToolTip="Nur die Kanäle einer Herkunft zeigen" />
+                                    <ListBox ItemsSource="{Binding SichtbareKanaele}" SelectedItem="{Binding GewaehltesNetz}" Style="{StaticResource Navigation}" Margin="0,8,0,0"
+                                             ItemContainerStyle="{StaticResource Navigation.Eintrag}" ItemTemplate="{StaticResource ZeileMitHerkunft}" AutomationProperties.Name="Kanäle"
+                                             MaxHeight="520" />
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <Button Content="nach oben" Command="{Binding NetzHochCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt den gewählten Kanal eine Stelle nach oben."
+                                                gd:Hilfe.Gesperrt="Wähle erst einen Kanal in der Liste; Global lässt sich weder verschieben noch löschen." />
+                                        <Button Content="nach unten" Command="{Binding NetzRunterCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt den gewählten Kanal eine Stelle nach unten."
+                                                gd:Hilfe.Gesperrt="Wähle erst einen Kanal in der Liste; Global lässt sich weder verschieben noch löschen." />
+                                        <Button Content="Kanal löschen" Command="{Binding NetzLoeschenCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Löscht den gewählten Kanal aus dem Entwurf."
+                                                gd:Hilfe.Gesperrt="Wähle erst einen Kanal in der Liste; Global lässt sich weder verschieben noch löschen." />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top" Visibility="{Binding Netz, Converter={StaticResource SichtbarWennWert}}">
+                                <StackPanel DataContext="{Binding Netz}">
+                                    <DockPanel Margin="0,0,0,8">
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource Herkunftsschild}" Visibility="{Binding Herkunft, Converter={StaticResource SichtbarWennWert}}">
+                                            <TextBlock Text="{Binding Herkunft}" FontSize="11" Foreground="{StaticResource Pinsel.Text2}" />
+                                        </Border>
+                                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Kanal" VerticalAlignment="Center" Margin="0" />
+                                    </DockPanel>
+                                    <TextBlock Style="{StaticResource Etikett}" Text="Name, etwa Kommando oder Brücke" Margin="0,0,0,2" />
+                                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" IsEnabled="{Binding Aenderbar}" AutomationProperties.Name="Name des Kanals" />
+                                    <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,8,0,0" Text="{Binding Zugehoerigkeit}" />
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,2,0,0" Text="{Binding MitgliederText}" />
+                                    <StackPanel IsEnabled="{Binding Aenderbar}" Margin="0,10,0,0">
+                                        <CheckBox Content="Nur mit Sprechtaste" IsChecked="{Binding NurTaste}"
+                                                  gd:Hilfe.Text="Schaltet die Sprachaktivierung in diesem Kanal aus; dort geht nur die Sprechtaste."
+                                                  gd:Hilfe.Gesperrt="Global ist fest und lässt sich hier nicht ändern." />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="24,0,0,6" Text="Sprachaktivierung geht in diesem Kanal nicht, etwa für Kommando mit vielen Zuhörern." />
+                                        <CheckBox Content="Voreinstellung Sprechtaste statt Sprachaktivierung" IsChecked="{Binding Taste}"
+                                                  gd:Hilfe.Text="Stellt diesen Kanal ab Werk auf Sprechtaste statt Sprachaktivierung; jeder kann es für sich umstellen."
+                                                  gd:Hilfe.Gesperrt="Global ist fest und lässt sich hier nicht ändern." />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="24,0,0,6" Text="Jeder kann es für sich umstellen." />
+                                    </StackPanel>
+                                    <StackPanel IsEnabled="{Binding OffenAenderbar}">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Jeder darf ihn selbst dazunehmen" Margin="0,4,0,2" />
+                                        <ComboBox ItemsSource="{x:Static m:FlotteViewModel.Offenwahl}" SelectedItem="{Binding Offen}" DisplayMemberPath="Text" Width="220" HorizontalAlignment="Left"
+                                                  AutomationProperties.Name="Jeder darf ihn selbst dazunehmen" />
+                                    </StackPanel>
+                                    <StackPanel IsEnabled="{Binding Aenderbar}">
+                                        <CheckBox Content="Haben alle, die keinen Platz haben" IsChecked="{Binding Standard}" Margin="0,8,0,0"
+                                                  gd:Hilfe.Text="Lässt alle, die keinen Platz haben, diesen Kanal haben, etwa als Sammelkanal für Nachzügler."
+                                                  gd:Hilfe.Gesperrt="Global ist fest und lässt sich hier nicht ändern." />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="24,0,0,0" Text="Etwa ein Sammelkanal für Nachzügler." />
+                                    </StackPanel>
+                                    <StackPanel IsEnabled="{Binding ChAenderbar}" Margin="0,10,0,0">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Gruppe in der Kanalwahl, etwa Schiffe oder Boden" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding Gruppe, UpdateSourceTrigger=PropertyChanged}" MaxLength="20" Width="220" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Gruppe in der Kanalwahl" />
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Ch., eine Bezeichnung je Zeile, etwa Schiff 1" Margin="0,8,0,2" />
+                                        <TextBox Text="{Binding ChListe, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="NoWrap"
+                                                 VerticalScrollBarVisibility="Auto" MinHeight="96" MaxHeight="240" AutomationProperties.Name="Ch. des Kanals" />
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" TextWrapping="Wrap" Margin="0,4,0,0" Text="{Binding ChHinweis}" />
+
+                                    <!-- Seit 0.8.0: wo der Kanal vorkommt, je ein Klick dorthin -->
+                                    <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Verwendet in" Margin="0,14,0,4" />
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="Keine Rolle und keine Einheit nennt diesen Kanal."
+                                               Visibility="{Binding HatVerwendungen, Converter={StaticResource SichtbarWennNicht}}" />
+                                    <ItemsControl ItemsSource="{Binding VerwendetIn}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type fl:Verwendungsstelle}">
+                                                <Button Style="{StaticResource Knopf.Zeile}"
+                                                        Command="{Binding DataContext.VerwendungZeigenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                        AutomationProperties.Name="{Binding Text}" gd:Hilfe.Text="Springt zu dieser Rolle, Phase oder Einheit.">
+                                                    <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding Text}" />
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </an:Zweispalter>
+                        <!-- Rollen mit dem Funkfeld-Editor (seit 0.8.0, VERWALTUNG-UMBAU.md, Variante C): links die Liste, in der Mitte das Funkfeld wie
+                             beim Funker, daneben (bei wenig Platz darunter) das angeklickte Feld, darunter die Einstellungen der Rolle und die Vorschau -->
+                        <!-- Nebeneinander erst ab 740: Dann hat der Funkfeld-Editor rechts mindestens 488, und jede der fünf Kacheln je Reihe gut 90, damit
+                             "Durchsagen" und "Bodentrupp" nicht mitten im Wort brechen (AP4). -->
+                        <an:Zweispalter x:Name="RollenReiter" Ab="740" Anteil="0.25" ErsteMin="240" ErsteMax="320" Visibility="{Binding IstRollen, Converter={StaticResource SichtbarWenn}}">
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <WrapPanel>
+                                        <TextBlock Style="{StaticResource Kopf.Abschnitt}" Text="Rollen" />
+                                        <Button Style="{StaticResource Kopf.Knopf}" Content="Neue Rolle" Command="{Binding RolleNeuCommand}"
+                                                gd:Hilfe.Text="Legt im Entwurf eine neue Rolle an, mit der Herkunft von Hand." />
+                                    </WrapPanel>
+                                    <TextBox Text="{Binding RollenSuche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" AutomationProperties.Name="Rollen suchen"
+                                             ToolTip="Suche im Namen, auch Teile" />
+                                    <ComboBox ItemsSource="{Binding RollenHerkuenfte}" SelectedItem="{Binding RollenHerkunft}" AutomationProperties.Name="Rollen nach Herkunft"
+                                              ToolTip="Nur die Rollen einer Herkunft zeigen" />
+                                    <ListBox ItemsSource="{Binding SichtbareRollen}" SelectedItem="{Binding GewaehlteRolle}" Style="{StaticResource Navigation}" Margin="0,8,0,0"
+                                             ItemContainerStyle="{StaticResource Navigation.Eintrag}" ItemTemplate="{StaticResource ZeileMitHerkunft}" AutomationProperties.Name="Rollen"
+                                             MaxHeight="520" />
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <Button Content="nach oben" Command="{Binding RolleHochCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt die gewählte Rolle eine Stelle nach oben."
+                                                gd:Hilfe.Gesperrt="Wähle erst eine Rolle in der Liste." />
+                                        <Button Content="nach unten" Command="{Binding RolleRunterCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt die gewählte Rolle eine Stelle nach unten."
+                                                gd:Hilfe.Gesperrt="Wähle erst eine Rolle in der Liste." />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Grid x:Name="RollenEditor" SizeChanged="RollenGroesse" Visibility="{Binding Rolle, Converter={StaticResource SichtbarWennWert}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Das Funkfeld: Feld 1 bis 9 als Kacheln, Global fest rechts unten -->
+                                <Border x:Name="FunkfeldKarte" Style="{StaticResource Karte}" DataContext="{Binding Rolle}">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <Border DockPanel.Dock="Right" Style="{StaticResource Herkunftsschild}" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding Herkunft}" FontSize="11" Foreground="{StaticResource Pinsel.Text2}" />
+                                            </Border>
+                                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="{Binding Name, StringFormat='Funkfeld von {0}'}" TextWrapping="Wrap" Margin="0" />
+                                        </DockPanel>
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,4,0,8"
+                                                   Text="So sieht der Funker mit dieser Rolle sein Funkfeld. Ein Feld anklicken und daneben ändern; der Kanal in einer Kachel führt zum Kanal." />
+                                        <ItemsControl ItemsSource="{Binding Kacheln}" Focusable="False">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Columns="5" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.Resources>
+                                                <DataTemplate DataType="{x:Type m:FeldBearbeitung}">
+                                                    <Button x:Name="Kachel" Style="{StaticResource Kachel}"
+                                                            Command="{Binding DataContext.FeldWaehlenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                            AutomationProperties.Name="{Binding Titel}"
+                                                            gd:Hilfe.Text="Wählt dieses Feld; daneben änderst du Kanal, hören, senden, zuerst senden und fest.">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Titel}" FontSize="11" Foreground="{StaticResource Pinsel.Text2}" />
+                                                            <Button Style="{StaticResource Kachel.Kanal}" Margin="0,2,0,0"
+                                                                    Command="{Binding DataContext.KanalOeffnenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                    CommandParameter="{Binding}" AutomationProperties.Name="{Binding KachelName, StringFormat='Zum Kanal {0}'}"
+                                                                    Visibility="{Binding HatKanal, Converter={StaticResource SichtbarWenn}}"
+                                                                    gd:Hilfe.Text="Springt zu diesem Kanal unter Kanäle.">
+                                                                <TextBlock Text="{Binding KachelName}" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" TextDecorations="Underline" />
+                                                            </Button>
+                                                            <TextBlock Text="{Binding KachelName}" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"
+                                                                       Visibility="{Binding HatKanal, Converter={StaticResource SichtbarWennNicht}}" />
+                                                            <TextBlock Text="{Binding KachelCh}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource Pinsel.Text2}" Margin="0,2,0,0"
+                                                                       Visibility="{Binding KachelCh, Converter={StaticResource SichtbarWennWert}}" />
+                                                            <TextBlock Text="{Binding KachelZustand}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource Pinsel.Text2}"
+                                                                       Visibility="{Binding KachelZustand, Converter={StaticResource SichtbarWennWert}}" />
+                                                            <TextBlock Text="{Binding KachelZusatz}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource Pinsel.Text2}"
+                                                                       Visibility="{Binding KachelZusatz, Converter={StaticResource SichtbarWennWert}}" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding Gewaehlt}" Value="True">
+                                                            <Setter TargetName="Kachel" Property="BorderBrush" Value="{StaticResource Pinsel.Akzent}" />
+                                                            <Setter TargetName="Kachel" Property="BorderThickness" Value="2" />
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                                <DataTemplate DataType="{x:Type m:GlobalKachel}">
+                                                    <Border Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Linie}" BorderThickness="1" CornerRadius="4"
+                                                            Padding="8,6" Margin="0,0,6,6" MinHeight="96">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                            <TextBlock Text="{Binding Text}" FontSize="11" TextWrapping="Wrap" Foreground="{StaticResource Pinsel.Text2}" Margin="0,2,0,0" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.Resources>
+                                        </ItemsControl>
+                                        <Button Content="+ Feld" Command="{Binding FeldDazuCommand}" HorizontalAlignment="Left" Margin="0,4,0,0"
+                                                gd:Hilfe.Text="Wählt das erste freie Feld; daneben suchst du den Kanal aus."
+                                                gd:Hilfe.Gesperrt="Alle neun Felder sind belegt; Global ist das feste zehnte." />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Das angeklickte Feld: Kanal (derselben Herkunft zuerst), Ch., hört, sendet, zuerst senden, fest -->
+                                <Border x:Name="FeldKarte" Grid.Row="1" Style="{StaticResource Karte}" DataContext="{Binding Rolle}">
+                                    <StackPanel>
+                                        <StackPanel DataContext="{Binding GewaehltesFeld}">
+                                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="{Binding Titel}" />
+                                            <TextBlock Style="{StaticResource Etikett}" Text="Kanal" Margin="0,0,0,2" />
+                                            <ComboBox ItemsSource="{Binding Quellen}" SelectedItem="{Binding Quelle}"
+                                                      AutomationProperties.Name="{Binding Titel, StringFormat='Kanal für {0}'}" ToolTip="{Binding Quelle.Text}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                            <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,2,0,0"
+                                                       Text="Oben die Kanäle der Einheit und derselben Herkunft wie die Rolle, danach die übrigen." />
+                                            <ComboBox ItemsSource="{Binding ChWahl}" SelectedItem="{Binding Ch}" DisplayMemberPath="Text" Margin="0,6,0,0"
+                                                      Visibility="{Binding HatCh, Converter={StaticResource SichtbarWenn}}"
+                                                      AutomationProperties.Name="{Binding Titel, StringFormat='Ch. für {0}'}" ToolTip="{Binding Ch.Text}" />
+                                            <StackPanel Margin="0,8,0,0" Visibility="{Binding Aktiv, Converter={StaticResource SichtbarWenn}}">
+                                                <CheckBox Content="hört" IsChecked="{Binding Hoeren}" Margin="0,1"
+                                                          gd:Hilfe.Text="Wer diese Rolle spielt, hört in diesem Feld den Kanal." />
+                                                <CheckBox Content="sendet" IsChecked="{Binding Senden}" Margin="0,1"
+                                                          gd:Hilfe.Text="Wer diese Rolle spielt, darf in diesem Feld in den Kanal senden." />
+                                                <CheckBox Content="zuerst senden" IsChecked="{Binding Vorschlag}" Margin="0,1"
+                                                          gd:Hilfe.Text="Sendevorschlag: In diesen Kanal spricht man nach dem Einsteigen zuerst." />
+                                                <CheckBox Content="fest" IsChecked="{Binding Fest}" Margin="0,1"
+                                                          gd:Hilfe.Text="Wer diese Rolle spielt, kann dieses Feld nicht wegnehmen." />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Button Content="Zum Kanal" Command="{Binding KanalOeffnenCommand}" CommandParameter="{Binding GewaehltesFeld}" Margin="0,0,8,6"
+                                                    Visibility="{Binding GewaehltesFeld.HatKanal, Converter={StaticResource SichtbarWenn}}"
+                                                    gd:Hilfe.Text="Springt zum Kanal dieses Felds unter Kanäle." />
+                                            <Button Content="Feld leeren" Command="{Binding FeldLeerenCommand}" Margin="0,0,8,6"
+                                                    gd:Hilfe.Text="Nimmt den Kanal aus diesem Feld; der Funker hat ihn mit dieser Rolle dann nicht mehr."
+                                                    gd:Hilfe.Gesperrt="Das Feld ist schon frei." />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Die Rolle selbst: Name, Selbst wählbar, Braucht eine Einheit, Kapazität; verdoppeln, löschen; Vorschau -->
+                                <Border x:Name="RolleKarte" Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource Karte}">
+                                    <StackPanel>
+                                        <StackPanel DataContext="{Binding Rolle}">
+                                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Rolle" />
+                                            <TextBlock Style="{StaticResource Etikett}" Text="Name, ohne Nummer, etwa Kapitän" Margin="0,0,0,2" />
+                                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="40" AutomationProperties.Name="Name der Rolle" />
+                                            <CheckBox Content="Selbst wählbar (sonst teilt die Einsatzleitung zu)" IsChecked="{Binding SelbstWaehlbar}" Margin="0,8,0,0"
+                                                      gd:Hilfe.Text="Schaltet um, ob jeder diese Rolle selbst wählen darf oder die Einsatzleitung sie zuteilt." />
+                                            <CheckBox Content="Braucht eine Einheit (steht auf den Plätzen der Einheiten)" IsChecked="{Binding BrauchtEinheit}" Margin="0,4,0,0"
+                                                      gd:Hilfe.Text="Schaltet um, ob diese Rolle nur auf den Plätzen von Einheiten vorkommt oder auch ohne Einheit." />
+                                            <StackPanel Margin="0,6,0,0" Visibility="{Binding BrauchtEinheit, Converter={StaticResource SichtbarWennNicht}}">
+                                                <TextBlock Style="{StaticResource Etikett}" Text="Kapazität: wie viele dürfen sie haben (leer heißt ohne Grenze), etwa 2 für Flottenführung"
+                                                           TextWrapping="Wrap" Margin="0,0,0,2" />
+                                                <TextBox Text="{Binding Kapazitaet, UpdateSourceTrigger=PropertyChanged}" MaxLength="3" Width="80" HorizontalAlignment="Left"
+                                                         AutomationProperties.Name="Kapazität ohne Einheit" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Button Content="Rolle verdoppeln" Command="{Binding RolleVerdoppelnCommand}" Margin="0,0,8,6"
+                                                    gd:Hilfe.Text="Legt eine Kopie dieser Rolle mit denselben Feldern und Varianten an; Plätze auf Einheiten bekommt die Kopie keine."
+                                                    gd:Hilfe.Gesperrt="Wähle erst eine Rolle in der Liste." />
+                                            <Button Content="Rolle löschen" Command="{Binding RolleLoeschenCommand}" Margin="0,0,8,6"
+                                                    gd:Hilfe.Text="Löscht die gewählte Rolle aus dem Entwurf, mit ihren Plätzen und Varianten."
+                                                    gd:Hilfe.Gesperrt="Wähle erst eine Rolle in der Liste." />
+                                        </WrapPanel>
+                                        <StackPanel DataContext="{Binding Rolle}">
+                                            <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Vorschau" Margin="0,14,0,4" />
+                                            <ComboBox ItemsSource="{Binding VorschauEinheiten}" SelectedItem="{Binding VorschauEinheit}" DisplayMemberPath="Text" MaxWidth="320"
+                                                      HorizontalAlignment="Left" AutomationProperties.Name="Vorschau auf Einheit" />
+                                            <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" Text="{Binding VorschauText}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </an:Zweispalter>
+                        <!-- Einheiten (seit 0.8.0 mit Suche und Filter nach Art; Einheiten haben keine Herkunft) -->
+                        <an:Zweispalter x:Name="EinheitenReiter" Ab="612" Anteil="0.334" ErsteMin="240" ErsteMax="340" Visibility="{Binding IstEinheiten, Converter={StaticResource SichtbarWenn}}">
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Einheiten" />
+                                    <WrapPanel Margin="0,0,0,8">
+                                        <Button Content="Neues Schiff" Command="{Binding EinheitNeuCommand}" CommandParameter="Schiff" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Legt im Entwurf ein neues Schiff an." />
+                                        <Button Content="Neue Infanterie" Command="{Binding EinheitNeuCommand}" CommandParameter="Trupp" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Legt im Entwurf eine neue Infanterie-Einheit an." />
+                                        <Button Content="Neue Orga" Command="{Binding EinheitNeuCommand}" CommandParameter="Orga" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Legt im Entwurf eine neue Orga-Einheit an." />
+                                    </WrapPanel>
+                                    <TextBox Text="{Binding EinheitenSuche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" AutomationProperties.Name="Einheiten suchen"
+                                             ToolTip="Suche im Namen, auch Teile" />
+                                    <ComboBox ItemsSource="{x:Static m:FlotteViewModel.Artfilter}" SelectedItem="{Binding EinheitenArt}" DisplayMemberPath="Text"
+                                              AutomationProperties.Name="Einheiten nach Art" ToolTip="Nur Schiffe, Infanterie oder Orga zeigen" />
+                                    <ListBox ItemsSource="{Binding SichtbareEinheiten}" SelectedItem="{Binding GewaehlteEinheit}" Style="{StaticResource Navigation}" Margin="0,8,0,0"
+                                             ItemContainerStyle="{StaticResource Navigation.Eintrag}" ItemTemplate="{StaticResource ZeileMitHerkunft}" AutomationProperties.Name="Einheiten"
+                                             MaxHeight="520" />
+                                    <WrapPanel Margin="0,8,0,-6">
+                                        <Button Content="nach oben" Command="{Binding EinheitHochCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt die gewählte Einheit eine Stelle nach oben."
+                                                gd:Hilfe.Gesperrt="Wähle erst eine Einheit in der Liste." />
+                                        <Button Content="nach unten" Command="{Binding EinheitRunterCommand}" Margin="0,0,6,6"
+                                                gd:Hilfe.Text="Schiebt die gewählte Einheit eine Stelle nach unten."
+                                                gd:Hilfe.Gesperrt="Wähle erst eine Einheit in der Liste." />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Visibility="{Binding Einheit, Converter={StaticResource SichtbarWennWert}}">
+                                <Border Style="{StaticResource Karte}" DataContext="{Binding Einheit}">
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Name, ohne Nummer davor, etwa Schiff 1" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" AutomationProperties.Name="Name der Einheit" />
+                                        <Grid Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="180" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,8,0">
+                                                <TextBlock Style="{StaticResource Etikett}" Text="Typ, frei, etwa Hammerhead" Margin="0,0,0,2" />
+                                                <TextBox Text="{Binding Typ, UpdateSourceTrigger=PropertyChanged}" MaxLength="32" AutomationProperties.Name="Typ der Einheit" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Style="{StaticResource Etikett}" Text="Art" Margin="0,0,0,2" />
+                                                <ComboBox ItemsSource="{x:Static m:FlotteViewModel.Arten}" SelectedItem="{Binding Art}" DisplayMemberPath="Text" AutomationProperties.Name="Art der Einheit" />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Einheitskanäle" Margin="0,14,0,2" />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,6"
+                                                   Text="Welchen Kanal diese Einheit für eine Kennung nimmt. Eine Rolle mit Crew der eigenen Einheit landet auf Schiff 4 in Crew 4." />
+                                        <ItemsControl ItemsSource="{Binding Kennungen}" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type m:KennungZeile}">
+                                                    <!-- Kennung ein Drittel, Kanal zwei Drittel (bis 0.11.1 die Kennung fest 220: in einer schmalen Karte blieb dem Kanal kein Platz, AP4) -->
+                                                    <Grid Margin="0,2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Style="{StaticResource Text.Wert}" Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="None" Margin="0,0,8,0"
+                                                                   VerticalAlignment="Center" />
+                                                        <ComboBox Grid.Column="1" ItemsSource="{Binding Netzwahl}" SelectedItem="{Binding Netz}" DisplayMemberPath="Text"
+                                                                  AutomationProperties.Name="{Binding Text, StringFormat='Kanal für {0}'}" />
+                                                        <Button Grid.Column="2" Content="entfernen" Command="{Binding EntfernenCommand}" Margin="8,0,0,0"
+                                                                AutomationProperties.Name="{Binding Text, StringFormat='{}{0} entfernen'}"
+                                                                gd:Hilfe.Text="Nimmt diesen Einheitskanal von der Einheit weg." />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Neuer Einheitskanal: Kennung (etwa CREW) und Kanal" Margin="0,8,0,2" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="140" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Text="{Binding NeueKennung, UpdateSourceTrigger=PropertyChanged}" MaxLength="16" Margin="0,0,8,0"
+                                                     AutomationProperties.Name="Neue Kennung" ToolTip="Kennung wie CREW oder TRUPP: nur A-Z, 0-9 und Unterstrich" />
+                                            <ComboBox Grid.Column="1" ItemsSource="{Binding Netzwahl}" SelectedItem="{Binding NeuesNetz}" DisplayMemberPath="Text"
+                                                      AutomationProperties.Name="Kanal für die neue Kennung" />
+                                            <Button Grid.Column="2" Content="dazu" Command="{Binding KennungDazuCommand}" Margin="8,0,0,0"
+                                                    gd:Hilfe.Text="Fügt der Einheit einen Einheitskanal mit dieser Kennung und diesem Kanal hinzu."
+                                                    gd:Hilfe.Gesperrt="Geht erst, wenn eine gültige Kennung (A-Z, 0-9 und Unterstrich, höchstens 16 Zeichen) und ein Kanal gewählt sind." />
+                                        </Grid>
+
+                                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Plätze" Margin="0,14,0,2" />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,6"
+                                                   Text="Rolle, wie viele Plätze und wie viele mindestens da sein sollen (Ampel auf dem Brett), etwa Gunner 2, mindestens 1." />
+                                        <Grid Margin="0,0,0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="70" />
+                                                <ColumnDefinition Width="70" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Style="{StaticResource Etikett}" Text="Rolle" FontSize="12" />
+                                            <TextBlock Grid.Column="1" Style="{StaticResource Etikett}" Text="Plätze" FontSize="12" Margin="8,0,0,0" />
+                                            <TextBlock Grid.Column="2" Style="{StaticResource Etikett}" Text="mindestens" FontSize="12" Margin="8,0,0,0" />
+                                            <TextBlock Grid.Column="3" Text="entfernen" FontSize="12" Margin="8,0,0,0" Visibility="Hidden" />
+                                        </Grid>
+                                        <ItemsControl ItemsSource="{Binding Plaetze}" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type m:PlatzZeile}">
+                                                    <Grid Margin="0,2">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="70" />
+                                                            <ColumnDefinition Width="70" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <ComboBox ItemsSource="{Binding Rollenwahl}" SelectedItem="{Binding Rolle}" DisplayMemberPath="Text" AutomationProperties.Name="Rolle des Platzes" />
+                                                        <TextBox Grid.Column="1" Text="{Binding Kapazitaet, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" MaxLength="3"
+                                                                 AutomationProperties.Name="Plätze" ToolTip="Wie viele Plätze" />
+                                                        <TextBox Grid.Column="2" Text="{Binding Mindest, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" MaxLength="3"
+                                                                 AutomationProperties.Name="Mindestens" ToolTip="Mindestbesetzung, 0 heißt keine" />
+                                                        <Button Grid.Column="3" Content="entfernen" Command="{Binding EntfernenCommand}" Margin="8,0,0,0" AutomationProperties.Name="Platz entfernen"
+                                                                gd:Hilfe.Text="Nimmt diesen Platz von der Einheit weg." />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button Content="Platz dazu" Command="{Binding PlatzDazuCommand}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                                                gd:Hilfe.Text="Fügt der Einheit einen Platz hinzu, nach Möglichkeit für eine Rolle, die dort noch keinen hat." />
+                                    </StackPanel>
+                                </Border>
+                                <WrapPanel Margin="0,0,0,12">
+                                    <Button Content="Kanäle für diese Einheit anlegen" Command="{Binding NetzeAnlegenCommand}" Margin="0,0,8,6"
+                                            gd:Hilfe.Text="Legt die Kanäle dieser Einheit an: beim Schiff Durchsagen, Crew und Brücke, bei Infanterie den Truppkanal, bei Orga den Orga-Kanal." />
+                                    <Button Content="Einheit verdoppeln" Command="{Binding EinheitVerdoppelnCommand}" Margin="0,0,8,6" gd:Hilfe.Text="Legt eine Kopie dieser Einheit mit eigenen Kanälen an, etwa Schiff 2 wie Schiff 1." />
+                                    <Button Content="Einheit löschen" Command="{Binding EinheitLoeschenCommand}" Margin="0,0,8,6"
+                                            gd:Hilfe.Text="Löscht die gewählte Einheit aus dem Entwurf." />
+                                </WrapPanel>
+                            </StackPanel>
+                        </an:Zweispalter>
+                        <!-- Phasen (6.14, ab Server 0.5.0): je Phase die Rollen mit eigener Variante ihrer Felder -->
+                        <an:Zweispalter x:Name="PhasenReiter" Ab="652" Anteil="0.25" ErsteMin="240" ErsteMax="300" Visibility="{Binding IstPhasen, Converter={StaticResource SichtbarWenn}}">
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <WrapPanel>
+                                        <TextBlock Style="{StaticResource Kopf.Abschnitt}" Text="Phasen" />
+                                        <Button Style="{StaticResource Kopf.Knopf}" Content="Neue Phase" Command="{Binding PhaseNeuCommand}" gd:Hilfe.Text="Legt eine neue Phase mit der nächsten freien Nummer an."
+                                                gd:Hilfe.Gesperrt="Es gibt schon vier Phasen über der Grundstellung; mehr geht nicht." />
+                                    </WrapPanel>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,0"
+                                               Text="Die Einsatzleitung schaltet sie am Brett oder per Taste; dann wechseln alle, die eine Phase trifft, ihre Kanäle auf einmal." />
+                                    <ListBox ItemsSource="{Binding Phasen}" SelectedItem="{Binding GewaehltePhase}" Style="{StaticResource Navigation}" Margin="0,8,0,0"
+                                             ItemContainerStyle="{StaticResource Navigation.Eintrag}" AutomationProperties.Name="Phasen" MaxHeight="520">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type m:FlottenZeile}">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Text}" FontSize="12" TextWrapping="Wrap"
+                                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <Button Content="Phase löschen" Command="{Binding PhaseLoeschenCommand}" Margin="0,0,6,6" gd:Hilfe.Text="Löscht die gewählte Phase aus dem Entwurf."
+                                                gd:Hilfe.Gesperrt="Wähle erst eine Phase in der Liste; die Grundstellung bleibt immer." />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource Karte}" VerticalAlignment="Top" Visibility="{Binding Phase, Converter={StaticResource SichtbarWennWert}}">
+                                <StackPanel DataContext="{Binding Phase}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="180" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <TextBlock Style="{StaticResource Etikett}" Text="Name, etwa Entern" Margin="0,0,0,2" />
+                                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="24" AutomationProperties.Name="Name der Phase" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Style="{StaticResource Etikett}" Text="Kurzname, etwa ENTERN" Margin="0,0,0,2" />
+                                            <TextBox Text="{Binding Kurz, UpdateSourceTrigger=PropertyChanged}" MaxLength="12" AutomationProperties.Name="Kurzname der Phase"
+                                                     ToolTip="Steht in der Phasenleiste des Bretts und in der Meldezeile" />
+                                        </StackPanel>
+                                    </Grid>
+                                    <Border Style="{StaticResource Warnung.Unterlage}" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2" Margin="0,10,0,0" Padding="10,6"
+                                            Visibility="{Binding LaeuftText, Converter={StaticResource SichtbarWennWert}}">
+                                        <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding LaeuftText}" />
+                                    </Border>
+                                    <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,10,0,0" Visibility="{Binding IstGrundstellung, Converter={StaticResource SichtbarWenn}}"
+                                               Text="Die Grundstellung sind die Felder der Rollen unter Funk, Rollen; hier stehen nur Name und Kurzname. Auf sie schaltet Abend beenden zurück." />
+                                    <StackPanel Visibility="{Binding HatVarianten, Converter={StaticResource SichtbarWenn}}">
+                                        <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Rollen in dieser Phase" Margin="0,14,0,2" />
+                                        <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,6"
+                                                   Text="Eine Rolle bleibt wie in der Grundstellung oder bekommt eine eigene Variante ihrer Felder. Variante anlegen übernimmt die Felder der Grundstellung zum Ändern." />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="260" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ListBox ItemsSource="{Binding Rollen}" SelectedItem="{Binding GewaehlteRolle}" Style="{StaticResource Navigation}"
+                                                     ItemContainerStyle="{StaticResource Navigation.Eintrag}" AutomationProperties.Name="Rollen in dieser Phase" MaxHeight="300">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type m:VarianteZeile}">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                            <TextBlock Text="{Binding Text}" FontSize="12" TextWrapping="Wrap"
+                                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Top">
+                                                <Button Content="Variante anlegen" Command="{Binding VarianteAnlegenCommand}" HorizontalAlignment="Left" Margin="0,0,0,6"
+                                                        gd:Hilfe.Text="Legt für die gewählte Rolle eine eigene Variante an; Ausgangspunkt sind die Felder der Grundstellung."
+                                                        gd:Hilfe.Gesperrt="Geht nur für eine gewählte Rolle ohne eigene Variante, die in der Grundstellung Felder hat." />
+                                                <Button Content="wie Grundstellung" Command="{Binding WieGrundstellungCommand}" HorizontalAlignment="Left"
+                                                        gd:Hilfe.Text="Entfernt die Variante der gewählten Rolle; sie behält in dieser Phase ihre Felder."
+                                                        gd:Hilfe.Gesperrt="Wähle erst eine Rolle mit eigener Variante." />
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" Text="{Binding BetroffeneText}" />
+
+                                        <Border Visibility="{Binding Variante, Converter={StaticResource SichtbarWennWert}}">
+                                            <StackPanel DataContext="{Binding Variante}">
+                                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="{Binding Titel}" Margin="0,14,0,2" />
+                                                <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,6"
+                                                           Text="Felder wie im Funkfeld. Ohne belegtes Feld fällt die Variante weg, dann gilt die Grundstellung." />
+                                                <!-- Je Feld 150 breit, so viele je Reihe, wie Platz ist (seit 0.11.1 AP4; bis dahin fünf Spalten, die bei 1100 Breite "Durchsagen" und
+                                                     "Kommando" mitten im Wort brachen und "hört", "sendet", "zuerst" abschnitten) -->
+                                                <ItemsControl ItemsSource="{Binding Felder}" Focusable="False" ItemTemplate="{StaticResource FeldVorlage}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel ItemWidth="150" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                </ItemsControl>
+                                                <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="8,4" HorizontalAlignment="Right" Margin="0,0,6,0">
+                                                    <TextBlock FontSize="12" Text="Feld 10: Global, fest" />
+                                                </Border>
+                                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Vorschau" Margin="0,14,0,4" />
+                                                <ComboBox ItemsSource="{Binding VorschauEinheiten}" SelectedItem="{Binding VorschauEinheit}" DisplayMemberPath="Text" MaxWidth="320"
+                                                          HorizontalAlignment="Left" AutomationProperties.Name="Vorschau der Variante auf Einheit" />
+                                                <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" Text="{Binding VorschauText}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </an:Zweispalter>
+                    </StackPanel>
+                    <!-- ============ Einsatzleitung (6.12): Aufträge vergeben und entziehen ============ -->
+                    <an:Zweispalter x:Name="EinsatzleitungBereich" DataContext="{Binding Einsatzleitung}" Ab="652" Anteil="0.45" ErsteMin="300" ErsteMax="440"
+                                    Visibility="{Binding DataContext.IstEinsatzleitung, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Laufende und geplante Aufträge" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" Margin="0,0,0,8"
+                                           Text="Wer im Auftrag leitet, sieht das Brett, bis der Auftrag endet, abgegeben oder entzogen wird." />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Text="Gerade leitet niemand im Auftrag."
+                                           Visibility="{Binding Leer, Converter={StaticResource SichtbarWenn}}" />
+                                <ItemsControl ItemsSource="{Binding Auftraege}" Focusable="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type m:AuftragZeile}">
+                                            <Border Background="{StaticResource Pinsel.FlaecheTief}" CornerRadius="4" Padding="10,8" Margin="0,0,0,6"
+                                                    AutomationProperties.Name="{Binding Beschreibung}">
+                                                <DockPanel>
+                                                    <Button DockPanel.Dock="Right" Content="Entziehen" VerticalAlignment="Top" Margin="8,0,0,0"
+                                                            Command="{Binding DataContext.EntziehenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"
+                                                            AutomationProperties.Name="{Binding Name, StringFormat='Einsatzleitung von {0} entziehen'}"
+                                                            gd:Hilfe.Text="Entzieht dieser Person die Einsatzleitung sofort; der Auftrag endet. Du bestätigst mit einem frischen Code." />
+                                                    <StackPanel>
+                                                        <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding Name}" TextWrapping="Wrap" />
+                                                        <TextBlock FontSize="13" Text="{Binding Zeit}" TextWrapping="Wrap" />
+                                                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Von}" />
+                                                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Grund}" Visibility="{Binding Grund, Converter={StaticResource SichtbarWennWert}}" />
+                                                        <TextBlock Style="{StaticResource Text.Hinweis}" Text="{Binding Rechte}" />
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,8,0,0" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}">
+                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" />
+                                </Border>
+                                <TextBlock FontSize="13" Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding Hinweis}" Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Karte}" VerticalAlignment="Top">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Einsatzleitung vergeben" />
+                                <TextBlock Style="{StaticResource Etikett}" Text="Wer (SC-Name, Discord-Name)" Margin="0,0,0,2" />
+                                <TextBox Text="{Binding Suche, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,6" AutomationProperties.Name="Konto suchen" />
+                                <ListBox ItemsSource="{Binding Kandidaten}" SelectedItem="{Binding Konto}" Style="{StaticResource Navigation}" ItemContainerStyle="{StaticResource Navigation.Eintrag}"
+                                         DisplayMemberPath="Text" MaxHeight="170" AutomationProperties.Name="Konto für die Einsatzleitung" />
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Ab (leer heißt jetzt)" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding Ab, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Beginn" ToolTip="20:00, 03.10. 20:00 oder 2026-10-03 20:00" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Style="{StaticResource Etikett}" Text="Bis (leer heißt 04:00 morgens)" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding Bis, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ende" ToolTip="Höchstens 24 Stunden nach dem Beginn" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Style="{StaticResource Etikett}" Text="Anlass, frei (bis 48 Zeichen), etwa Op Nachtfalke" Margin="0,8,0,2" />
+                                <TextBox Text="{Binding Grund, UpdateSourceTrigger=PropertyChanged}" MaxLength="48" AutomationProperties.Name="Anlass" />
+                                <TextBlock Style="{StaticResource Etikett}" Text="Rechte" Margin="0,10,0,2" />
+                                <TextBlock Style="{StaticResource Text.Hinweis}" Text="Immer: einteilen und alle Sprecher sehen." Margin="0,0,0,4" />
+                                <CheckBox Content="In Global senden" IsChecked="{Binding GlobalSenden}" Margin="0,2"
+                                          gd:Hilfe.Text="Erlaubt der Person mit diesem Auftrag, in Global zu senden." />
+                                <CheckBox Content="Durchsagen" IsChecked="{Binding Durchsage}" Margin="0,2"
+                                          gd:Hilfe.Text="Erlaubt der Person mit diesem Auftrag Durchsagen." />
+                                <CheckBox Content="Durchsagen an alle" IsChecked="{Binding DurchsageAlle}" Margin="0,2"
+                                          gd:Hilfe.Text="Erlaubt der Person mit diesem Auftrag Durchsagen an alle." />
+                                <CheckBox Content="In mehrere Kanäle zugleich senden" IsChecked="{Binding MehrfachSenden}" Margin="0,2"
+                                          gd:Hilfe.Text="Erlaubt der Person mit diesem Auftrag, in mehrere Kanäle zugleich zu senden." />
+                                <Border Style="{StaticResource Warnung.Unterlage}" Margin="0,10,0,0" Visibility="{Binding Pruefung, Converter={StaticResource SichtbarWennWert}}">
+                                    <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Pruefung}" />
+                                </Border>
+                                <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,10,0,0" Text="{Binding Vorschau}" Visibility="{Binding Vorschau, Converter={StaticResource SichtbarWennWert}}" />
+                                <Button Style="{StaticResource Knopf.Haupt}" Content="Einsatzleitung vergeben" Command="{Binding VergebenCommand}" HorizontalAlignment="Left" Margin="0,12,0,0"
+                                        gd:Hilfe.Text="Vergibt die Einsatzleitung an das gewählte Konto für den eingetragenen Zeitraum. Du bestätigst mit einem frischen Code."
+                                        gd:Hilfe.Gesperrt="Geht erst, wenn ein Konto gewählt ist, die Angaben stimmen (was nicht passt, steht in der Meldung darüber) und keine Vergabe läuft." />
+                            </StackPanel>
+                        </Border>
+                    </an:Zweispalter>
+
+                    <!-- ============ Werkzeuge (seit 0.8.0): Vorlagen und Sicherung, je ein Satz Erklärung und eine Rückfrage ============ -->
+                    <StackPanel x:Name="WerkzeugeBereich" DataContext="{Binding Flotte}" MaxWidth="900" HorizontalAlignment="Left" Grid.IsSharedSizeScope="True"
+                                Visibility="{Binding DataContext.IstWerkzeuge, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource SichtbarWenn}}">
+                        <TextBlock Style="{StaticResource Text.Hinweis}" FontSize="13" Margin="0,0,0,12"
+                                   Text="Seltenes und Gefährliches. Alles hier wirkt erst im Entwurf; am Server ändert sich erst etwas, wenn du unten übernimmst. Vor jedem Übernehmen legt der Client den bisherigen Stand als Sicherung ab." />
+                        <Border x:Name="VorlagenKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Vorlagen" />
+                                <ItemsControl ItemsSource="{Binding Vorlagen}" Focusable="False" ItemTemplate="{StaticResource WerkzeugVorlage}" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="BausteineKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Bausteine" />
+                                <ItemsControl ItemsSource="{Binding Bausteine}" Focusable="False" ItemTemplate="{StaticResource WerkzeugVorlage}" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="SicherungKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Sicherung" />
+                                <DockPanel Margin="0,0,0,8" Visibility="{Binding HatStaende, Converter={StaticResource SichtbarWenn}}">
+                                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource Etikett}" Text="Gespeicherte Stände" />
+                                    <ComboBox ItemsSource="{Binding Staende}" SelectedItem="{Binding GewaehlterStand}" DisplayMemberPath="Text" AutomationProperties.Name="Gespeicherte Stände" />
+                                </DockPanel>
+                                <ItemsControl ItemsSource="{Binding Sicherung}" Focusable="False" ItemTemplate="{StaticResource WerkzeugVorlage}" />
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="LeerenKarte" Style="{StaticResource Karte}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource Text.Abschnitt}" Text="Neu anfangen" />
+                                <ContentControl Content="{Binding Leeren}" ContentTemplate="{StaticResource WerkzeugVorlage}" Focusable="False" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Entwurf (seit 0.8.0): schmale Leiste unten, nur wenn etwas offen ist; "Was ändert sich?" klappt die Liste darüber auf -->
+        <Border x:Name="EntwurfRand" Grid.Column="1" Grid.Row="1" Visibility="{Binding IstOffen, Converter={StaticResource SichtbarWenn}}">
+            <Border x:Name="EntwurfLeiste" DataContext="{Binding Flotte}" Background="{StaticResource Pinsel.FlaecheTief}" BorderBrush="{StaticResource Pinsel.Linie}"
+                    BorderThickness="0,1,0,0" Padding="16,8,24,12" Visibility="{Binding LeisteSichtbar, Converter={StaticResource SichtbarWenn}}">
+                <StackPanel>
+                    <!-- Was ändert sich? Je Änderung eine Zeile in Klartext mit Herkunft, dazu die Hinweise der Prüfung und die Annahmen einer Vorlage -->
+                    <ScrollViewer x:Name="EntwurfTafel" MaxHeight="240" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False"
+                                  Margin="0,0,0,8" Visibility="{Binding EntwurfOffen, Converter={StaticResource SichtbarWenn}}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Text="Was ändert sich?" Margin="0,0,0,4" />
+                            <ItemsControl ItemsSource="{Binding AenderungenKlartext}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,1" Text="{Binding StringFormat='- {0}'}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding HinweisBefunde}" Focusable="False" Margin="0,6,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type fl:Befund}">
+                                        <TextBlock FontSize="13" TextWrapping="Wrap" Margin="0,1" Foreground="{StaticResource Pinsel.Text2}" Text="{Binding Text}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Border Background="{StaticResource Pinsel.Flaeche}" BorderBrush="{StaticResource Pinsel.Hoeren}" BorderThickness="4,0,0,0" CornerRadius="2"
+                                    Padding="10,6" Margin="0,8,0,0" Visibility="{Binding HatAnnahmen, Converter={StaticResource SichtbarWenn}}">
+                                <StackPanel>
+                                    <TextBlock FontSize="13" FontWeight="SemiBold" Text="Annahmen, bitte prüfen, bevor du übernimmst:" Margin="0,0,0,2" />
+                                    <ItemsControl ItemsSource="{Binding Annahmen}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding StringFormat='- {0}'}" Margin="0,1" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Was das Übernehmen sperrt, steht immer da -->
+                    <ItemsControl ItemsSource="{Binding SperrBefunde}" Focusable="False" Margin="0,0,0,4">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type fl:Befund}">
+                                <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Margin="0,1" Text="{Binding Text}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Rückfrage im Raid -->
+                    <Border Style="{StaticResource Warnung.Unterlage}" BorderBrush="{StaticResource Pinsel.Akzent}" BorderThickness="2" Margin="0,0,0,8" Padding="12,8"
+                            Visibility="{Binding Rueckfrage, Converter={StaticResource SichtbarWennWert}}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <Button Style="{StaticResource Knopf.Haupt}" Content="Ja, übernehmen" Command="{Binding JaUebernehmenCommand}" Margin="0,0,8,0"
+                                        gd:Hilfe.Text="Schickt den Entwurf jetzt an den Server, auch mit den Folgen, die die Rückfrage nennt." />
+                                <Button Content="Abbrechen" Command="{Binding NeinCommand}"
+                                        gd:Hilfe.Text="Schließt die Rückfrage; der Entwurf bleibt, wie er ist." />
+                            </StackPanel>
+                            <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding Rueckfrage}" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Fehler oder Hinweis der Flotte, bis "Schließen" -->
+                    <DockPanel Margin="0,0,0,8" Visibility="{Binding HatMeldung, Converter={StaticResource SichtbarWenn}}">
+                        <Button DockPanel.Dock="Right" Content="Schließen" Command="{Binding MeldungSchliessenCommand}" VerticalAlignment="Top" Margin="12,0,0,0"
+                                gd:Hilfe.Text="Nimmt die Meldung weg; am Entwurf ändert sich nichts." />
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource Text.Warnung}" FontSize="13" Text="{Binding Fehler}" Visibility="{Binding Fehler, Converter={StaticResource SichtbarWennWert}}" />
+                            <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding Hinweis}" Visibility="{Binding Hinweis, Converter={StaticResource SichtbarWennWert}}" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <!-- Die Leiste: wie viele Änderungen, "Was ändert sich?", Verwerfen, Übernehmen (sichert vorher wie bisher) -->
+                    <DockPanel Visibility="{Binding HatAenderungen, Converter={StaticResource SichtbarWenn}}">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Was ändert sich?" Command="{Binding WasAendertSichCommand}" Margin="0,0,8,0"
+                                    gd:Hilfe.Text="Klappt die Liste der Änderungen in Klartext auf oder zu, mit den Hinweisen der Prüfung und den Annahmen einer Vorlage." />
+                            <Button Content="Verwerfen" Command="{Binding VerwerfenCommand}" Margin="0,0,8,0"
+                                    gd:Hilfe.Text="Setzt den Entwurf auf den Stand des Servers zurück." gd:Hilfe.Gesperrt="Es gibt keine Änderungen im Entwurf." />
+                            <Button Content="Übernehmen" Command="{Binding UebernehmenCommand}"
+                                    gd:Hilfe.Text="Schickt alle Änderungen in einem Schritt an den Server; vorher legt der Client den bisherigen Stand als Sicherung ab. Du bestätigst mit einem frischen Code."
+                                    gd:Hilfe.Gesperrt="Geht erst, wenn der Entwurf Änderungen hat und gerade keine Übernahme läuft." />
+                        </StackPanel>
+                        <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding LeisteText}" />
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

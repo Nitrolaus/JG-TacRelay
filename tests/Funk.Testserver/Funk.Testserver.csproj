@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Funk.Protokoll\Funk.Protokoll.csproj" />
+    <ProjectReference Include="..\..\src\Funk.Server\Funk.Server.csproj" />
+    <ProjectReference Include="..\..\src\Funk.ClientKern\Funk.ClientKern.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Funk.Tests" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Testwerkzeug, nie im Betrieb: der Dienst mit einem Testzugang auf Loopback statt TLS (Lasttest, Probefunk mit Echo-Funker). -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>funk-testserver</AssemblyName>
+    <RootNamespace>Funk.Testserver</RootNamespace>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
+</Project>

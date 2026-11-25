@@ -1,0 +1,1173 @@
+<!-- Glasdesign - Maintainer: Sarevoc -->
+<!--
+  Stilfamilien 2, Stufe 2, Teilschritt A2 (0.5.0-beta.9): Navigation und Personen. Brotkrumen, Seitenwahl, Schrittfolge,
+  Abzeichen und Avatar, je in Glas 4 und in den Familien ihres Vorbilds (Taktil, der Avatar auch im Glutglas).
+  Glas.Stile.xaml bindet diese Datei nach Glas.Rueckmeldung.xaml ein; sie steht für sich: nach außen nur DynamicResource,
+  auch für Stile und Vorlagen aus anderen Dateien (Glas.Knopf, Glas.Knopf.Rund, Glas.Vorlage.Knopf, Glas.Taktil.Knopf).
+  Vorgabestile nur für die neuen gd:-Typen (unten). Die Schrift folgt der Fläche, auf der sie steht (Schriftwahl,
+  LIESMICH 4n): Glas 4 über gd:Schriftwahl.Wandler mit der Fläche in gd:Glas.Ableitungsquelle, die Familien und die
+  Abzeichen über ihren Körper. Zustände: überfahren, gedrückt, Fokus (nur nach Tastatur), gesperrt zuletzt; aktuelle
+  Krume, aktuelle Seite und aktiver Schritt; die Zustandsvorschau reicht an die Knöpfe darin.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:gd="clr-namespace:Glasdesign">
+
+    <!-- ===================================================================== Taktil: flacher Knopf in einer Mulde -->
+
+    <!-- Ein Bedienteil, das in einer eingelassenen Leiste liegt (Krumen, Seitenzahlen der Leiste): in Ruhe nur Schrift auf
+         der Mulde, überfahren hebt sich eine Pille heraus, gedrückt sinkt sie ein, Fokus der Kupfersaum; mit
+         gd:Glas.Taktilebene Kupfer (aktuelle Seite) steht die Kupferpille immer da. Die Schrift wählt der Körper (auch
+         durchsichtig: dann auf der Mulde). -->
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Flach" TargetType="ButtonBase">
+        <Grid Background="Transparent" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Leuchtsaum x:Name="Saum" Form="Pille" EigenerTon="{DynamicResource Glas.Taktil.Kupfer}" />
+            <gd:Taktilkoerper x:Name="Koerper" Ebene="{TemplateBinding gd:Glas.Taktilebene}" Rundung="0.5" Farbe="{TemplateBinding Background}" Opacity="0"
+                              Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True" />
+            <ContentPresenter x:Name="Inhalt" Margin="{TemplateBinding Padding}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              RecognizesAccessKey="True" SnapsToDevicePixels="True" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Koerper" Property="Opacity" Value="0.55" />
+                <Setter TargetName="Koerper" Property="Zustand" Value="Ueberfahren" />
+            </Trigger>
+            <Trigger Property="gd:Glas.ZustandVorschau" Value="Ueberfahren">
+                <Setter TargetName="Koerper" Property="Opacity" Value="0.55" />
+                <Setter TargetName="Koerper" Property="Zustand" Value="Ueberfahren" />
+            </Trigger>
+            <Trigger Property="gd:Glas.Tastaturfokus" Value="True">
+                <Setter TargetName="Saum" Property="Fokus" Value="True" />
+            </Trigger>
+            <Trigger Property="gd:Glas.ZustandVorschau" Value="Fokus">
+                <Setter TargetName="Saum" Property="Fokus" Value="True" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Koerper" Property="Opacity" Value="0.55" />
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gedrueckt" />
+                <Setter TargetName="Inhalt" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform Y="1" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="Koerper" Property="Opacity" Value="0.55" />
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gedrueckt" />
+                <Setter TargetName="Inhalt" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform Y="1" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="gd:Glas.Taktilebene" Value="Kupfer">
+                <Setter TargetName="Koerper" Property="Opacity" Value="1" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Taktil.Teil.Flach" TargetType="ButtonBase">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Flach}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource Glas.Taktil.Kupfer}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Navigation.Schrift}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="Padding" Value="10,0,10,1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="gd:Glas.Taktilebene" Value="Gehoben" />
+    </Style>
+
+    <!-- ===================================================================== Brotkrumen -->
+
+    <!-- Glas 4: jede Krume ein Glaskörper als Pille (die Vorlage des Glasknopfs), die aktuelle im Glas der Auswahl, nicht
+         klickbar; dazwischen ein Winkel in der gedämpften Schrift (gd:Krumenbahn). -->
+    <Style x:Key="Glas.Brotkrumen.Teil.Krume" TargetType="gd:Brotkrume">
+        <Setter Property="Template" Value="{DynamicResource Glas.Vorlage.Knopf}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}" ConverterParameter="Glas.Koerper">
+                    <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Navigation.Schrift}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="Padding" Value="12,0,12,1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="gd:Glas.Form" Value="Pille" />
+        <Setter Property="gd:Glas.Art" Value="Normal" />
+        <Style.Triggers>
+            <!-- Überfahren und gedrückt wählt die Schrift auf dem Glas dieses Zustands (seit 0.5.0-beta.13; bis beta.12 auf Glas.Koerper,
+                 mit einer frei gewählten mittleren Glasfarbe stand dann dunkle Schrift auf dem dunklen Glas des Überfahrens). -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger Property="gd:Glas.ZustandVorschau" Value="Ueberfahren">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger Property="Aktuell" Value="True">
+                <Setter Property="gd:Glas.Art" Value="Auswahl" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Auswahl}" />
+                <Setter Property="IsHitTestVisible" Value="False" />
+            </Trigger>
+            <!-- Gesperrt: die Vorlage des Glasknopfs setzt eine feste Schrift; der Stiltrigger geht ihr vor und wählt weiter. -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}" ConverterParameter="Glas.Koerper">
+                            <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Glas.Brotkrumen" TargetType="gd:Brotkrumen">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="gd:Brotkrumen">
+                    <ItemsPresenter Margin="{TemplateBinding Padding}" UseLayoutRounding="True" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <gd:Krumenbahn Abstand="20" Trenner="{DynamicResource Glas.Text.Gedaempft}" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource Glas.Brotkrumen.Teil.Krume}" />
+        <Setter Property="Foreground" Value="{DynamicResource Glas.Text}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Taktil (Vorbild "Breadcrumbs"): eine eingelassene Pille, darin die Krumen als Schrift; die erste im Kupferton, die
+         übrigen hell gedämpft, die aktuelle heller. Überfahren hebt sich eine Pille heraus (wie bei den Reitern). -->
+    <Style x:Key="Glas.Taktil.Brotkrumen.Teil.Krume" TargetType="gd:Brotkrume">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Flach}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="gd:Glas.Schriftwunsch">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                    <Binding.Converter>
+                        <gd:Farbableitung Von="#FFE6E6E8" Zu="#FFA9A9AD" />
+                    </Binding.Converter>
+                </Binding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource Glas.Taktil.Kupfer}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Navigation.Schrift}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Glas.Mass.Navigation.Hoehe}" />
+        <Setter Property="Padding" Value="10,0,10,1" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="gd:Glas.Taktilebene" Value="Gehoben" />
+        <Style.Triggers>
+            <Trigger Property="IstErste" Value="True">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Kupfer}" />
+                <Setter Property="gd:Glas.Schriftwunsch">
+                    <Setter.Value>
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                            <Binding.Converter>
+                                <gd:Farbableitung Von="#FFA8553A" Zu="#FFE08A62" />
+                            </Binding.Converter>
+                        </Binding>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="Aktuell" Value="True">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift}" />
+                <Setter Property="IsHitTestVisible" Value="False" />
+            </Trigger>
+            <!-- Gesperrt zuletzt (seit 0.5.0-beta.13): Die Stiltrigger IstErste und Aktuell gehen dem Gesperrt-Trigger der Vorlage
+                 vor; ohne diesen Trigger sahen die erste und die aktuelle Krume gesperrt aus wie in Ruhe. -->
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Glas.Taktil.Brotkrumen" TargetType="gd:Brotkrumen">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="gd:Brotkrumen">
+                    <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+                        <gd:Taktilkoerper x:Name="Koerper" Ebene="Eingelassen" Rundung="0.5" />
+                        <ItemsPresenter Margin="{TemplateBinding Padding}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <gd:Krumenbahn Abstand="16" Trennergroesse="0.5" gd:Glas.Ableitungsquelle="{DynamicResource Glas.Taktil.Schrift}">
+                        <gd:Krumenbahn.Trenner>
+                            <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                                <Binding.Converter>
+                                    <gd:Farbableitung Von="#FFE6E6E8" Zu="#FF8E8E92" />
+                                </Binding.Converter>
+                            </Binding>
+                        </gd:Krumenbahn.Trenner>
+                    </gd:Krumenbahn>
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource Glas.Taktil.Brotkrumen.Teil.Krume}" />
+        <Setter Property="Foreground" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Padding" Value="5,4,5,4" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- ===================================================================== Seitenwahl -->
+
+    <!-- Glas 4: Zurück und Weiter als Glasknöpfe mit Winkel, die Seitenzahlen als runde Glasknöpfe, die aktuelle im Glas der
+         Auswahl; Lücken als "..." in der gedämpften Schrift. Den Umgebungsschatten der Seitenzahlen zeichnet gd:Rundschatten
+         als Verlauf (der Knopf selbst bekommt Schattenstufe Einfach): neun Unschärfeeffekte kosteten bei 175 Prozent rund
+         16 ms je Bild. Die Schrift wählt gd:Schriftwahl.Wandler auf dem Glas des Knopfs. -->
+    <DataTemplate x:Key="Glas.Vorlage.Seitenwahl.Eintrag" DataType="{x:Type gd:Seiteneintrag}">
+        <Grid Margin="3,0">
+            <gd:Rundschatten x:Name="Schatten" Art="Glas" />
+            <Button x:Name="Knopf" Style="{DynamicResource Glas.Knopf.Rund}" Content="{Binding Text}" Padding="0,0,0,1" FontWeight="Normal"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    Command="{x:Static gd:Seitenwahl.Gehe}" CommandParameter="{Binding Nummer}"
+                    AutomationProperties.Name="{Binding Name}" AutomationProperties.ItemStatus="{Binding Status}"
+                    gd:Glas.Schriftwunsch="{DynamicResource Glas.Schrift}" gd:Glas.Ableitungsquelle="{DynamicResource Glas.Koerper}">
+                <gd:Glas.ZustandVorschau>
+                    <Binding Path="(gd:Glas.ZustandVorschau)" RelativeSource="{RelativeSource AncestorType=gd:Seitenwahl}" />
+                </gd:Glas.ZustandVorschau>
+                <gd:Glas.Schatten>
+                    <Binding Path="(gd:Glas.Schatten)" RelativeSource="{RelativeSource AncestorType=gd:Seitenwahl}" Converter="{x:Static gd:Rundschatten.OhneEffekt}" />
+                </gd:Glas.Schatten>
+                <Button.Foreground>
+                    <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}" ConverterParameter="Glas.Koerper">
+                        <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                    </MultiBinding>
+                </Button.Foreground>
+            </Button>
+            <TextBlock x:Name="Luecke" Text="..." Visibility="Collapsed" Margin="6,0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource Glas.Text.Gedaempft}" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <!-- Überfahren und gedrückt wählt die Schrift auf dem Glas dieses Zustands (seit 0.5.0-beta.13; bis beta.12 auf Glas.Koerper,
+                 mit einer frei gewählten mittleren Glasfarbe stand dann dunkle Schrift auf dem dunklen Glas des Überfahrens). -->
+            <Trigger SourceName="Knopf" Property="IsMouseOver" Value="True">
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="gd:Glas.ZustandVorschau" Value="Ueberfahren">
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="IsPressed" Value="True">
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <DataTrigger Binding="{Binding Aktuell}" Value="True">
+                <Setter TargetName="Knopf" Property="gd:Glas.Art" Value="Auswahl" />
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Auswahl}" />
+            </DataTrigger>
+            <Trigger SourceName="Knopf" Property="IsEnabled" Value="False">
+                <Setter TargetName="Knopf" Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter TargetName="Knopf" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="IsPressed" Value="True">
+                <Setter TargetName="Schatten" Property="Gedrueckt" Value="True" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="Schatten" Property="Gedrueckt" Value="True" />
+            </Trigger>
+            <DataTrigger Binding="{Binding IstLuecke}" Value="True">
+                <Setter TargetName="Knopf" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Schatten" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Luecke" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <ControlTemplate x:Key="Glas.Vorlage.Seitenwahl" TargetType="gd:Seitenwahl">
+        <StackPanel Orientation="Horizontal" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <Button x:Name="PART_Zurueck" Style="{DynamicResource Glas.Knopf}" Padding="12,0,16,1" VerticalAlignment="Center"
+                    Command="{x:Static gd:Seitenwahl.Zurueck}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}"
+                    gd:Glas.Schriftwunsch="{DynamicResource Glas.Schrift}" gd:Glas.Ableitungsquelle="{DynamicResource Glas.Koerper}">
+                <Button.Foreground>
+                    <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}" ConverterParameter="Glas.Koerper">
+                        <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                    </MultiBinding>
+                </Button.Foreground>
+                <StackPanel Orientation="Horizontal">
+                    <gd:Glassymbol Symbol="WinkelLinks" Width="12" Height="14" Anteil="0.8" StrichAnteil="0.13" Margin="0,0,7,0" VerticalAlignment="Center" />
+                    <ContentPresenter Content="{TemplateBinding ZurueckText}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+            <ItemsControl x:Name="Seitenzahlen" ItemsSource="{TemplateBinding Eintraege}" ItemTemplate="{StaticResource Glas.Vorlage.Seitenwahl.Eintrag}"
+                          Focusable="False" Margin="7,0" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <Button x:Name="PART_Weiter" Style="{DynamicResource Glas.Knopf}" Padding="16,0,12,1" VerticalAlignment="Center"
+                    Command="{x:Static gd:Seitenwahl.Weiter}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}"
+                    gd:Glas.Schriftwunsch="{DynamicResource Glas.Schrift}" gd:Glas.Ableitungsquelle="{DynamicResource Glas.Koerper}">
+                <Button.Foreground>
+                    <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}" ConverterParameter="Glas.Koerper">
+                        <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                    </MultiBinding>
+                </Button.Foreground>
+                <StackPanel Orientation="Horizontal">
+                    <ContentPresenter Content="{TemplateBinding WeiterText}" VerticalAlignment="Center" />
+                    <gd:Glassymbol Symbol="WinkelRechts" Width="12" Height="14" Anteil="0.8" StrichAnteil="0.13" Margin="7,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        <ControlTemplate.Triggers>
+            <Trigger SourceName="PART_Zurueck" Property="IsMouseOver" Value="True">
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="PART_Zurueck" Property="gd:Glas.ZustandVorschau" Value="Ueberfahren">
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="PART_Zurueck" Property="IsPressed" Value="True">
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger SourceName="PART_Zurueck" Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger SourceName="PART_Weiter" Property="IsMouseOver" Value="True">
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="PART_Weiter" Property="gd:Glas.ZustandVorschau" Value="Ueberfahren">
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Ueber}" />
+            </Trigger>
+            <Trigger SourceName="PART_Weiter" Property="IsPressed" Value="True">
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger SourceName="PART_Weiter" Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gedrueckt}" />
+            </Trigger>
+            <Trigger SourceName="PART_Zurueck" Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter TargetName="PART_Zurueck" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+            </Trigger>
+            <Trigger SourceName="PART_Weiter" Property="IsEnabled" Value="False">
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter TargetName="PART_Weiter" Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Seitenwahl" TargetType="gd:Seitenwahl">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Seitenwahl}" />
+        <Setter Property="Foreground" Value="{DynamicResource Glas.Text}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Knopf.Schrift}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Taktil (Vorbild "Pagination"): Zurück und Weiter als gehobene Pillen, die Seitenzahlen als gehobene runde Knöpfe,
+         die aktuelle in Kupfer. -->
+    <DataTemplate x:Key="Glas.Vorlage.Taktil.Seitenwahl.Eintrag" DataType="{x:Type gd:Seiteneintrag}">
+        <Grid Margin="4,0">
+            <gd:Rundschatten x:Name="Schatten" Art="Taktil" />
+            <Button x:Name="Knopf" Style="{DynamicResource Glas.Taktil.Knopf}" Content="{Binding Text}" Padding="0,0,0,1"
+                    Width="{DynamicResource Glas.Mass.Taktil.Hoehe}" Height="{DynamicResource Glas.Mass.Taktil.Hoehe}"
+                    Command="{x:Static gd:Seitenwahl.Gehe}" CommandParameter="{Binding Nummer}"
+                    AutomationProperties.Name="{Binding Name}" AutomationProperties.ItemStatus="{Binding Status}">
+                <gd:Glas.ZustandVorschau>
+                    <Binding Path="(gd:Glas.ZustandVorschau)" RelativeSource="{RelativeSource AncestorType=gd:Seitenwahl}" />
+                </gd:Glas.ZustandVorschau>
+                <gd:Glas.Schatten>
+                    <Binding Path="(gd:Glas.Schatten)" RelativeSource="{RelativeSource AncestorType=gd:Seitenwahl}" Converter="{x:Static gd:Rundschatten.OhneEffekt}" />
+                </gd:Glas.Schatten>
+            </Button>
+            <TextBlock x:Name="Luecke" Text="..." Visibility="Collapsed" Margin="6,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Aktuell}" Value="True">
+                <Setter TargetName="Knopf" Property="gd:Glas.Taktilebene" Value="Kupfer" />
+                <Setter TargetName="Knopf" Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Haupt}" />
+                <Setter TargetName="Schatten" Property="Ebene" Value="Kupfer" />
+            </DataTrigger>
+            <Trigger SourceName="Knopf" Property="IsPressed" Value="True">
+                <Setter TargetName="Schatten" Property="Gedrueckt" Value="True" />
+            </Trigger>
+            <Trigger SourceName="Knopf" Property="gd:Glas.ZustandVorschau" Value="Gedrueckt">
+                <Setter TargetName="Schatten" Property="Gedrueckt" Value="True" />
+            </Trigger>
+            <DataTrigger Binding="{Binding IstLuecke}" Value="True">
+                <Setter TargetName="Knopf" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Schatten" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Luecke" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Seitenwahl" TargetType="gd:Seitenwahl">
+        <StackPanel Orientation="Horizontal" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <Button x:Name="PART_Zurueck" Style="{DynamicResource Glas.Taktil.Knopf}" Padding="18,0,18,1" VerticalAlignment="Center"
+                    Content="{TemplateBinding ZurueckText}" Command="{x:Static gd:Seitenwahl.Zurueck}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}" />
+            <ItemsControl x:Name="Seitenzahlen" ItemsSource="{TemplateBinding Eintraege}" ItemTemplate="{StaticResource Glas.Vorlage.Taktil.Seitenwahl.Eintrag}"
+                          Focusable="False" Margin="6,0" VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <Button x:Name="PART_Weiter" Style="{DynamicResource Glas.Taktil.Knopf}" Padding="18,0,18,1" VerticalAlignment="Center"
+                    Content="{TemplateBinding WeiterText}" Command="{x:Static gd:Seitenwahl.Weiter}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}" />
+        </StackPanel>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Taktil.Seitenwahl" TargetType="gd:Seitenwahl">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Seitenwahl}" />
+        <Setter Property="Foreground" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Taktil.Schrift}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Taktil als Leiste (Vorbild, die zweite Seitenwahl): eine eingelassene Pille, darin "< Zurück", die Seitenzahlen als
+         Schrift und "Weiter >"; die aktuelle Seite eine kleine Kupferscheibe, überfahren hebt sich eine Pille heraus. -->
+    <DataTemplate x:Key="Glas.Vorlage.Taktil.Seitenwahl.Leiste.Eintrag" DataType="{x:Type gd:Seiteneintrag}">
+        <Grid Margin="2,0">
+            <Button x:Name="Knopf" Style="{StaticResource Glas.Taktil.Teil.Flach}" Content="{Binding Text}" Padding="0,0,0,1"
+                    Width="{DynamicResource Glas.Mass.Navigation.Hoehe}"
+                    Command="{x:Static gd:Seitenwahl.Gehe}" CommandParameter="{Binding Nummer}"
+                    AutomationProperties.Name="{Binding Name}" AutomationProperties.ItemStatus="{Binding Status}">
+                <gd:Glas.ZustandVorschau>
+                    <Binding Path="(gd:Glas.ZustandVorschau)" RelativeSource="{RelativeSource AncestorType=gd:Seitenwahl}" />
+                </gd:Glas.ZustandVorschau>
+            </Button>
+            <TextBlock x:Name="Luecke" Text="..." Visibility="Collapsed" Margin="4,0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Aktuell}" Value="True">
+                <Setter TargetName="Knopf" Property="gd:Glas.Taktilebene" Value="Kupfer" />
+                <Setter TargetName="Knopf" Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Haupt}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IstLuecke}" Value="True">
+                <Setter TargetName="Knopf" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Luecke" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Seitenwahl.Leiste" TargetType="gd:Seitenwahl">
+        <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Taktilkoerper x:Name="Koerper" Ebene="Eingelassen" Rundung="0.5" />
+            <StackPanel Orientation="Horizontal" Margin="{TemplateBinding Padding}">
+                <Button x:Name="PART_Zurueck" Style="{StaticResource Glas.Taktil.Teil.Flach}" Padding="8,0,12,1"
+                        Command="{x:Static gd:Seitenwahl.Zurueck}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}">
+                    <StackPanel Orientation="Horizontal">
+                        <gd:Glassymbol Symbol="WinkelLinks" Width="10" Height="12" Anteil="0.8" StrichAnteil="0.15" Margin="0,0,7,0" VerticalAlignment="Center" />
+                        <ContentPresenter Content="{TemplateBinding ZurueckText}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <ItemsControl x:Name="Seitenzahlen" ItemsSource="{TemplateBinding Eintraege}" ItemTemplate="{StaticResource Glas.Vorlage.Taktil.Seitenwahl.Leiste.Eintrag}"
+                              Focusable="False" Margin="10,0" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <Button x:Name="PART_Weiter" Style="{StaticResource Glas.Taktil.Teil.Flach}" Padding="12,0,8,1"
+                        Command="{x:Static gd:Seitenwahl.Weiter}" gd:Glas.ZustandVorschau="{TemplateBinding gd:Glas.ZustandVorschau}">
+                    <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Content="{TemplateBinding WeiterText}" VerticalAlignment="Center" />
+                        <gd:Glassymbol Symbol="WinkelRechts" Width="10" Height="12" Anteil="0.8" StrichAnteil="0.15" Margin="7,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Taktil.Seitenwahl.Leiste" TargetType="gd:Seitenwahl" BasedOn="{StaticResource Glas.Taktil.Seitenwahl}">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Seitenwahl.Leiste}" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Navigation.Schrift}" />
+        <Setter Property="Padding" Value="6,5,6,5" />
+    </Style>
+
+    <!-- ===================================================================== Schrittfolge -->
+
+    <!-- Glas 4: runde Glaskörper; erledigt Glas mit Haken im Akzent, aktiv das Glas der Hauptaktion, eingerastet mit Saum, offen
+         dunkles Glas mit der Nummer. Linie erledigt im Akzent mit Schein, offen dunkel. Die Beschriftung des aktiven Schritts
+         steht in einer Sprechblase im Material der Hilfekarte darüber, der Zipfel zeigt auf die Mitte. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Schritt" TargetType="gd:Schritt">
+        <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <gd:Schrittlinie x:Name="Linie" Grid.Row="1" Width="{DynamicResource Glas.Mass.Schrittfolge.Abstand}" Dicke="{DynamicResource Glas.Mass.Schrittfolge.Linie}"
+                             Farbe="{DynamicResource Glas.Akzent}" Schein="0.6" />
+            <gd:Schwebemitte Grid.Column="1" Margin="0,0,0,7">
+                <gd:Sprechblase x:Name="Blase" Visibility="Hidden" Zipfelseite="Unten" Ecke="6" Innenabstand="10,4,10,5"
+                                Zipfelgroesse="{DynamicResource Glas.Mass.Sprechblase.Zipfel}"
+                                Fuellung="{DynamicResource Glas.Karte}" Rand="{DynamicResource Glas.Karte.Linie}"
+                                gd:Glas.Schriftwunsch="{DynamicResource Glas.Karte.Text}" TextElement.FontSize="{DynamicResource Glas.Mass.Navigation.Schrift}">
+                    <TextElement.Foreground>
+                        <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}">
+                            <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Fuellung" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </TextElement.Foreground>
+                    <ContentPresenter x:Name="Beschriftung" />
+                </gd:Sprechblase>
+            </gd:Schwebemitte>
+            <Grid x:Name="Knopf" Grid.Row="1" Grid.Column="1" Width="{DynamicResource Glas.Mass.Symbolknopf.Groesse}" Height="{DynamicResource Glas.Mass.Symbolknopf.Groesse}">
+                <gd:Leuchtsaum x:Name="Saum" Form="Pille" EigenerTon="{DynamicResource Glas.Farbglas}" />
+                <gd:Rundschatten x:Name="Schatten" Art="Glas" />
+                <gd:Glaskoerper x:Name="Koerper" Form="Pille" Art="Dunkel">
+                    <gd:Glaskoerper.Schatten>
+                        <Binding Path="(gd:Glas.Schatten)" RelativeSource="{RelativeSource TemplatedParent}" Converter="{x:Static gd:Rundschatten.OhneEffekt}" />
+                    </gd:Glaskoerper.Schatten>
+                </gd:Glaskoerper>
+                <gd:Glassymbol x:Name="Zeichen" Symbol="{TemplateBinding Zeichen}" Anteil="0.42" />
+                <TextBlock x:Name="Nummer" Text="{Binding Nummer, RelativeSource={RelativeSource TemplatedParent}}" Visibility="Collapsed"
+                           FontSize="{DynamicResource Glas.Mass.Knopf.Schrift}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
+            </Grid>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IstErster" Value="True">
+                <Setter TargetName="Linie" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="Zeichen" Value="Keins">
+                <Setter TargetName="Zeichen" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Nummer" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Offen">
+                <Setter TargetName="Linie" Property="Farbe" Value="{DynamicResource Glas.Fortschritt.Spur}" />
+                <Setter TargetName="Linie" Property="Schein" Value="0" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Erledigt">
+                <Setter TargetName="Koerper" Property="Art" Value="Normal" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Aktiv">
+                <Setter TargetName="Koerper" Property="Art" Value="Haupt" />
+                <Setter TargetName="Koerper" Property="Eingerastet" Value="True" />
+                <Setter TargetName="Saum" Property="Eingerastet" Value="True" />
+                <Setter TargetName="Blase" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Linie" Property="Farbe" Value="{DynamicResource Glas.Fortschritt.Spur.Gesperrt}" />
+                <Setter TargetName="Linie" Property="Schein" Value="0" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Schrittfolge.Teil.Schritt" TargetType="gd:Schritt">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Schritt}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Text.Gedaempft}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Dunkel}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}">
+                    <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="Stand" Value="Erledigt">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Akzent}" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper}" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Aktiv">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift}" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Haupt}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Glas.Schrittfolge" TargetType="gd:Schrittfolge">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="gd:Schrittfolge">
+                    <ItemsPresenter Margin="{TemplateBinding Padding}" UseLayoutRounding="True" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <Setter.Value>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource Glas.Schrittfolge.Teil.Schritt}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Taktil (Vorbild "5-Step Process"): gehobene runde Knöpfe; erledigt dunkles Kupfer mit hellem Kupferring und leichtem
+         Schein, aktiv Kupfer mit Schein, offen dunkel; die Linie in Kupfer bis zum aktiven Schritt, danach dunkel; die
+         Beschriftung in einer dunklen Blase darüber. Den Umgebungsschatten zeichnet gd:Rundschatten (kein Effekt je Knopf). -->
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Schritt" TargetType="gd:Schritt">
+        <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <gd:Schrittlinie x:Name="Linie" Grid.Row="1" Width="{DynamicResource Glas.Mass.Schrittfolge.Abstand}" Dicke="{DynamicResource Glas.Mass.Schrittfolge.Linie}"
+                             Farbe="{TemplateBinding Background}" Schein="0.7" />
+            <gd:Schrittlinie x:Name="LinieOffen" Grid.Row="1" Width="{DynamicResource Glas.Mass.Schrittfolge.Abstand}" Dicke="{DynamicResource Glas.Mass.Schrittfolge.Linie}"
+                             Visibility="Collapsed" gd:Glas.Ableitungsquelle="{DynamicResource Glas.Taktil.Mulde.Farbe}">
+                <gd:Schrittlinie.Farbe>
+                    <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                        <Binding.Converter>
+                            <gd:Farbableitung />
+                        </Binding.Converter>
+                    </Binding>
+                </gd:Schrittlinie.Farbe>
+            </gd:Schrittlinie>
+            <gd:Schwebemitte Grid.Column="1" Margin="0,0,0,8">
+                <gd:Sprechblase x:Name="Blase" Visibility="Hidden" Zipfelseite="Unten" Ecke="6" Innenabstand="11,5,11,6"
+                                Zipfelgroesse="{DynamicResource Glas.Mass.Sprechblase.Zipfel}"
+                                gd:Glas.Ableitungsquelle="{DynamicResource Glas.Taktil.Flaeche.Farbe}"
+                                gd:Glas.Schriftwunsch="{DynamicResource Glas.Taktil.Schrift}"
+                                TextElement.FontSize="{DynamicResource Glas.Mass.Navigation.Schrift}" TextElement.FontWeight="SemiBold">
+                    <gd:Sprechblase.Fuellung>
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                            <Binding.Converter>
+                                <gd:Farbableitung Von="#FF2E2E2F" Zu="#FF353536" ZuUnten="#FF2A2A2B" />
+                            </Binding.Converter>
+                        </Binding>
+                    </gd:Sprechblase.Fuellung>
+                    <gd:Sprechblase.Rand>
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                            <Binding.Converter>
+                                <gd:Farbableitung Von="#FF2E2E2F" Zu="#FF4A4A4C" />
+                            </Binding.Converter>
+                        </Binding>
+                    </gd:Sprechblase.Rand>
+                    <TextElement.Foreground>
+                        <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}">
+                            <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="Fuellung" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                        </MultiBinding>
+                    </TextElement.Foreground>
+                    <ContentPresenter x:Name="Beschriftung" />
+                </gd:Sprechblase>
+            </gd:Schwebemitte>
+            <Grid x:Name="Knopf" Grid.Row="1" Grid.Column="1" Width="{DynamicResource Glas.Mass.Taktil.Hoehe}" Height="{DynamicResource Glas.Mass.Taktil.Hoehe}">
+                <gd:Rundschatten x:Name="Schatten" Art="Taktil" Ebene="{Binding Ebene, ElementName=Koerper}" />
+                <gd:Taktilkoerper x:Name="Koerper" Ebene="Gehoben" Rundung="0.5" Farbe="{TemplateBinding Background}"
+                                  Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True">
+                    <gd:Taktilkoerper.Schatten>
+                        <Binding Path="(gd:Glas.Schatten)" RelativeSource="{RelativeSource TemplatedParent}" Converter="{x:Static gd:Rundschatten.OhneEffekt}" />
+                    </gd:Taktilkoerper.Schatten>
+                </gd:Taktilkoerper>
+                <gd:Fassungsrand x:Name="Ring" Visibility="Collapsed" Breite="2" Ecke="100">
+                    <gd:Fassungsrand.Farbe>
+                        <Binding Path="Background" RelativeSource="{RelativeSource TemplatedParent}">
+                            <Binding.Converter>
+                                <gd:Farbableitung />
+                            </Binding.Converter>
+                        </Binding>
+                    </gd:Fassungsrand.Farbe>
+                </gd:Fassungsrand>
+                <gd:Glassymbol x:Name="Zeichen" Symbol="{TemplateBinding Zeichen}" Anteil="0.42" StrichAnteil="0.075" />
+                <TextBlock x:Name="Nummer" Text="{Binding Nummer, RelativeSource={RelativeSource TemplatedParent}}" Visibility="Collapsed"
+                           FontSize="{DynamicResource Glas.Mass.Taktil.Schrift}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,1" />
+            </Grid>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Zeichen" Value="Keins">
+                <Setter TargetName="Zeichen" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="Nummer" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Offen">
+                <Setter TargetName="Linie" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="LinieOffen" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Erledigt">
+                <Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+                <Setter TargetName="Koerper" Property="Ebene" Value="Kupfer" />
+                <Setter TargetName="Koerper" Property="Kupferrand" Value="True" />
+                <Setter TargetName="Koerper" Property="Leuchten" Value="0.3" />
+                <Setter TargetName="Koerper" Property="Farbe">
+                    <Setter.Value>
+                        <Binding Path="Background" RelativeSource="{RelativeSource TemplatedParent}">
+                            <Binding.Converter>
+                                <gd:Farbableitung Von="#FFA8553A" Zu="#FF5E2F20" />
+                            </Binding.Converter>
+                        </Binding>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="Stand" Value="Aktiv">
+                <Setter TargetName="Koerper" Property="Ebene" Value="Kupfer" />
+                <Setter TargetName="Koerper" Property="Kupferrand" Value="True" />
+                <Setter TargetName="Koerper" Property="Leuchten" Value="0.9" />
+                <Setter TargetName="Blase" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IstErster" Value="True">
+                <Setter TargetName="Linie" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="LinieOffen" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Koerper" Property="Leuchten" Value="0" />
+                <Setter TargetName="Linie" Property="Schein" Value="0" />
+                <Setter TargetName="Ring" Property="Opacity" Value="0.5" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Taktil.Schrittfolge.Teil.Schritt" TargetType="gd:Schritt">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Schritt}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="gd:Glas.Schriftwunsch">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                    <Binding.Converter>
+                        <gd:Farbableitung Von="#FFE6E6E8" Zu="#FF9C9CA0" />
+                    </Binding.Converter>
+                </Binding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="{DynamicResource Glas.Taktil.Kupfer}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="Stand" Value="Erledigt">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift}" />
+            </Trigger>
+            <Trigger Property="Stand" Value="Aktiv">
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Haupt}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Glas.Taktil.Schrittfolge" TargetType="gd:Schrittfolge" BasedOn="{StaticResource Glas.Schrittfolge}">
+        <Setter Property="ItemContainerStyle" Value="{StaticResource Glas.Taktil.Schrittfolge.Teil.Schritt}" />
+    </Style>
+
+    <!-- ===================================================================== Abzeichen -->
+
+    <!-- Glas 4: getöntes Glas als kleine Pille, Haarlinie ein Gerätepixel; Farbe je Art (Background), die Schrift folgt ihr. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Abzeichen" TargetType="gd:Abzeichen">
+        <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Abzeichenglas x:Name="Koerper" Rundung="0.5" Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True">
+                <gd:Abzeichenglas.Farbe>
+                    <Binding Path="Background" RelativeSource="{RelativeSource TemplatedParent}" Converter="{x:Static gd:Abzeichen.GlasLesbar}" />
+                </gd:Abzeichenglas.Farbe>
+            </gd:Abzeichenglas>
+            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="True" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Abzeichen" TargetType="gd:Abzeichen">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Abzeichen}" />
+        <Setter Property="Background" Value="{DynamicResource Glas.Koerper}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Abzeichen.Schrift}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Abzeichen.Hoehe}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Glas.Mass.Abzeichen.Hoehe}" />
+        <Setter Property="Padding" Value="{DynamicResource Glas.Mass.Abzeichen.Innenabstand}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="Art" Value="Akzent">
+                <Setter Property="Background" Value="{DynamicResource Glas.Farbglas}" />
+            </Trigger>
+            <Trigger Property="Art" Value="Erfolg">
+                <Setter Property="Background" Value="{DynamicResource Glas.Status.Erfolg}" />
+            </Trigger>
+            <Trigger Property="Art" Value="Warnung">
+                <Setter Property="Background" Value="{DynamicResource Glas.Status.Warnung}" />
+            </Trigger>
+            <Trigger Property="Art" Value="Gefahr">
+                <Setter Property="Background" Value="{DynamicResource Glas.Status.Gefahr}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Taktil (Vorbild "Badges"): gehobene Pillen, Akzent in Kupfer, Erfolg, Warnung und Gefahr in den Statusfarben, satt und
+         so weit abgedunkelt, dass Weiß darauf hält; Neutral ein dunkles Grau aus der Familienfläche. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Abzeichen" TargetType="gd:Abzeichen">
+        <Grid UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Taktilkoerper x:Name="Koerper" Ebene="Kupfer" Rundung="0.5" Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True">
+                <gd:Taktilkoerper.Farbe>
+                    <Binding Path="Background" RelativeSource="{RelativeSource TemplatedParent}" Converter="{x:Static gd:Abzeichen.Lesbar}" />
+                </gd:Taktilkoerper.Farbe>
+            </gd:Taktilkoerper>
+            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="True" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Nicht auf Glas.Abzeichen gegründet: dessen Trigger setzen Background je Art und gingen dem Setter hier vor. -->
+    <Style x:Key="Glas.Taktil.Abzeichen" TargetType="gd:Abzeichen">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Abzeichen}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Haupt}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Kupfer}" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" Converter="{x:Static gd:Abzeichen.HellLesbar}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="{DynamicResource Glas.Mass.Abzeichen.Schrift}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Abzeichen.Hoehe}" />
+        <Setter Property="MinWidth" Value="{DynamicResource Glas.Mass.Abzeichen.Hoehe}" />
+        <Setter Property="Padding" Value="{DynamicResource Glas.Mass.Abzeichen.Innenabstand}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <!-- Neutral wünscht sich ebenfalls Weiß: Auf einer frei gewählten Farbe im Mittelbereich hielt Glas.Taktil.Schrift an
+                 der Oberkante der Buchstaben (über dem Schriftband, im Glanz) nur 4,45 zu 1. -->
+            <Trigger Property="Art" Value="Neutral">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Flaeche.Farbe}" />
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                            <Binding.Converter>
+                                <gd:Farbableitung Von="#FF2E2E2F" Zu="#FF3D3D3F" />
+                            </Binding.Converter>
+                        </Binding>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="Art" Value="Erfolg">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Status.Erfolg}" />
+            </Trigger>
+            <Trigger Property="Art" Value="Warnung">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Status.Warnung}" />
+            </Trigger>
+            <Trigger Property="Art" Value="Gefahr">
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Status.Gefahr}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ===================================================================== Avatar -->
+
+    <!-- Glas 4: ein runder Glaskörper, darin die Initialen in der silbrigen Schrift oder das eigene Bild innerhalb der
+         Haarlinie; der Statuspunkt unten rechts mit einem Ring im Grund. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Avatar" TargetType="gd:Avatar">
+        <gd:Avatarlage x:Name="Lage" Mindestrand="1" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Glaskoerper x:Name="Koerper" Form="Pille" Art="Normal" />
+            <gd:Avatarbild x:Name="Bild" gd:Avatarlage.Teil="Kern" Bild="{TemplateBinding Bild}" />
+            <TextBlock x:Name="Initialen" gd:Avatarlage.Teil="Kern" Text="{TemplateBinding Initialen}" FontSize="{TemplateBinding Initialengroesse}"
+                       Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <gd:Statuspunkt x:Name="Punkt" gd:Avatarlage.Teil="Punkt" Farbe="{TemplateBinding Statusfarbe}" Ring="{TemplateBinding Statusrand}" />
+        </gd:Avatarlage>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Bild" Value="{x:Null}">
+                <Setter TargetName="Initialen" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Status" Value="Keiner">
+                <Setter TargetName="Punkt" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Punkt" Property="Farbe" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Avatar" TargetType="gd:Avatar">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Avatar}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Schrift}" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Koerper}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <MultiBinding Converter="{x:Static gd:Schriftwahl.Wandler}">
+                    <Binding Path="(gd:Glas.Schriftwunsch)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="IsEnabled" RelativeSource="{RelativeSource Self}" />
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Statusfarbe" Value="{DynamicResource Glas.Status.Erfolg}" />
+        <Setter Property="Statusrand" Value="{DynamicResource Glas.Grund}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Schriftanteil" Value="0.36" />
+        <Setter Property="Width" Value="{DynamicResource Glas.Mass.Avatar.Groesse}" />
+        <Setter Property="Height" Value="{DynamicResource Glas.Mass.Avatar.Groesse}" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="UseLayoutRounding" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Style.Triggers>
+            <Trigger Property="Status" Value="Abwesend">
+                <Setter Property="Statusfarbe" Value="{DynamicResource Glas.Status.Warnung}" />
+            </Trigger>
+            <Trigger Property="Status" Value="Beschaeftigt">
+                <Setter Property="Statusfarbe" Value="{DynamicResource Glas.Status.Gefahr}" />
+            </Trigger>
+            <Trigger Property="Status" Value="Abgemeldet">
+                <Setter Property="Statusfarbe" Value="{DynamicResource Glas.Text.Gedaempft}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Taktil (Vorbild "Avatars"): ein gehobener Ring aus gebürstetem Metall wie die Knäufe, darin die eingelassene dunkle
+         Fläche mit den Initialen (oder dem eigenen Bild); der Statuspunkt mit einem Ring in der Familienfläche. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Taktil.Avatar" TargetType="gd:Avatar">
+        <gd:Avatarlage x:Name="Lage" Ringanteil="{TemplateBinding gd:Glas.Ringanteil}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Taktilkoerper x:Name="Ring" Ebene="Metall" Rundung="0.5" />
+            <gd:Taktilkoerper x:Name="Koerper" gd:Avatarlage.Teil="Kern" Ebene="Eingelassen" Rundung="0.5"
+                              Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True" />
+            <gd:Avatarbild x:Name="Bild" gd:Avatarlage.Teil="Kern" Bild="{TemplateBinding Bild}" />
+            <TextBlock x:Name="Initialen" gd:Avatarlage.Teil="Kern" Text="{TemplateBinding Initialen}" FontSize="{TemplateBinding Initialengroesse}"
+                       Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <gd:Statuspunkt x:Name="Punkt" gd:Avatarlage.Teil="Punkt" Farbe="{TemplateBinding Statusfarbe}" Ring="{TemplateBinding Statusrand}" />
+        </gd:Avatarlage>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Bild" Value="{x:Null}">
+                <Setter TargetName="Initialen" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Status" Value="Keiner">
+                <Setter TargetName="Punkt" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Ring" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Punkt" Property="Farbe" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Taktil.Avatar" TargetType="gd:Avatar" BasedOn="{StaticResource Glas.Avatar}">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Taktil.Avatar}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Taktil.Schrift}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="gd:Glas.Ringanteil" Value="0.13" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Taktil.Flaeche.Farbe}" />
+        <Setter Property="Statusrand">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                    <Binding.Converter>
+                        <gd:Farbableitung />
+                    </Binding.Converter>
+                </Binding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Schriftanteil" Value="0.34" />
+    </Style>
+
+    <!-- Glutglas (Vorbild 3, Karte mit Avatar): ein kräftiger Verlauf violett bis blau (aus dem kühlen Licht der Familie,
+         Glas.Glutglas.Symbol.Farbe; eigene Farbe über Background) mit hellem Ring und großen Initialen. -->
+    <ControlTemplate x:Key="Glas.Vorlage.Glutglas.Avatar" TargetType="gd:Avatar">
+        <gd:Avatarlage x:Name="Lage" Ringanteil="{TemplateBinding gd:Glas.Ringanteil}" Mindestrand="1" UseLayoutRounding="True" SnapsToDevicePixels="True">
+            <gd:Avatarscheibe x:Name="Koerper" Rundung="0.5" Farbe="{TemplateBinding Background}" Ringanteil="{TemplateBinding gd:Glas.Ringanteil}"
+                              Schriftwunsch="{TemplateBinding gd:Glas.Schriftwunsch}" SchriftAnSteuerelement="True" />
+            <gd:Avatarbild x:Name="Bild" gd:Avatarlage.Teil="Kern" Bild="{TemplateBinding Bild}" />
+            <TextBlock x:Name="Initialen" gd:Avatarlage.Teil="Kern" Text="{TemplateBinding Initialen}" FontSize="{TemplateBinding Initialengroesse}"
+                       Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <gd:Statuspunkt x:Name="Punkt" gd:Avatarlage.Teil="Punkt" Farbe="{TemplateBinding Statusfarbe}" Ring="{TemplateBinding Statusrand}" />
+        </gd:Avatarlage>
+        <ControlTemplate.Triggers>
+            <Trigger Property="Bild" Value="{x:Null}">
+                <Setter TargetName="Initialen" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="Status" Value="Keiner">
+                <Setter TargetName="Punkt" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Koerper" Property="Zustand" Value="Gesperrt" />
+                <Setter TargetName="Punkt" Property="Farbe" Value="{DynamicResource Glas.Glutglas.Schrift.Gesperrt}" />
+                <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Glutglas.Schrift.Gesperrt}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="Glas.Glutglas.Avatar" TargetType="gd:Avatar" BasedOn="{StaticResource Glas.Avatar}">
+        <Setter Property="Template" Value="{StaticResource Glas.Vorlage.Glutglas.Avatar}" />
+        <Setter Property="gd:Glas.Schriftwunsch" Value="{DynamicResource Glas.Glutglas.Schrift}" />
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Kontrastschrift)" RelativeSource="{RelativeSource Self}" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="gd:Glas.Ringanteil" Value="0.045" />
+        <Setter Property="gd:Glas.Ableitungsquelle" Value="{DynamicResource Glas.Glutglas.Symbol.Farbe}" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <Binding Path="(gd:Glas.Ableitungsquelle)" RelativeSource="{RelativeSource Self}">
+                    <Binding.Converter>
+                        <gd:Farbableitung Von="#FF5AB0FF" Zu="#FF5E56B8" ZuUnten="#FF424C98" />
+                    </Binding.Converter>
+                </Binding>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Schriftanteil" Value="0.4" />
+    </Style>
+
+    <!-- ===================================================================== Vorgabestile der neuen Typen -->
+
+    <Style TargetType="gd:Brotkrumen" BasedOn="{StaticResource Glas.Brotkrumen}" />
+    <Style TargetType="gd:Brotkrume" BasedOn="{StaticResource Glas.Brotkrumen.Teil.Krume}" />
+    <Style TargetType="gd:Seitenwahl" BasedOn="{StaticResource Glas.Seitenwahl}" />
+    <Style TargetType="gd:Schrittfolge" BasedOn="{StaticResource Glas.Schrittfolge}" />
+    <Style TargetType="gd:Schritt" BasedOn="{StaticResource Glas.Schrittfolge.Teil.Schritt}" />
+    <Style TargetType="gd:Abzeichen" BasedOn="{StaticResource Glas.Abzeichen}" />
+    <Style TargetType="gd:Avatar" BasedOn="{StaticResource Glas.Avatar}" />
+</ResourceDictionary>

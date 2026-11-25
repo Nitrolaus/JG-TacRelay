@@ -1,0 +1,631 @@
+<!-- Glasdesign - Maintainer: Sarevoc -->
+<!--
+  Farbstellung "Standard": Sarevocs eigenes Design. Anthrazit, Türkis, Blau als zweite Akzentfarbe für Links und Auswahl.
+  Glas 3 (Muster 3b, von Sarevoc am 02.10.2026 gewählt): Haarlinie von einem Gerätepixel, halbdurchsichtig weiß, gewölbter
+  Körper (oben und unten heller als in der Mitte), Spiegelungen im Ton von Glas.Spiegel.Farbe. Glas.Leucht.* nach dem
+  JG-Schalter (Stahlblau). Alle Schlüssel stehen in Schluessel.cs; eine eigene Farbstellung kopiert diese Datei und ändert
+  nur Werte. Die Datei ist lose ladbar; ihr einziger Codeverweis ist das Glanzprofil (gd:Glanzprofil, Glas 4), dafür
+  muss die Bibliothek im Prozess geladen sein, was sie bei jeder Anwendung von Glasdesign ohnehin ist.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    xmlns:gd="clr-namespace:Glasdesign"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="po">
+
+    <sys:String x:Key="Glas.Thema.Name">Standard</sys:String>
+
+    <Color x:Key="Glas.Grund.Farbe">#FF2B2F33</Color>
+    <SolidColorBrush x:Key="Glas.Grund" Color="#FF2B2F33" po:Freeze="True" />
+
+    <SolidColorBrush x:Key="Glas.Text" Color="#FFD6DEE0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Text.Gedaempft" Color="#FF9AA4A8" po:Freeze="True" />
+
+    <LinearGradientBrush x:Key="Glas.Schrift" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FFF4FCFD" Offset="0" />
+        <GradientStop Color="#FFD6E0E2" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Schrift.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF9CA5A9" Offset="0" />
+        <GradientStop Color="#FF8C9599" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Glas.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CFFFFFF" Offset="0" />
+        <GradientStop Color="#24FFFFFF" Offset="0.3" />
+        <GradientStop Color="#1AFFFFFF" Offset="0.7" />
+        <GradientStop Color="#5CFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Kante.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#B8FFFFFF" Offset="0" />
+        <GradientStop Color="#33FFFFFF" Offset="0.3" />
+        <GradientStop Color="#26FFFFFF" Offset="0.7" />
+        <GradientStop Color="#7AFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Kante.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#40FFFFFF" Offset="0" />
+        <GradientStop Color="#12FFFFFF" Offset="0.5" />
+        <GradientStop Color="#26FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Kante.Haupt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CC8F6FA" Offset="0" />
+        <GradientStop Color="#24C8F6FA" Offset="0.3" />
+        <GradientStop Color="#1AC8F6FA" Offset="0.7" />
+        <GradientStop Color="#5CC8F6FA" Offset="1" />
+    </LinearGradientBrush>
+    <!-- Glas 4: Haarlinie eingerastet und Ton des Leuchtsaums (Petrol, eingerastet Blau wie die Auswahl). -->
+    <LinearGradientBrush x:Key="Glas.Kante.Leuchten" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#C76FA8F0" Offset="0" />
+        <GradientStop Color="#806FA8F0" Offset="0.3" />
+        <GradientStop Color="#736FA8F0" Offset="0.7" />
+        <GradientStop Color="#B36FA8F0" Offset="1" />
+    </LinearGradientBrush>
+    <Color x:Key="Glas.Leuchtsaum.Farbe">#FF2E8F9A</Color>
+    <Color x:Key="Glas.Leuchtsaum.Auswahl.Farbe">#FF3A6FB8</Color>
+    <!-- Spotlicht: Ton des Lichts auf der Haarlinie an der Mausstelle (Stärke und Radius im Glanzprofil). -->
+    <Color x:Key="Glas.Spotlicht.Farbe">#FFBFF4FF</Color>
+    <!-- Lichtkante: drei Farben rundum, solange etwas läuft (Breite, Schein, Komet, Umlauf im Glanzprofil). -->
+    <Color x:Key="Glas.Lichtkante.Anfang.Farbe">#FF2EE6D6</Color>
+    <Color x:Key="Glas.Lichtkante.Mitte.Farbe">#FF7C5CFF</Color>
+    <Color x:Key="Glas.Lichtkante.Ende.Farbe">#FFFF4FA3</Color>
+
+    <Color x:Key="Glas.Spiegel.Farbe">#FFFFFFFF</Color>
+    <!-- Glanzprofil dieser Farbstellung (Glas 4): alle Stärken und Lagen der Spiegelungen und des Leuchtsaums, in Glint einstellbar. -->
+    <gd:Glanzprofil x:Key="Glas.Glanzprofil" Kantenspiegel="0.51" Randlicht="1.55" Schein="0.45" Randglanz="1" RandglanzLage="131"
+                    RandglanzLaenge="0.48" RandglanzBreite="2" RandglanzHof="0.68" Gegenglanz="1" GegenglanzLage="-39"
+                    Schatten="0.85" Ueberfahren="1.25" Gedrueckt="0.95" Dunkel="0.85"
+                    LeuchtsaumUeberfahren="0.12" LeuchtsaumFokus="0.12" LeuchtsaumEingerastet="0.19" LeuchtsaumReichweite="14"
+                    LeuchtsaumAbfall="1.5" LeuchtsaumOben="0.45" LeuchtsaumUnten="1.4" LeuchtsaumInnen="0" LeuchtsaumEinblenden="150"
+                    SpotlichtRand="0.55" SpotlichtInnen="0.05" SpotlichtRadius="80" SpotlichtEinblenden="120"
+                    LichtkanteBreite="1.5" LichtkanteSchein="0.35" LichtkanteReichweite="10" LichtkanteKomet="0.45" LichtkanteUmlauf="2400" />
+    <!-- Bauplan dieser Farbstellung (Glas 4): Maße von Schalter, Leuchtschalter, Schatten und Zeichen; ohne Angaben gelten
+         die Vorgaben (Bauplan.cs), in Glint einstellbar. -->
+    <gd:Bauplan x:Key="Glas.Bauplan" />
+    <!-- Farbglasknöpfe (Gel und Kissen, Sarevocs Vorbild vom 07.10.2026): Wulst, Glanzband, Funkeln, Spiegelung; in Glint einstellbar.
+         Die Grundfarbe gilt nur, wenn ein Knopf keinen eigenen Background mitbringt. -->
+    <gd:Farbglasprofil x:Key="Glas.Farbglasprofil" KissenWulst="0.17" KissenTiefe="0.55" KissenLicht="0.38" KissenGlanz="0.95"
+                       KissenSchatten="0.4" GelRand="0.34" GelGlanz="0.78" GelGlanzHoehe="0.46" GelBodenlicht="0.5"
+                       GelFunkeln="0.95" GelSpiegelung="0.28" GelBodenlinie="0.3" Ueberfahren="0.08" Gedrueckt="0.12"
+                       MetallHorizont="0.7" MetallKontrast="0.62" MetallGlanz="0.85" MetallKuehle="0.25" MetallWischer="0.5" MetallSchatten="0.45"
+                       ClayLicht="0.55" ClayTiefe="0.15" ClaySchatten="0.6" BrutalVersatz="6" BrutalRand="2.5" />
+    <!-- Clay (Stilfamilie 6) und Neo-Brutal (Stilfamilie 7): Grundfarben, wenn ein Knopf keinen Background mitbringt. -->
+    <Color x:Key="Glas.Clay.Farbe">#FF8FB0FF</Color>
+    <SolidColorBrush x:Key="Glas.Clay" Color="#FF8FB0FF" po:Freeze="True" />
+    <Color x:Key="Glas.Brutal.Farbe">#FFFFD447</Color>
+    <SolidColorBrush x:Key="Glas.Brutal" Color="#FFFFD447" po:Freeze="True" />
+    <!-- Flüssigmetall (Stilfamilie 3): Silber als Grundfarbe der Metallknöpfe. -->
+    <Color x:Key="Glas.Metall.Farbe">#FFC4CCD4</Color>
+    <SolidColorBrush x:Key="Glas.Metall" Color="#FFC4CCD4" po:Freeze="True" />
+    <!-- Milchglas (Stilfamilie 4): Tönung über dem unscharfen Hintergrund, oben heller, und die Kante mit Licht oben. -->
+    <LinearGradientBrush x:Key="Glas.Milchglas.Flaeche" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#24FFFFFF" Offset="0" />
+        <GradientStop Color="#0DFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Milchglas.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#73FFFFFF" Offset="0" />
+        <GradientStop Color="#1AFFFFFF" Offset="0.4" />
+        <GradientStop Color="#10FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <!-- Flüssigglas (Stilfamilie 5): kaum Tönung, die Kante hell wie Licht auf dickem Glas. -->
+    <LinearGradientBrush x:Key="Glas.Fluessigglas.Flaeche" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#14FFFFFF" Offset="0" />
+        <GradientStop Color="#05FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Fluessigglas.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#A6FFFFFF" Offset="0" />
+        <GradientStop Color="#26FFFFFF" Offset="0.5" />
+        <GradientStop Color="#4DFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <Color x:Key="Glas.Farbglas.Farbe">#FF177A86</Color>
+    <LinearGradientBrush x:Key="Glas.Feld.Flaeche" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF1E272F" Offset="0" />
+        <GradientStop Color="#FF161D24" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Textfeld.Flaeche" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF14181B" Offset="0" />
+        <GradientStop Color="#FF1B2024" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Textfeld.Rand" Color="#FF3A454D" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Textfeld.Rand.Ueber" Color="#FF56666F" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Textfeld.Rand.Fokus" Color="#FF4FC8D2" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Feld.Rand" Color="#FF3C4C57" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Feld.Akzent" Color="#FF4FC8D2" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Farbglas" Color="#FF177A86" po:Freeze="True" />
+    <!-- Maße der Stile (Glas 4, in Glint einstellbar): Höhe, Innenabstand und Schriftgröße je Element. -->
+    <sys:Double x:Key="Glas.Mass.Knopf.Hoehe">36</sys:Double>
+    <Thickness x:Key="Glas.Mass.Knopf.Innenabstand">22,0,22,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Knopf.Schrift">15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Symbolknopf.Groesse">36</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Farbglas.Hoehe">40</sys:Double>
+    <Thickness x:Key="Glas.Mass.Farbglas.Innenabstand">30,0,30,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Farbglas.Schrift">15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Gelknopf.Rundung">0.5</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Kissenknopf.Rundung">0.28</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Metallknopf.Rundung">0.5</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Clayknopf.Rundung">0.38</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Brutalknopf.Rundung">0.12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fluessigglas.Ecke">30</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fluessigglas.Brechung">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fluessigglas.Kantenbreite">18</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fluessigglas.Farbsaum">0.12</sys:Double>
+    <Thickness x:Key="Glas.Mass.Fluessigglas.Innenabstand">22,12,22,12</Thickness>
+    <sys:Double x:Key="Glas.Mass.Milchglas.Unschaerfe">26</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Milchglas.Ecke">18</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Milchglas.Koernung">0.05</sys:Double>
+    <Thickness x:Key="Glas.Mass.Milchglas.Innenabstand">20,16,20,16</Thickness>
+    <!-- Formknopf (Abschnitt 6): Glas auf beliebigem Umriss, die Form als Text (Umriss.cs), Höhe eigen. -->
+    <sys:Double x:Key="Glas.Mass.Formknopf.Hoehe">40</sys:Double>
+    <gd:Umriss x:Key="Glas.Mass.Formknopf.Umriss" Text="Fase 8" />
+    <!-- Feld (Stil Glas.Feld): Eckenradius, Randbreite, Akzentleiste, Leuchten außen, Glanzlinie oben, Innenabstand. -->
+    <sys:Double x:Key="Glas.Mass.Feld.Ecke">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Feld.Rand">1</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Feld.Akzentbreite">6</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Feld.Leuchten">0</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Feld.Leuchtweite">8</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Feld.Glanz">0.06</sys:Double>
+    <Thickness x:Key="Glas.Mass.Feld.Innenabstand">20,10,18,10</Thickness>
+    <!-- Textfeld (Stile Glas.Textfeld, Glas.Passwortfeld): Höhe, Innenabstand, Schrift, Ecke, Leuchten im Fokus. -->
+    <sys:Double x:Key="Glas.Mass.Textfeld.Hoehe">32</sys:Double>
+    <Thickness x:Key="Glas.Mass.Textfeld.Innenabstand">10,0,10,0</Thickness>
+    <sys:Double x:Key="Glas.Mass.Textfeld.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Textfeld.Ecke">6</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Textfeld.Leuchten">0.6</sys:Double>
+    <!-- Steuerelemente (Abschnitt 8): Regler, Zahlenfeld, Liste, Auswahlliste, Bildlaufleiste. -->
+    <sys:Double x:Key="Glas.Mass.Regler.Hoehe">22</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Regler.Knauf">16</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Regler.Spur">4</sys:Double>
+    <Thickness x:Key="Glas.Mass.Regler.Spurrand">8,0,8,0</Thickness>
+    <sys:Double x:Key="Glas.Mass.Zahlenfeld.Breite">96</sys:Double>
+    <Thickness x:Key="Glas.Mass.Liste.Innenabstand">10,5,10,5</Thickness>
+    <CornerRadius x:Key="Glas.Mass.Liste.Ecke">4</CornerRadius>
+    <sys:Double x:Key="Glas.Mass.Bildlauf.Breite">10</sys:Double>
+    <SolidColorBrush x:Key="Glas.Regler.Spur" Color="#FF1C2023" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Regler.Fuellung" Color="#FF4FC8D2" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Liste.Ueber" Color="#1AFFFFFF" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Liste.Auswahl" Color="#593A6FB8" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Bildlauf.Griff" Color="#4DD6DEE0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Bildlauf.Griff.Ueber" Color="#8CD6DEE0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Zahlenfeld.Ungueltig" Color="#FFE07A3A" po:Freeze="True" />
+    <!-- Fortschritt (Stil Glas.Fortschritt, 0.5.0): Höhe, Abstand der Glasfüllung zur Rinne, Linie und Schein der Lichtlinie,
+         Segment und Fuge, Länge des unbestimmten Läufers (Anteil) und sein Umlauf in Millisekunden. Die Rinne ist
+         eingelassen (oben dunkler, die Haarlinie unten heller), die Füllung ein Glaskörper im Akzent, heller als die
+         Hauptaktion, damit der Stand auf einen Blick lesbar ist. -->
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Hoehe">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Abstand">1</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Linie">2</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Schein">4</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Segment">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Fuge">2</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Laenge">0.3</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fortschritt.Umlauf">1600</sys:Double>
+    <LinearGradientBrush x:Key="Glas.Fortschritt.Spur" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF101416" Offset="0" />
+        <GradientStop Color="#FF1A1F22" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Fortschritt.Spur.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#2EFFFFFF" Offset="0" />
+        <GradientStop Color="#1AFFFFFF" Offset="0.5" />
+        <GradientStop Color="#4DFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Fortschritt.Spur.Gesperrt" Color="#FF24282B" po:Freeze="True" />
+    <LinearGradientBrush x:Key="Glas.Fortschritt.Fuellung" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF2A8C96" Offset="0" />
+        <GradientStop Color="#FF1B6A73" Offset="0.55" />
+        <GradientStop Color="#FF2B929C" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Fortschritt.Fuellung.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#A6C8F6FA" Offset="0" />
+        <GradientStop Color="#33C8F6FA" Offset="0.3" />
+        <GradientStop Color="#26C8F6FA" Offset="0.7" />
+        <GradientStop Color="#73C8F6FA" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Fortschritt.Fuellung.Gesperrt" Color="#FF3A4A4E" po:Freeze="True" />
+    <Color x:Key="Glas.Fortschritt.Licht.Farbe">#FF5FE0EA</Color>
+    <!-- Fensterrahmen (Stile Glas.Fenster und Glas.Fensterrahmen, 0.5.0): Titelleiste, Glasknöpfe, Schrift und Symbol in DIP;
+         Leiste aus Glas aktiv, inaktiv flach; Haarlinie um das Fenster aktiv wie Glas.Kante, inaktiv schwach; der Titel
+         hält auch inaktiv 4,5 zu 1. Schließen leuchtet beim Überfahren rot (Saum und Kreuz). -->
+    <sys:Double x:Key="Glas.Mass.Fenster.Titelhoehe">36</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fenster.Knopf">22</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fenster.Schrift">13</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Fenster.Symbol">16</sys:Double>
+    <LinearGradientBrush x:Key="Glas.Fenster.Leiste" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF353C41" Offset="0" />
+        <GradientStop Color="#FF292F33" Offset="0.55" />
+        <GradientStop Color="#FF30373B" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Fenster.Leiste.Inaktiv" Color="#FF2E3236" po:Freeze="True" />
+    <LinearGradientBrush x:Key="Glas.Fenster.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CFFFFFF" Offset="0" />
+        <GradientStop Color="#33FFFFFF" Offset="0.3" />
+        <GradientStop Color="#2EFFFFFF" Offset="0.7" />
+        <GradientStop Color="#59FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Fenster.Kante.Inaktiv" Color="#1FFFFFFF" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Fenster.Trennlinie" Color="#24FFFFFF" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Fenster.Titel" Color="#FFE4ECEE" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Fenster.Titel.Inaktiv" Color="#FFA9B3B7" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Fenster.Schliessen" Color="#FFFF6B6B" po:Freeze="True" />
+    <!-- Stilfamilie Matt (Glas.Matt.*, Sarevocs Wunsch vom 08.10.2026): ohne Spiegelung, Fläche in kleinen Helligkeitsstufen,
+         Haarlinie mit 7 Prozent Weiß, überfahren 12 Prozent; Werte der Variante Schiefer aus der Stilstudie. -->
+    <Color x:Key="Glas.Matt.Farbe">#FF363B40</Color>
+    <Color x:Key="Glas.Matt.Haupt.Farbe">#FF1F5F67</Color>
+    <Color x:Key="Glas.Matt.Rand.Farbe">#12FFFFFF</Color>
+    <Color x:Key="Glas.Matt.Rand.Ueber.Farbe">#1FFFFFFF</Color>
+    <SolidColorBrush x:Key="Glas.Matt.Schrift" Color="#FFD6DEE0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Matt.Schrift.Haupt" Color="#FFF2FAFB" po:Freeze="True" />
+    <gd:Mattprofil x:Key="Glas.Mattprofil" Ueberfahren="0.05" Gedrueckt="0.06" Koernung="0" Einlassen="0" Gesperrt="0.55" Spotlicht="0.6" />
+    <sys:Double x:Key="Glas.Mass.Matt.Hoehe">34</sys:Double>
+    <Thickness x:Key="Glas.Mass.Matt.Innenabstand">18,0,18,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Matt.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Matt.Rundung">7</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Reiter.Hoehe">30</sys:Double>
+    <Thickness x:Key="Glas.Mass.Reiter.Innenabstand">18,0,18,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Reiter.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Haken.Groesse">24</sys:Double>
+    <Thickness x:Key="Glas.Mass.Haken.Innenabstand">9,0,2,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Haken.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Schalter.Hoehe">26</sys:Double>
+    <Thickness x:Key="Glas.Mass.Schalter.Innenabstand">10,0,2,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Schalter.Schrift">14</sys:Double>
+    <Thickness x:Key="Glas.Mass.Leuchtschalter.Innenabstand">0,0,16,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Leuchtschalter.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Hilfe.Schrift">12.5</sys:Double>
+    <Thickness x:Key="Glas.Mass.Hilfe.Innenabstand">10,6,10,7</Thickness>
+    <sys:Double x:Key="Glas.Mass.Hilfe.Breite">320</sys:Double>
+    <Color x:Key="Glas.Spiegel.Haupt.Farbe">#FFC8F6FA</Color>
+
+    <LinearGradientBrush x:Key="Glas.Koerper" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF30373B" Offset="0" />
+        <GradientStop Color="#FF262C30" Offset="0.55" />
+        <GradientStop Color="#FF353D42" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Koerper.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF353C41" Offset="0" />
+        <GradientStop Color="#FF2B3236" Offset="0.55" />
+        <GradientStop Color="#FF3B444A" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Koerper.Gedrueckt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF22282B" Offset="0" />
+        <GradientStop Color="#FF1C2124" Offset="0.55" />
+        <GradientStop Color="#FF2A3135" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Koerper.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF2E3337" Offset="0" />
+        <GradientStop Color="#FF303539" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Glas.Haupt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF1E5861" Offset="0" />
+        <GradientStop Color="#FF133D44" Offset="0.55" />
+        <GradientStop Color="#FF1E5A63" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Haupt.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF22636D" Offset="0" />
+        <GradientStop Color="#FF17464E" Offset="0.55" />
+        <GradientStop Color="#FF22656F" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Haupt.Gedrueckt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF164249" Offset="0" />
+        <GradientStop Color="#FF0E2C31" Offset="0.55" />
+        <GradientStop Color="#FF174850" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Haupt.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF2C373A" Offset="0" />
+        <GradientStop Color="#FF303C3F" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Glas.Auswahl" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF1E3F66" Offset="0" />
+        <GradientStop Color="#FF142B47" Offset="0.55" />
+        <GradientStop Color="#FF1F4270" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Auswahl.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF23497A" Offset="0" />
+        <GradientStop Color="#FF18325A" Offset="0.55" />
+        <GradientStop Color="#FF244C82" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Auswahl.Gedrueckt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF162E4C" Offset="0" />
+        <GradientStop Color="#FF0F1F34" Offset="0.55" />
+        <GradientStop Color="#FF183354" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Auswahl.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF2D333D" Offset="0" />
+        <GradientStop Color="#FF313742" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Glas.Dunkel" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF1C2023" Offset="0" />
+        <GradientStop Color="#FF15181B" Offset="0.55" />
+        <GradientStop Color="#FF202529" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Dunkel.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF22272A" Offset="0" />
+        <GradientStop Color="#FF1A1E21" Offset="0.55" />
+        <GradientStop Color="#FF262C30" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Dunkel.Gedrueckt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF141719" Offset="0" />
+        <GradientStop Color="#FF0F1113" Offset="0.55" />
+        <GradientStop Color="#FF181C1F" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Dunkel.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF24282B" Offset="0" />
+        <GradientStop Color="#FF272B2E" Offset="1" />
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="Glas.Lichtfleck" po:Freeze="True">
+        <GradientStop Color="#2EBFF6FA" Offset="0" />
+        <GradientStop Color="#00BFF6FA" Offset="1" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Glas.Lichtfleck.Haupt" po:Freeze="True">
+        <GradientStop Color="#3DBFF6FA" Offset="0" />
+        <GradientStop Color="#00BFF6FA" Offset="1" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Glas.Lichtfleck.Auswahl" po:Freeze="True">
+        <GradientStop Color="#2EBFDAFA" Offset="0" />
+        <GradientStop Color="#00BFDAFA" Offset="1" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Glas.Lichtfleck.Dunkel" po:Freeze="True">
+        <GradientStop Color="#1ABFF6FA" Offset="0" />
+        <GradientStop Color="#00BFF6FA" Offset="1" />
+    </RadialGradientBrush>
+
+    <LinearGradientBrush x:Key="Glas.Innenschatten" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#55000000" Offset="0" />
+        <GradientStop Color="#00000000" Offset="1" />
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="Glas.Kontaktschatten" po:Freeze="True">
+        <GradientStop Color="#D8000000" Offset="0" />
+        <GradientStop Color="#70000000" Offset="0.55" />
+        <GradientStop Color="#00000000" Offset="1" />
+    </RadialGradientBrush>
+    <Color x:Key="Glas.Schatten.Farbe">#FF000000</Color>
+
+    <Color x:Key="Glas.Akzent.Farbe">#FF8FE3EA</Color>
+    <SolidColorBrush x:Key="Glas.Akzent" Color="#FF8FE3EA" po:Freeze="True" />
+    <Color x:Key="Glas.Akzent2.Farbe">#FF6FA8F0</Color>
+    <SolidColorBrush x:Key="Glas.Akzent2" Color="#FF6FA8F0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Link" Color="#FF8DBBF4" po:Freeze="True" />
+
+    <LinearGradientBrush x:Key="Glas.Zeichen.Aus" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FFE6EEF0" Offset="0" />
+        <GradientStop Color="#FFAEBBBE" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Zeichen.Gesperrt" Color="#FF8A9397" po:Freeze="True" />
+
+    <LinearGradientBrush x:Key="Glas.Spur.An" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF173F45" Offset="0" />
+        <GradientStop Color="#FF1F555C" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Spur.Aus" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF1C2023" Offset="0" />
+        <GradientStop Color="#FF24292D" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Spur.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF24282B" Offset="0" />
+        <GradientStop Color="#FF262A2D" Offset="1" />
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="Glas.Fokus" Color="#FFE8FDFF" po:Freeze="True" />
+
+    <LinearGradientBrush x:Key="Glas.Karte" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#F5252A2E" Offset="0" />
+        <GradientStop Color="#F51B1F22" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Karte.Linie" Color="#FF4A8E96" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Karte.Text" Color="#FFE4ECEE" po:Freeze="True" />
+
+    <!-- Leuchtschalter: Stahlblau des JG-Originals als gewölbtes Glas. -->
+    <LinearGradientBrush x:Key="Glas.Leucht.Knauf" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF213845" Offset="0" />
+        <GradientStop Color="#FF15252F" Offset="0.55" />
+        <GradientStop Color="#FF26404F" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Knauf.Ueber" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF27414F" Offset="0" />
+        <GradientStop Color="#FF1A2D38" Offset="0.55" />
+        <GradientStop Color="#FF2D4A5A" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Knauf.Gedrueckt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF182A33" Offset="0" />
+        <GradientStop Color="#FF0F1A21" Offset="0.55" />
+        <GradientStop Color="#FF1C303B" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Knauf.Gesperrt" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF27343C" Offset="0" />
+        <GradientStop Color="#FF2C3A42" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Rinne" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF050C11" Offset="0" />
+        <GradientStop Color="#FF0A161D" Offset="0.5" />
+        <GradientStop Color="#FF15262F" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Leucht.Rinne.Gesperrt" Color="#FF1B252B" po:Freeze="True" />
+    <LinearGradientBrush x:Key="Glas.Leucht.Rinne.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#80C9E6EC" Offset="0" />
+        <GradientStop Color="#1FC9E6EC" Offset="0.5" />
+        <GradientStop Color="#52C9E6EC" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Wartet" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FFFFF4CC" Offset="0" />
+        <GradientStop Color="#FFF0C24A" Offset="0.15" />
+        <GradientStop Color="#FF8C6416" Offset="0.5" />
+        <GradientStop Color="#FFF3CB58" Offset="0.85" />
+        <GradientStop Color="#FFFFF8DD" Offset="1" />
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="Glas.Leucht.Lichtfleck" po:Freeze="True">
+        <GradientStop Color="#4DBFF0FA" Offset="0" />
+        <GradientStop Color="#00BFF0FA" Offset="1" />
+    </RadialGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Leucht.Zeichen" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FF9DB2BB" Offset="0" />
+        <GradientStop Color="#FF5E7884" Offset="1" />
+    </LinearGradientBrush>
+    <Color x:Key="Glas.Leucht.Gruen.Farbe">#FF26FF91</Color>
+    <Color x:Key="Glas.Leucht.Tuerkis.Farbe">#FF17EEFF</Color>
+    <Color x:Key="Glas.Leucht.Rot.Farbe">#FFFF4233</Color>
+    <Color x:Key="Glas.Leucht.Gelb.Farbe">#FFFFD33D</Color>
+
+
+    <!-- Stilfamilien 2 (0.5.0-beta.6, KONZEPT.md 5b, Sarevocs Vorbilder vom 15.10.2026): Taktil, Glutglas, Dickglas,
+         Glanzkugel, Horizontglas, Chromrahmen. Die Farben der Familien sind ihre eigenen Vorgaben (Kupfer, Glutrot, Blau,
+         Orange), nicht an den Akzent der Farbstellung gebunden; jeder Knopf kann sie über Background ändern. -->
+    <gd:Stilprofil x:Key="Glas.Stilprofil" FamilieUeberfahren="0.07" FamilieGedrueckt="0.12"
+                   TaktilStufe="1" TaktilSchatten="0.63" TaktilLicht="0.24" TaktilTiefe="0.6"
+                   GlutglasGlut="1" GlutglasSaum="0.85" GlutglasReichweite="26" GlutglasKantenglut="1" GlutglasScheibe="0.9" GlutglasGlanz="0.12"
+                   DickglasGlanz="1" DickglasFresnel="0.6" DickglasLicht="0.75" DickglasSchatten="0.6"
+                   GlanzkugelKuppelglanz="0.75" GlanzkugelLeuchtkern="1" GlanzkugelFenster="0.9" GlanzkugelSchatten="0.7"
+                   HorizontglasHimmelsglanz="0.55" HorizontglasHorizontlage="0.5" HorizontglasBodenlicht="0.35" HorizontglasFunke="0.9" HorizontglasSchatten="0.18"
+                   ChromrahmenFuellglanz="0.9" ChromrahmenRille="0.7" ChromrahmenRauch="1" ChromrahmenFunke="0.95" ChromrahmenSchatten="0.55"
+                   GlanzkugelChromHimmel="0.93" GlanzkugelChromHorizont="0.42" GlanzkugelChromBoden="0.62" GlanzkugelChromGlanz="0.5" GlanzkugelChromWoelbung="0.9" GlanzkugelChromSteil="2.2"
+                   HorizontglasChromHimmel="1" HorizontglasChromHorizont="0.1" HorizontglasChromBoden="0.66" HorizontglasChromWoelbung="0.3" HorizontglasChromSteil="2.8"
+                   ChromrahmenChromHimmel="0.92" ChromrahmenChromHorizont="0.24" ChromrahmenChromBoden="0.55" ChromrahmenChromGlanz="0.45" ChromrahmenChromWoelbung="0.7" ChromrahmenChromSteil="2" />
+
+    <!-- Taktil: neo-skeuomorph, dunkles warmes Grau, ein Akzent Kupfer. -->
+    <Color x:Key="Glas.Taktil.Flaeche.Farbe">#FF2E2E2F</Color>
+    <Color x:Key="Glas.Taktil.Mulde.Farbe">#FF1B1B1C</Color>
+    <SolidColorBrush x:Key="Glas.Taktil.Kupfer" Color="#FFA8553A" po:Freeze="True" />
+    <Color x:Key="Glas.Taktil.Fassung.Farbe">#FF3A332E</Color>
+    <Color x:Key="Glas.Taktil.Metall.Farbe">#FF7A726B</Color>
+    <SolidColorBrush x:Key="Glas.Taktil.Schrift" Color="#FFE6E6E8" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Taktil.Schrift.Haupt" Color="#FFFFFFFF" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Taktil.Schrift.Gesperrt" Color="#FFA59991" po:Freeze="True" />
+    <sys:Double x:Key="Glas.Mass.Taktil.Hoehe">40</sys:Double>
+    <Thickness x:Key="Glas.Mass.Taktil.Innenabstand">26,0,26,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Taktil.Schrift">15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Taktil.Fassung">3</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Taktil.Ecke">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Taktil.Haken">22</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Taktil.Schalter">28</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Taktil.Spur">16</sys:Double>
+
+    <!-- Glutglas: dunkle Rauchglasscheiben, rotes Licht an den Kanten. -->
+    <SolidColorBrush x:Key="Glas.Glutglas.Glut" Color="#FFFF2236" po:Freeze="True" />
+    <Color x:Key="Glas.Glutglas.Scheibe.Farbe">#FF16141B</Color>
+    <LinearGradientBrush x:Key="Glas.Glutglas.Kante" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CFFFFFF" Offset="0" />
+        <GradientStop Color="#40FFFFFF" Offset="0.45" />
+        <GradientStop Color="#26FFFFFF" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Glutglas.Schrift" Color="#FFE8EBF0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Glutglas.Schrift.Gesperrt" Color="#FF8D939C" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Glutglas.Schrift.Leise" Color="#FFA4AAB3" po:Freeze="True" />
+    <Color x:Key="Glas.Glutglas.Haken.Farbe">#FF5C4E66</Color>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Hoehe">40</sys:Double>
+    <Thickness x:Key="Glas.Mass.Glutglas.Innenabstand">24,0,24,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Schrift">15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Ecke">5</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Versatz">8</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Symbolknopf">44</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Haken">26</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glutglas.Schalter">28</sys:Double>
+
+    <!-- Dickglas: dicke klare Glasplatte, farbiges Licht fällt durch das Glas (Verlauf aus zwei Farben, links und rechts). -->
+    <LinearGradientBrush x:Key="Glas.Dickglas.Licht" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#FF3B5BFF" Offset="0" />
+        <GradientStop Color="#FFA03DFF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Dickglas.Licht.Haupt" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#FFFF8A1E" Offset="0" />
+        <GradientStop Color="#FFFF3DCB" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="Glas.Dickglas.Licht.Feld" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#FFB9B0FF" Offset="0" />
+        <GradientStop Color="#FFE2DCFF" Offset="1" />
+    </LinearGradientBrush>
+    <Color x:Key="Glas.Dickglas.Kern.Farbe">#FF07070A</Color>
+    <SolidColorBrush x:Key="Glas.Dickglas.Schrift" Color="#FFF4F4F8" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Dickglas.Schrift.Gesperrt" Color="#FF8C8E93" po:Freeze="True" />
+    <Color x:Key="Glas.Dickglas.Schatten.Farbe">#FF1C2232</Color>
+    <sys:Double x:Key="Glas.Mass.Dickglas.Hoehe">58</sys:Double>
+    <Thickness x:Key="Glas.Mass.Dickglas.Innenabstand">30,0,30,0</Thickness>
+    <sys:Double x:Key="Glas.Mass.Dickglas.Schrift">17</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Dickglas.Wulst">0.15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Dickglas.Dicke">0.19</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Dickglas.Ecke">20</sys:Double>
+
+    <!-- Glanzkugel: Glanzstil der Nullerjahre, Chromring, dunkle Kuppel mit Leuchtkern, satte Kugel. -->
+    <Color x:Key="Glas.Glanzkugel.Leuchtkern.Farbe">#FFFFE04E</Color>
+    <SolidColorBrush x:Key="Glas.Glanzkugel.Kugel" Color="#FFFF9300" po:Freeze="True" />
+    <Color x:Key="Glas.Glanzkugel.Kuppel.Farbe">#FF1C1C1C</Color>
+    <sys:Double x:Key="Glas.Mass.Glanzkugel.Groesse">64</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glanzkugel.Ring">0.11</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glanzkugel.Rahmen">0.09</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glanzkugel.Rundung">0.12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Glanzkugel.Schieber">34</sys:Double>
+
+    <!-- Horizontglas: farbiges Glas mit dünnem Chromrand, oben der Himmel bis zur Horizontlinie. -->
+    <SolidColorBrush x:Key="Glas.Horizontglas" Color="#FF0080EB" po:Freeze="True" />
+    <sys:Double x:Key="Glas.Mass.Horizontglas.Hoehe">44</sys:Double>
+    <Thickness x:Key="Glas.Mass.Horizontglas.Innenabstand">28,0,28,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Horizontglas.Schrift">17</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Horizontglas.Rand">0.08</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Horizontglas.Rundung">0.12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Horizontglas.Symbolknopf">56</sys:Double>
+
+    <!-- Chromrahmen: polierter Rahmen mit Lippe um eine Füllung (Hell, Silber, Schwarz, Rauchglas). -->
+    <Color x:Key="Glas.Chromrahmen.Hell.Farbe">#FFEDEDED</Color>
+    <Color x:Key="Glas.Chromrahmen.Silber.Farbe">#FFC6C6C8</Color>
+    <Color x:Key="Glas.Chromrahmen.Schwarz.Farbe">#FF141415</Color>
+    <Color x:Key="Glas.Chromrahmen.Rauch.Farbe">#FF6A6C70</Color>
+    <SolidColorBrush x:Key="Glas.Chromrahmen.Schrift.Dunkel" Color="#FF2E3034" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Chromrahmen.Schrift.Hell" Color="#FFE4E6E9" po:Freeze="True" />
+    <sys:Double x:Key="Glas.Mass.Chromrahmen.Hoehe">46</sys:Double>
+    <Thickness x:Key="Glas.Mass.Chromrahmen.Innenabstand">30,0,30,0</Thickness>
+    <sys:Double x:Key="Glas.Mass.Chromrahmen.Schrift">16</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Chromrahmen.Rahmen">0.15</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Chromrahmen.Lippe">3</sys:Double>
+
+    <!-- Rückmeldungen (0.5.0-beta.8, Stilfamilien 2 Stufe 2): Statusfarben für Hinweisbanner und die folgenden Elemente,
+         Maße von Toast, Hinweisbanner, Dialog, Sprechblase, Skelett, Spinner und Leerzustand, die Raute im Glutglas. -->
+    <SolidColorBrush x:Key="Glas.Status.Info" Color="#FF5AA9F0" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Status.Erfolg" Color="#FF3FC77F" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Status.Warnung" Color="#FFE8A23A" po:Freeze="True" />
+    <SolidColorBrush x:Key="Glas.Status.Gefahr" Color="#FFE5484D" po:Freeze="True" />
+    <Thickness x:Key="Glas.Mass.Rueckmeldung.Innenabstand">16,10,10,10</Thickness>
+    <Thickness x:Key="Glas.Mass.Dialog.Innenabstand">24,20,24,20</Thickness>
+    <sys:Double x:Key="Glas.Mass.Sprechblase.Zipfel">7</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Skelett.Balken">10</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Spinner.Groesse">32</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Leerzustand.Symbol">64</sys:Double>
+    <Color x:Key="Glas.Glutglas.Symbol.Farbe">#FF5AB0FF</Color>
+
+    <!-- Navigation und Personen (0.5.0-beta.9, Stilfamilien 2 Stufe 2): Höhe und Schrift der Krumen und der Seitenzahlen in
+         der Leiste, Verbindungslinie der Schrittfolge (Länge, Dicke), Abzeichen (Höhe, Schrift, Innenabstand), Avatar. -->
+    <sys:Double x:Key="Glas.Mass.Navigation.Hoehe">26</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Navigation.Schrift">13</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Schrittfolge.Abstand">18</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Schrittfolge.Linie">3</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Abzeichen.Hoehe">22</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Abzeichen.Schrift">12</sys:Double>
+    <Thickness x:Key="Glas.Mass.Abzeichen.Innenabstand">10,0,10,1</Thickness>
+    <sys:Double x:Key="Glas.Mass.Avatar.Groesse">40</sys:Double>
+
+    <!-- Daten (0.5.0-beta.10, Stilfamilien 2 Stufe 2): Tabellenkopf (Höhe, Schrift), Listeneintrag (Mindesthöhe, Schrift von
+         Titel und Untertitel, Symbol), Innenabstand der Karte, Höhe des Bildplatzhalters. -->
+    <sys:Double x:Key="Glas.Mass.Tabellenkopf.Hoehe">34</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Tabellenkopf.Schrift">13</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Listeneintrag.Hoehe">52</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Listeneintrag.Schrift">14</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Listeneintrag.Untertitel">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Listeneintrag.Symbol">28</sys:Double>
+    <Thickness x:Key="Glas.Mass.Karte.Innenabstand">16,16,16,16</Thickness>
+    <sys:Double x:Key="Glas.Mass.Bildplatzhalter.Hoehe">96</sys:Double>
+    <!-- Eingabe und Aufkleber (0.5.0-beta.11, Stilfamilien 2 Stufe 2): Fehlerbalken und Schrift der Zeilen unter dem Textfeld,
+         Höchsthöhe der Ergebnisliste im Suchfeld, Größe des Aufklebers, Licht des Dickglas-Knopfs mit Mulde (Cyan und Blau wie
+         im Vorbild), Farbfläche des Glanzkugel-Aufklebers (Gelb, am Vorbild gemessen). -->
+    <sys:Double x:Key="Glas.Mass.Textfeld.Balken">4</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Textfeld.Hinweis">12</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Suchfeld.Liste">240</sys:Double>
+    <sys:Double x:Key="Glas.Mass.Aufkleber.Groesse">72</sys:Double>
+    <LinearGradientBrush x:Key="Glas.Dickglas.Licht.Mulde" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#FF22D3FF" Offset="0" />
+        <GradientStop Color="#FF2E6BFF" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Glas.Glanzkugel.Aufkleber.Flaeche" Color="#FFF8C605" po:Freeze="True" />
+
+</ResourceDictionary>
